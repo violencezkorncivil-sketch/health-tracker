@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f1420">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="สุขภาพ">
+<title>สุขภาพ Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0f1420; --card:#1a2130; --card2:#222b3d; --line:#2e3950;
+  --txt:#e8edf7; --dim:#8b97ad;
+  --move:#4ade80; --food:#fbbf24; --sleep:#818cf8; --acc:#38bdf8;
+  --bad:#f87171;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:'Noto Sans Thai',system-ui,sans-serif;padding-bottom:78px;font-size:15px}
+header{position:sticky;top:0;z-index:20;background:rgba(15,20,32,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:10px 14px;display:flex;align-items:center;gap:10px}
+header h1{font-size:17px;margin:0;flex:1;font-weight:700}
+#dateSel{background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:7px 9px;font-family:inherit;font-size:14px}
+#status{font-size:11px;padding:3px 8px;border-radius:20px;background:var(--card2);color:var(--dim);white-space:nowrap}
+#status.ok{color:var(--move)} #status.err{color:var(--bad)}
+main{padding:14px;max-width:640px;margin:0 auto}
+.page{display:none} .page.on{display:block;animation:f .25s}
+@keyframes f{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px;margin-bottom:13px}
+.card h2{font-size:15px;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+label{display:block;font-size:12.5px;color:var(--dim);margin:11px 0 5px}
+input,select,textarea,button{font-family:inherit;font-size:15px}
+input,select,textarea{width:100%;background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:11px;padding:11px 12px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--acc)}
+.row{display:flex;gap:9px} .row>*{flex:1}
+.btn{background:var(--acc);color:#06212f;border:none;border-radius:12px;padding:13px;font-weight:700;width:100%;margin-top:14px;cursor:pointer}
+.btn:active{opacity:.8}
+.btn.g{background:var(--move);color:#052e13}
+.btn.y{background:var(--food);color:#3d2c00}
+.btn.p{background:var(--sleep);color:#131a4d}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--dim);font-weight:500}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
+.chip{background:var(--card2);border:1px solid var(--line);border-radius:20px;padding:7px 13px;font-size:13px;cursor:pointer}
+.chip.on{background:var(--acc);color:#06212f;border-color:var(--acc);font-weight:700}
+.chip.on.y{background:var(--food);color:#3d2c00;border-color:var(--food)}
+.stat{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.s{background:var(--card2);border-radius:13px;padding:12px}
+.s b{display:block;font-size:22px;line-height:1.25}
+.s span{font-size:11.5px;color:var(--dim)}
+.bar{height:8px;background:#0d1220;border-radius:6px;overflow:hidden;margin-top:7px}
+.bar>i{display:block;height:100%;border-radius:6px}
+.item{display:flex;gap:10px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}
+.item:last-child{border:0}
+.item .m{flex:1}
+.item .m small{color:var(--dim);font-size:11.5px;display:block;margin-top:2px}
+.item .v{text-align:right;white-space:nowrap;font-weight:700;font-size:14px}
+.del{background:none;border:0;color:var(--bad);font-size:17px;cursor:pointer;padding:0 3px;line-height:1}
+.empty{color:var(--dim);font-size:13px;text-align:center;padding:16px 0}
+nav{position:fixed;bottom:0;left:0;right:0;background:rgba(20,26,40,.97);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;z-index:30;padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:0;color:var(--dim);padding:9px 2px 10px;font-size:10.5px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+nav button i{font-style:normal;font-size:20px;line-height:1}
+nav button.on{color:var(--acc)}
+.hint{font-size:12px;color:var(--dim);line-height:1.6}
+.pick{max-height:230px;overflow-y:auto;border:1px solid var(--line);border-radius:12px;margin-top:7px;display:none}
+.pick.on{display:block}
+.pick div{padding:10px 12px;border-bottom:1px solid var(--line);cursor:pointer;font-size:14px}
+.pick div:last-child{border:0}
+.pick div small{color:var(--dim);font-size:11.5px}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;background:var(--card2);color:var(--dim);margin-left:6px}
+.warn{background:#3a2a10;border:1px solid #6b4d17;color:#fbbf24;border-radius:12px;padding:11px;font-size:12.5px;line-height:1.6;margin-bottom:13px}
+canvas{margin-top:6px}
+.mini{font-size:12px;color:var(--dim);margin-top:4px}
+/* ---- ภาพรวม ---- */
+.ringwrap{position:relative;width:210px;margin:0 auto}
+.ringwrap svg{width:100%;transform:rotate(-90deg)}
+.rbg{fill:none;stroke:#0d1220;stroke-width:15}
+.rfg{fill:none;stroke-width:15;stroke-linecap:round;transition:stroke-dasharray .6s ease}
+.ringmid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ringmid b{font-size:38px;line-height:1}
+.ringmid span{font-size:11px;color:var(--dim)}
+.legend3{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--dim)}
+.legend3 i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+.legend3 b{color:var(--txt)}
+.kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.k{background:var(--card2);border-radius:12px;padding:11px}
+.k span{font-size:11px;color:var(--dim);display:block}
+.k b{font-size:19px;display:block;line-height:1.3}
+.k em{font-style:normal;font-size:11px}
+.up{color:var(--move)} .down{color:var(--bad)} .flat{color:var(--dim)}
+.hmap{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.hc{background:var(--card2);border-radius:7px;padding:5px 2px;text-align:center}
+.hc u{text-decoration:none;font-size:9.5px;color:var(--dim);display:block}
+.hc div{display:flex;justify-content:center;gap:2px;margin-top:3px}
+.hc i{width:5px;height:5px;border-radius:50%;background:#0d1220;display:block}
+.hlg{display:flex;gap:13px;justify-content:center;margin-top:11px;font-size:11px;color:var(--dim)}
+.hlg i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px}
+.ins{display:flex;gap:9px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.55}
+.ins:last-child{border:0}
+/* ---- เวท ---- */
+.seg{display:flex;background:var(--card2);border-radius:13px;padding:4px;margin-bottom:13px}
+.seg button{flex:1;background:none;border:0;color:var(--dim);padding:10px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer}
+.seg button.on{background:var(--move);color:#052e13}
+.seg.a button.on{background:var(--acc);color:#06212f}
+.sets{margin-top:6px}
+.setrow{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.setrow .no{width:26px;height:26px;flex:none;border-radius:50%;background:var(--card2);color:var(--dim);font-size:12px;display:flex;align-items:center;justify-content:center}
+.setrow input{padding:9px 10px;text-align:center}
+.setrow .u{font-size:11px;color:var(--dim);flex:none}
+.setrow button{background:none;border:0;color:var(--bad);font-size:16px;cursor:pointer;padding:0 2px;flex:none}
+.lastbox{background:#16233a;border:1px solid #2a4a6b;border-radius:11px;padding:10px;font-size:12.5px;color:#9ec5e8;margin-top:11px;line-height:1.6}
+.wo{background:var(--card2);border-radius:12px;padding:11px;margin-bottom:9px}
+.wo .h{display:flex;align-items:center;gap:7px;font-weight:700;font-size:14px}
+.wo .h span{flex:1}
+.wo .st{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.wo .st b{background:#0d1220;border-radius:7px;padding:4px 9px;font-size:12px;font-weight:500}
+.wo .ft{font-size:11.5px;color:var(--dim);margin-top:8px}
+.pr{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+.pr:last-child{border:0}
+.pr small{color:var(--dim);font-size:11px;display:block}
+.hero{display:flex;gap:14px;align-items:center}
+.hscore{flex:none;width:88px;height:88px;border-radius:50%;background:var(--card2);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.hscore b{font-size:30px;line-height:1}
+.hscore span{font-size:9.5px;color:var(--dim)}
+.hbars{flex:1}
+.hb{margin-bottom:9px}
+.hb:last-child{margin:0}
+.hb .l{display:flex;justify-content:space-between;font-size:11.5px;color:var(--dim);margin-bottom:3px}
+.hb .l b{color:var(--txt);font-size:12px}
+.sec{border-left:4px solid var(--line)}
+.sec.f{border-left-color:var(--food)} .sec.m{border-left-color:var(--move)}
+.sec.s{border-left-color:var(--sleep)} .sec.b{border-left-color:var(--acc)}
+.meal{display:flex;justify-content:space-between;font-size:12.5px;padding:6px 0;border-bottom:1px solid var(--line)}
+.meal:last-child{border:0}
+.meal span{color:var(--dim)}
+.stg{display:flex;height:26px;border-radius:8px;overflow:hidden;margin:10px 0 8px}
+.stg i{display:block;height:100%;font-size:0}
+.stglg{display:flex;flex-wrap:wrap;gap:9px;font-size:11px;color:var(--dim)}
+.stglg i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px}
+.grade{display:flex;justify-content:space-between;font-size:12.5px;padding:6px 0;border-bottom:1px solid var(--line)}
+.grade:last-child{border:0}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.ph{position:relative;border-radius:11px;overflow:hidden;background:var(--card2)}
+.ph img{width:100%;display:block;aspect-ratio:3/4;object-fit:cover}
+.ph u{position:absolute;left:0;right:0;bottom:0;background:rgba(0,0,0,.65);color:#fff;font-size:9.5px;text-decoration:none;text-align:center;padding:3px 0}
+.ph button{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);border:0;color:#f87171;border-radius:50%;width:22px;height:22px;font-size:13px;cursor:pointer;line-height:1}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+.cmp figure{margin:0}
+.cmp img{width:100%;border-radius:11px;display:block;aspect-ratio:3/4;object-fit:cover}
+.cmp figcaption{font-size:11px;color:var(--dim);text-align:center;margin-top:5px}
+.badge{flex:none;background:var(--move);color:#052e13;border-radius:20px;padding:2px 8px;font-size:10.5px;font-weight:700}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>💪 สุขภาพ</h1>
+  <input type="date" id="dateSel">
+  <span id="status">ออฟไลน์</span>
+</header>
+
+<main>
+
+<!-- ============ สรุป ============ -->
+<section class="page on" id="p-home">
+  <div id="noUrlWarn" class="warn" style="display:none">
+    ⚠️ ยังไม่ได้เชื่อม Google Sheets — ข้อมูลจะหายเมื่อปิดแอป<br>ไปที่แท็บ <b>⚙️ ตั้งค่า</b> วางลิงก์ + PIN ครั้งเดียว เครื่องนี้จะจำให้เอง
+  </div>
+
+  <div class="seg a" id="viewSeg">
+    <button class="on" data-v="day">📅 รายวัน</button>
+    <button data-v="stat">📊 ย้อนหลัง &amp; สถิติ</button>
+  </div>
+
+  <div id="viewDay">
+
+  <div class="card">
+    <h2>📅 <span id="homeDate"></span></h2>
+    <div class="hero">
+      <div class="hscore"><b id="dScore">0</b><span>คะแนนวันนี้</span></div>
+      <div class="hbars" id="dBars"></div>
+    </div>
+    <div class="mini" id="dMsg" style="text-align:center;margin-top:10px"></div>
+  </div>
+
+  <div class="card sec f"><h2>🍽️ อาหาร</h2><div id="secFood"></div></div>
+  <div class="card sec m"><h2>🏃 ออกกำลังกาย</h2><div id="secMove"></div></div>
+  <div class="card sec s"><h2>😴 การนอน</h2><div id="secSleep"></div></div>
+  <div class="card sec b"><h2>⚖️ ร่างกาย</h2><div id="secBody"></div></div>
+  </div>
+
+  <div id="viewStat" style="display:none">
+  <div class="card">
+    <h2>📊 ภาพรวมสุขภาพ</h2>
+    <div class="chips" id="rangeChips">
+      <div class="chip on" data-d="7">1 สัปดาห์</div>
+      <div class="chip" data-d="14">2 สัปดาห์</div>
+      <div class="chip" data-d="30">1 เดือน</div>
+      <div class="chip" data-d="180">6 เดือน</div>
+      <div class="chip" data-d="ytd">ตั้งแต่ต้นปี</div>
+      <div class="chip" data-d="365">1 ปี</div>
+      <div class="chip" data-d="all">ทั้งหมด</div>
+    </div>
+  </div>
+
+  <!-- คะแนนรวม 3 วง -->
+  <div class="card" style="text-align:center">
+    <div class="ringwrap">
+      <svg viewBox="0 0 200 200" id="rings">
+        <circle cx="100" cy="100" r="82" class="rbg"/><circle cx="100" cy="100" r="64" class="rbg"/><circle cx="100" cy="100" r="46" class="rbg"/>
+        <circle cx="100" cy="100" r="82" id="r1" class="rfg" stroke="#4ade80"/>
+        <circle cx="100" cy="100" r="64" id="r2" class="rfg" stroke="#fbbf24"/>
+        <circle cx="100" cy="100" r="46" id="r3" class="rfg" stroke="#818cf8"/>
+      </svg>
+      <div class="ringmid"><b id="scoreN">0</b><span>คะแนนรวม</span></div>
+    </div>
+    <div class="legend3">
+      <div><i style="background:var(--move)"></i>ออกกำลัง <b id="lgMove">0%</b></div>
+      <div><i style="background:var(--food)"></i>การกิน <b id="lgFood">0%</b></div>
+      <div><i style="background:var(--sleep)"></i>การนอน <b id="lgSleep">0%</b></div>
+    </div>
+    <div class="hint" id="scoreTxt" style="margin-top:10px"></div>
+  </div>
+
+  <!-- สถิติเทียบช่วงก่อน -->
+  <div class="card">
+    <h2>📌 ตัวเลขสำคัญ <span class="tag" id="cmpLbl"></span></h2>
+    <div class="kpi" id="kpiGrid"></div>
+  </div>
+
+  <!-- สตรีค -->
+  <div class="card">
+    <h2>🔥 ความต่อเนื่อง</h2>
+    <div class="stat" id="streaks"></div>
+  </div>
+
+  <!-- ปฏิทินความสม่ำเสมอ -->
+  <div class="card">
+    <h2>🗓️ บันทึกครบไหม</h2>
+    <div class="hmap" id="heat"></div>
+    <div class="hlg"><span><i style="background:var(--move)"></i>ออกกำลัง</span><span><i style="background:var(--food)"></i>กิน</span><span><i style="background:var(--sleep)"></i>นอน</span></div>
+  </div>
+
+  <div class="card"><h2>🔥 แคลอรี่ เข้า vs เผา</h2><canvas id="c1" height="190"></canvas></div>
+  <div class="card"><h2>🏃 นาทีออกกำลังกาย</h2><canvas id="c2" height="170"></canvas></div>
+  <div class="card"><h2>😴 ชั่วโมงนอน</h2><canvas id="c3" height="170"></canvas></div>
+  <div class="card"><h2>⚖️ 3 ด้านรวมในกราฟเดียว</h2><canvas id="c5" height="200"></canvas>
+    <div class="hint" style="margin-top:8px">เทียบเป็น % ของเป้าหมายแต่ละด้าน (100% = ทำได้ตามเป้า)</div></div>
+  <div class="card"><h2>🥗 สัดส่วนสารอาหารเฉลี่ย</h2><canvas id="c4" height="190"></canvas></div>
+  <div class="card"><h2>💡 ข้อสังเกต</h2><div id="insight"></div></div>
+  <div class="card"><h2>📈 สรุปช่วงนี้</h2><div id="summary"></div></div>
+  </div>
+</section>
+
+<!-- ============ ออกกำลังกาย ============ -->
+<section class="page" id="p-move">
+
+  <div class="seg" id="modeSeg">
+    <button class="on" data-m="cardio">🏃 คาร์ดิโอ</button>
+    <button data-m="weight">🏋️ เวท</button>
+  </div>
+
+  <!-- ---------- เวทเทรนนิ่ง ---------- -->
+  <div id="weightForm" style="display:none">
+    <div class="card">
+      <h2>🏋️ บันทึกเวท</h2>
+      <label>กลุ่มกล้ามเนื้อ</label>
+      <div class="chips" id="grpChips"></div>
+      <label>ท่า</label>
+      <select id="woEx"></select>
+      <div id="woCustomWrap" style="display:none"><label>พิมพ์ชื่อท่าเอง</label><input type="text" id="woCustom" placeholder="เช่น เคเบิลฟลายล่าง"></div>
+      <div id="lastTime" class="lastbox" style="display:none"></div>
+
+      <label>เซ็ต — ใส่น้ำหนักและจำนวนครั้ง</label>
+      <div class="sets" id="setRows"></div>
+      <div class="row" style="margin-top:9px">
+        <button class="btn ghost" id="setAdd" style="margin:0">+ เพิ่มเซ็ต</button>
+        <button class="btn ghost" id="setCopy" style="margin:0">↺ ดึงครั้งก่อน</button>
+      </div>
+
+      <div class="card" style="background:var(--card2);margin:14px 0 0">
+        <div class="stat">
+          <div class="s"><span>ปริมาณรวม (Volume)</span><b style="color:var(--move)" id="woVol">0</b><span>กก.·ครั้ง</span></div>
+          <div class="s"><span>1RM ประมาณ</span><b style="color:var(--acc)" id="wo1rm">0</b><span>กก.</span></div>
+        </div>
+        <div class="mini" id="woCmp" style="text-align:center;margin-top:9px"></div>
+      </div>
+      <label>โน้ต</label>
+      <input type="text" id="woNote" placeholder="เช่น ฟอร์มดี / ไหล่ตึง">
+      <button class="btn g" id="woAdd">+ บันทึกท่านี้</button>
+      <div class="hint" style="margin-top:9px">💡 บันทึกทีละท่า — เล่นหลายท่าก็กดบันทึกหลายครั้ง ระบบรวมให้เอง</div>
+    </div>
+
+    <div class="card">
+      <h2>📋 วันนี้เล่นอะไรบ้าง</h2>
+      <div id="woToday"></div>
+    </div>
+
+    <div class="card">
+      <h2>📈 พัฒนาการรายท่า</h2>
+      <select id="progEx"></select>
+      <canvas id="c6" height="180"></canvas>
+      <div id="progInfo"></div>
+    </div>
+
+    <div class="card">
+      <h2>🏆 สถิติส่วนตัว (PR)</h2>
+      <div id="prList"></div>
+    </div>
+  </div>
+
+  <!-- ---------- คาร์ดิโอ ---------- -->
+  <div id="cardioForm">
+  <div class="card">
+    <h2>🏃 บันทึกการออกกำลังกาย</h2>
+    <label>ประเภท</label>
+    <select id="exType"></select>
+    <div class="row">
+      <div><label>ระยะเวลา (นาที)</label><input type="number" id="exMin" value="30" min="1" inputmode="numeric"></div>
+      <div><label>ความหนัก</label>
+        <select id="exInt"><option value="0.8">เบา</option><option value="1" selected>ปานกลาง</option><option value="1.25">หนัก</option></select>
+      </div>
+    </div>
+    <label>ระยะทาง (กม.) — ถ้ามี</label>
+    <input type="number" id="exKm" step="0.1" placeholder="เว้นว่างได้" inputmode="decimal">
+    <label>โน้ต</label>
+    <input type="text" id="exNote" placeholder="เช่น วิ่งรอบสวน / เล่นขา">
+    <div class="card" style="background:var(--card2);margin:14px 0 0;text-align:center">
+      เผาผลาญโดยประมาณ <b style="color:var(--move);font-size:24px" id="exKcal">0</b> kcal
+      <div class="mini">คำนวณจากน้ำหนัก <span id="exW">70</span> กก. (แก้ได้ในตั้งค่า)</div>
+    </div>
+    <button class="btn g" id="exAdd">+ บันทึก</button>
+  </div>
+  <div class="card"><h2>รายการวันนี้</h2><div id="exList"></div></div>
+  </div>
+</section>
+
+<!-- ============ อาหาร ============ -->
+<section class="page" id="p-food">
+  <div class="card">
+    <h2>🍽️ บันทึกอาหาร</h2>
+    <label>มื้อ</label>
+    <div class="chips" id="mealChips">
+      <div class="chip y on" data-m="เช้า">🌅 เช้า</div>
+      <div class="chip y" data-m="กลางวัน">☀️ กลางวัน</div>
+      <div class="chip y" data-m="เย็น">🌙 เย็น</div>
+      <div class="chip y" data-m="ว่าง">🍪 ว่าง</div>
+    </div>
+    <div id="favWrap" style="display:none">
+      <label>⭐ กินบ่อย — แตะเพื่อบันทึกทันที</label>
+      <div class="chips" id="favChips"></div>
+    </div>
+    <label>ค้นหาเมนู (พิมพ์ชื่ออาหาร)</label>
+    <input type="text" id="fSearch" placeholder="เช่น กะเพรา, ก๋วยเตี๋ยว, กาแฟ" autocomplete="off">
+    <div class="pick" id="fPick"></div>
+
+    <div id="fChosen" style="display:none">
+      <div class="card" style="background:var(--card2);margin:13px 0 0">
+        <b id="fName"></b><div class="mini" id="fUnit"></div>
+        <label>ปริมาณคร่าวๆ</label>
+        <div class="chips" id="qtyChips">
+          <div class="chip y" data-q="0.5">ครึ่ง</div>
+          <div class="chip y on" data-q="1">1 เท่า</div>
+          <div class="chip y" data-q="1.5">1.5 เท่า</div>
+          <div class="chip y" data-q="2">2 เท่า</div>
+          <div class="chip y" data-q="3">3 เท่า</div>
+        </div>
+        <div style="text-align:center;margin-top:13px">
+          <b style="color:var(--food);font-size:26px" id="fKcal">0</b> kcal
+          <div class="mini" id="fMac"></div>
+        </div>
+      </div>
+      <button class="btn y" id="fAdd">+ บันทึกมื้อนี้</button>
+      <button class="btn ghost" id="fClear">ยกเลิก</button>
+    </div>
+
+    <div id="fManual" style="display:none">
+      <div class="warn">ไม่เจอเมนูนี้ — ใส่เองได้เลย ถ้าไม่รู้แคลอรี่ ให้เลือกขนาดจานคร่าวๆ ด้านล่าง</div>
+      <label>ชื่อเมนู</label><input type="text" id="mName">
+      <label>ขนาด/ความมัน (ประมาณการอัตโนมัติ)</label>
+      <select id="mGuess">
+        <option value="150">จานเล็ก/ผักเป็นหลัก ~150 kcal</option>
+        <option value="350">จานกลาง ทั่วไป ~350 kcal</option>
+        <option value="550" selected>จานเดียวอิ่มพอดี ~550 kcal</option>
+        <option value="750">จานใหญ่/ทอด/ผัดน้ำมันเยอะ ~750 kcal</option>
+        <option value="1000">บุฟเฟ่ต์/มื้อหนักมาก ~1000 kcal</option>
+        <option value="-1">รู้แคลอรี่แน่นอน — กรอกเอง</option>
+      </select>
+      <div id="mExact" style="display:none"><label>kcal</label><input type="number" id="mKcal" inputmode="numeric"></div>
+      <button class="btn y" id="mAdd">+ บันทึกมื้อนี้</button>
+    </div>
+    <button class="btn ghost" id="copyYtd">📋 คัดลอกอาหารทั้งวันจากเมื่อวาน</button>
+    <div class="hint" style="margin-top:12px">💧 ไม่รู้โปรตีน/คาร์บก็ไม่เป็นไร ระบบประมาณให้จากเมนูที่เลือก</div>
+  </div>
+
+  <div class="card">
+    <h2>💧 น้ำดื่มวันนี้</h2>
+    <div style="text-align:center"><b style="font-size:26px;color:var(--acc)" id="wGlass">0</b> แก้ว <span class="mini">(<span id="wMl">0</span> มล.)</span></div>
+    <div class="bar" style="height:10px;margin:10px 0"><i id="wBar" style="background:var(--acc);width:0"></i></div>
+    <div class="row"><button class="btn ghost" id="wMinus" style="margin:0">− แก้ว</button><button class="btn" id="wPlus" style="margin:0">+ แก้ว</button></div>
+  </div>
+
+  <div class="card"><h2>รายการวันนี้</h2><div id="fList"></div></div>
+</section>
+
+<!-- ============ นอน ============ -->
+<section class="page" id="p-sleep">
+  <div class="card">
+    <h2>😴 บันทึกการนอน</h2>
+    <div class="row">
+      <div><label>เข้านอน</label><input type="time" id="sBed" value="23:00"></div>
+      <div><label>ตื่นนอน</label><input type="time" id="sWake" value="06:30"></div>
+    </div>
+    <label>คุณภาพการนอน</label>
+    <div class="chips" id="sQual">
+      <div class="chip" data-q="1">😫 แย่มาก</div>
+      <div class="chip" data-q="2">😕 ไม่ค่อยดี</div>
+      <div class="chip on" data-q="3">🙂 พอใช้</div>
+      <div class="chip" data-q="4">😊 ดี</div>
+      <div class="chip" data-q="5">🤩 ดีมาก</div>
+    </div>
+    <label>ตื่นกลางดึกกี่ครั้ง</label>
+    <input type="number" id="sWakeup" value="0" min="0" inputmode="numeric">
+
+    <div class="lastbox" style="margin-top:14px">🧬 <b>ระยะการนอน</b> — ถ้ามีนาฬิกา/แหวนวัดให้ กรอกเป็น<b>นาที</b>ตามที่แอปนาฬิกาแสดง (ไม่มีก็เว้นว่างได้)</div>
+    <div class="row">
+      <div><label>😳 ตื่น (Awake)</label><input type="number" id="stAwake" inputmode="numeric" placeholder="นาที"></div>
+      <div><label>💤 REM</label><input type="number" id="stRem" inputmode="numeric" placeholder="นาที"></div>
+    </div>
+    <div class="row">
+      <div><label>🌙 หลับตื้น (Core)</label><input type="number" id="stCore" inputmode="numeric" placeholder="นาที"></div>
+      <div><label>🌊 หลับลึก (Deep)</label><input type="number" id="stDeep" inputmode="numeric" placeholder="นาที"></div>
+    </div>
+    <div id="stBox"></div>
+    <label>โน้ต</label>
+    <input type="text" id="sNote" placeholder="เช่น ดื่มกาแฟบ่าย / เครียดงาน">
+    <div class="card" style="background:var(--card2);margin:14px 0 0;text-align:center">
+      นอนได้ <b style="color:var(--sleep);font-size:24px" id="sHr">7.5</b> ชั่วโมง
+      <div class="mini" id="sTip"></div>
+    </div>
+    <button class="btn p" id="sAdd">+ บันทึก</button>
+    <div class="hint" style="margin-top:10px">📌 บันทึกไว้ที่ "วันที่ตื่น" — เช่น นอนคืนวันศุกร์ ตื่นเช้าวันเสาร์ ให้เลือกวันเสาร์</div>
+  </div>
+  <div class="card"><h2>รายการวันนี้</h2><div id="sList"></div></div>
+</section>
+
+<!-- ============ ร่างกาย ============ -->
+<section class="page" id="p-body">
+  <div class="card">
+    <h2>⚖️ บันทึกตัวเลขร่างกาย</h2>
+    <div class="row">
+      <div><label>น้ำหนัก (กก.)</label><input type="number" id="bW" step="0.1" inputmode="decimal" placeholder="เช่น 70.5"></div>
+      <div><label>ไขมัน (%) — ถ้ามี</label><input type="number" id="bFat" step="0.1" inputmode="decimal" placeholder="เว้นว่างได้"></div>
+    </div>
+    <label>รอบเอว (ซม.) <span class="tag">ตัวชี้วัดสำคัญสุด</span></label>
+    <input type="number" id="bWaist" step="0.5" inputmode="decimal" placeholder="วัดตรงระดับสะดือ">
+    <div class="row">
+      <div><label>รอบอก</label><input type="number" id="bChest" step="0.5" inputmode="decimal"></div>
+      <div><label>รอบแขน</label><input type="number" id="bArm" step="0.5" inputmode="decimal"></div>
+    </div>
+    <div class="row">
+      <div><label>รอบสะโพก</label><input type="number" id="bHip" step="0.5" inputmode="decimal"></div>
+      <div><label>รอบต้นขา</label><input type="number" id="bThigh" step="0.5" inputmode="decimal"></div>
+    </div>
+    <label>โน้ต</label><input type="text" id="bNote" placeholder="เช่น ชั่งตอนเช้าก่อนกินข้าว">
+    <button class="btn" id="bAdd">+ บันทึก</button>
+    <div class="hint" style="margin-top:9px">📌 ชั่งตอนเช้าหลังเข้าห้องน้ำ ก่อนกินอะไร จะเทียบกันได้แม่นที่สุด · น้ำหนักที่บันทึกจะอัปเดตไปคำนวณแคลอรี่ให้อัตโนมัติ</div>
+  </div>
+
+  <div class="card">
+    <h2>📊 สถานะล่าสุด</h2>
+    <div class="stat" id="bStat"></div>
+    <div id="bWaistBox"></div>
+  </div>
+
+  <div class="card"><h2>📉 น้ำหนัก + เส้นเฉลี่ย 7 วัน</h2><canvas id="c7" height="180"></canvas>
+    <div class="hint" style="margin-top:8px">จุดจาง = น้ำหนักดิบรายวัน (แกว่งจากน้ำ/อาหารในท้อง) · เส้นทึบ = ค่าเฉลี่ย 7 วัน ให้ดูเส้นนี้เป็นหลัก</div></div>
+  <div class="card"><h2>📏 รอบตัว</h2><canvas id="c8" height="180"></canvas></div>
+
+  <div class="card">
+    <h2>📸 รูป Progress</h2>
+    <input type="file" id="phFile" accept="image/*" style="display:none">
+    <button class="btn ghost" id="phBtn" style="margin-top:0">+ เพิ่มรูปวันนี้</button>
+    <div class="hint" style="margin-top:8px">รูปจะถูกย่อให้เล็กก่อนเก็บลง Google Sheets ของคุณเอง (ไม่ได้ส่งไปที่ไหนอีก) · ถ่ายมุมเดิม แสงเดิม ทุก 2 สัปดาห์จะเห็นความต่างชัดสุด</div>
+    <div id="phCompare"></div>
+    <div class="grid3" id="phGrid"></div>
+  </div>
+</section>
+
+<!-- ============ ตั้งค่า ============ -->
+<section class="page" id="p-set">
+  <div class="card">
+    <h2>🔗 เชื่อม Google Sheets</h2>
+    <label>ลิงก์ Web App (.../exec)</label>
+    <input type="text" id="gasUrl" placeholder="https://script.google.com/macros/s/.../exec">
+    <label>PIN (ต้องตรงกับที่ตั้งใน Code.gs)</label>
+    <input type="text" id="gasPin" placeholder="เช่น 2468" inputmode="numeric">
+    <button class="btn" id="gasSave">บันทึก & ทดสอบเชื่อมต่อ</button>
+    <button class="btn ghost" id="gasClear">ลบลิงก์ออกจากเครื่องนี้</button>
+    <div class="hint" style="margin-top:11px">🔒 ลิงก์และ PIN ถูกเก็บไว้<b>ในเครื่องนี้เท่านั้น</b> ไม่ได้อยู่ในไฟล์ที่อัปขึ้น GitHub — วางครั้งเดียว เปิดครั้งต่อไปไม่ต้องวางอีก</div>
+  </div>
+
+  <div class="card">
+    <h2>👤 ข้อมูลส่วนตัว</h2>
+    <div class="row">
+      <div><label>เพศ</label><select id="uSex"><option value="m">ชาย</option><option value="f">หญิง</option></select></div>
+      <div><label>อายุ</label><input type="number" id="uAge" value="35" inputmode="numeric"></div>
+    </div>
+    <div class="row">
+      <div><label>น้ำหนัก (กก.)</label><input type="number" id="uW" value="70" step="0.1" inputmode="decimal"></div>
+      <div><label>ส่วนสูง (ซม.)</label><input type="number" id="uH" value="170" inputmode="numeric"></div>
+    </div>
+    <label>ระดับกิจกรรมประจำวัน</label>
+    <select id="uAct">
+      <option value="1.2">นั่งทำงานเป็นหลัก</option>
+      <option value="1.375" selected>ออกกำลังเบา 1-3 วัน/สัปดาห์</option>
+      <option value="1.55">ออกกำลังปานกลาง 3-5 วัน/สัปดาห์</option>
+      <option value="1.725">ออกกำลังหนัก 6-7 วัน/สัปดาห์</option>
+    </select>
+    <label>เป้าหมาย</label>
+    <select id="uGoal">
+      <option value="-500">ลดน้ำหนัก (−0.5 กก./สัปดาห์)</option>
+      <option value="-250">ลดช้าๆ (−0.25 กก./สัปดาห์)</option>
+      <option value="0" selected>รักษาน้ำหนัก</option>
+      <option value="300">เพิ่มกล้ามเนื้อ</option>
+    </select>
+    <div class="card" style="background:var(--card2);margin:14px 0 0">
+      <div id="tdee"></div>
+    </div>
+    <button class="btn" id="uSave">บันทึกข้อมูล</button>
+  </div>
+
+  <div class="card">
+    <h2>📤 ส่งออกข้อมูล</h2>
+    <button class="btn ghost" id="expCsv" style="margin-top:0">ดาวน์โหลดทั้งหมดเป็น CSV</button>
+    <div class="hint" style="margin-top:9px">ได้ไฟล์ .csv เปิดใน Excel ได้เลย (รวมทุกหมวด ยกเว้นรูป)</div>
+  </div>
+
+  <div class="card">
+    <h2>ℹ️ เกี่ยวกับ</h2>
+    <div class="hint">
+      ค่าแคลอรี่อาหารเป็น<b>ค่าประมาณ</b>จากเมนูไทยทั่วไป อาจต่างจากของจริง ±20% ใช้ดูแนวโน้มได้ ไม่ใช่ค่าทางการแพทย์<br><br>
+      แคลอรี่ที่เผาผลาญคำนวณด้วยสูตร MET × น้ำหนัก × ชั่วโมง<br>
+      TDEE คำนวณด้วยสูตร Mifflin-St Jeor
+    </div>
+  </div>
+</section>
+
+</main>
+
+<nav>
+  <button class="on" data-p="home"><i>🏠</i>สรุป</button>
+  <button data-p="move"><i>🏃</i>ออกกำลัง</button>
+  <button data-p="food"><i>🍽️</i>อาหาร</button>
+  <button data-p="sleep"><i>😴</i>นอน</button>
+  <button data-p="body"><i>⚖️</i>ร่างกาย</button>
+  <button data-p="set"><i>⚙️</i>ตั้งค่า</button>
+</nav>
+
+<script>
+/* ============================================================
+   ⬇️ ใส่ลิงก์ Google Apps Script Web App ตรงนี้ได้เลย (ถาวร)
+   ============================================================ */
+let GAS_URL = "";
+let PIN = "";
+
+/* เก็บลิงก์+PIN ไว้ในเครื่อง (ไม่ได้อยู่ในไฟล์ ใครเปิดโค้ดบน GitHub ก็ไม่เห็น) */
+const LS={
+  get(k){try{return localStorage.getItem(k)||""}catch(e){return ""}},
+  set(k,v){try{localStorage.setItem(k,v)}catch(e){}},
+};
+
+// ฐานข้อมูลอาหารไทย: [ชื่อ, กิโลแคลอรี่, โปรตีน(g), คาร์บ(g), ไขมัน(g), หน่วย/1 เสิร์ฟ, หมวด]
+const FOODS = [
+// ===== ข้าว/เส้น จานเดียว =====
+["ข้าวสวย",240,4,53,0.5,"1 ทัพพี (150 ก.)","จานเดียว"],
+["ข้าวเหนียว",280,5,62,0.6,"1 ห่อ (150 ก.)","จานเดียว"],
+["ข้าวกล้อง",220,5,45,1.8,"1 ทัพพี (150 ก.)","จานเดียว"],
+["ข้าวผัด",560,20,70,22,"1 จาน","จานเดียว"],
+["ข้าวผัดกะเพราหมูสับไข่ดาว",680,28,72,32,"1 จาน","จานเดียว"],
+["ข้าวกะเพราหมูสับ",560,25,68,20,"1 จาน","จานเดียว"],
+["ข้าวกะเพราไก่",520,28,66,16,"1 จาน","จานเดียว"],
+["ข้าวกะเพราหมูกรอบ",720,24,70,38,"1 จาน","จานเดียว"],
+["ข้าวมันไก่",600,28,72,22,"1 จาน","จานเดียว"],
+["ข้าวมันไก่ทอด",700,28,74,32,"1 จาน","จานเดียว"],
+["ข้าวหมูแดง",560,24,80,16,"1 จาน","จานเดียว"],
+["ข้าวหมูกรอบ",680,24,72,34,"1 จาน","จานเดียว"],
+["ข้าวขาหมู",700,30,75,30,"1 จาน","จานเดียว"],
+["ข้าวหมกไก่",620,26,78,22,"1 จาน","จานเดียว"],
+["ข้าวคลุกกะปิ",580,18,78,20,"1 จาน","จานเดียว"],
+["ข้าวไข่เจียว",520,16,60,24,"1 จาน","จานเดียว"],
+["ข้าวไข่ดาว",400,12,56,14,"1 จาน","จานเดียว"],
+["ข้าวหน้าเป็ด",620,28,76,22,"1 จาน","จานเดียว"],
+["ข้าวผัดอเมริกัน",900,28,90,48,"1 จาน","จานเดียว"],
+["ข้าวผัดปู",620,20,74,26,"1 จาน","จานเดียว"],
+["ข้าวผัดกุ้ง",580,24,72,22,"1 จาน","จานเดียว"],
+["ข้าวราดแกงเขียวหวานไก่",600,24,70,24,"1 จาน","จานเดียว"],
+["ข้าวราดผัดกระเพราทะเล",540,26,68,18,"1 จาน","จานเดียว"],
+["ข้าวผัดพริกแกงหมู",600,24,70,24,"1 จาน","จานเดียว"],
+["ข้าวหน้าไก่เทอริยากิ",620,30,80,18,"1 จาน","จานเดียว"],
+["ข้าวแกงกะหรี่ญี่ปุ่นหมูทอด",850,28,100,36,"1 จาน","จานเดียว"],
+["ข้าวหน้าหมูทอด (ทงคัตสึ)",800,30,90,34,"1 จาน","จานเดียว"],
+["ข้าวหน้าเนื้อ (กิวด้ง)",650,26,85,22,"1 ชาม","จานเดียว"],
+["ผัดไทย",550,18,72,20,"1 จาน","จานเดียว"],
+["ผัดไทยกุ้งสด",600,24,72,22,"1 จาน","จานเดียว"],
+["ผัดซีอิ๊ว",560,18,70,22,"1 จาน","จานเดียว"],
+["ราดหน้าหมู",520,20,66,18,"1 จาน","จานเดียว"],
+["ผัดกระเพราหมูสับ (ไม่รวมข้าว)",320,24,8,20,"1 จาน","จานเดียว"],
+["ผัดมาม่า",480,12,62,18,"1 จาน","จานเดียว"],
+["สปาเก็ตตี้คาโบนาร่า",700,24,72,34,"1 จาน","จานเดียว"],
+["สปาเก็ตตี้ผัดขี้เมา",560,20,70,20,"1 จาน","จานเดียว"],
+["ข้าวต้มหมู",280,16,40,5,"1 ชาม","จานเดียว"],
+["โจ๊กหมู",300,16,42,7,"1 ชาม","จานเดียว"],
+["ข้าวเปล่า+ไข่ต้ม",320,10,53,7,"1 ชุด","จานเดียว"],
+
+// ===== ก๋วยเตี๋ยว/ซุป =====
+["ก๋วยเตี๋ยวน้ำหมู",350,18,45,10,"1 ชาม","ก๋วยเตี๋ยว"],
+["ก๋วยเตี๋ยวน้ำตก",400,20,45,14,"1 ชาม","ก๋วยเตี๋ยว"],
+["ก๋วยเตี๋ยวต้มยำ",450,20,50,18,"1 ชาม","ก๋วยเตี๋ยว"],
+["ก๋วยเตี๋ยวเรือ",380,20,44,12,"1 ชาม","ก๋วยเตี๋ยว"],
+["ก๋วยเตี๋ยวแห้ง",420,20,50,16,"1 ชาม","ก๋วยเตี๋ยว"],
+["เย็นตาโฟ",400,18,55,12,"1 ชาม","ก๋วยเตี๋ยว"],
+["ก๋วยเตี๋ยวเป็ดตุ๋น",450,24,50,16,"1 ชาม","ก๋วยเตี๋ยว"],
+["บะหมี่หมูแดง",420,20,55,13,"1 ชาม","ก๋วยเตี๋ยว"],
+["บะหมี่เกี๊ยวกุ้ง",400,20,52,12,"1 ชาม","ก๋วยเตี๋ยว"],
+["ก๋วยจั๊บน้ำข้น",480,18,50,22,"1 ชาม","ก๋วยเตี๋ยว"],
+["ราเมง",550,24,65,20,"1 ชาม","ก๋วยเตี๋ยว"],
+["ก๋วยเตี๋ยวไก่มะระ",320,20,38,8,"1 ชาม","ก๋วยเตี๋ยว"],
+["สุกี้น้ำ",320,22,30,10,"1 ชาม","ก๋วยเตี๋ยว"],
+["สุกี้แห้ง",450,24,40,20,"1 จาน","ก๋วยเตี๋ยว"],
+["มาม่าต้มยำ (ซอง)",320,7,45,12,"1 ซอง","ก๋วยเตี๋ยว"],
+["ต้มยำกุ้งน้ำใส",180,20,10,6,"1 ถ้วย","ก๋วยเตี๋ยว"],
+["ต้มยำกุ้งน้ำข้น",320,20,14,20,"1 ถ้วย","ก๋วยเตี๋ยว"],
+["ต้มจืดหมูสับ",150,14,8,6,"1 ถ้วย","ก๋วยเตี๋ยว"],
+["แกงจืดเต้าหู้หมูสับ",160,14,9,7,"1 ถ้วย","ก๋วยเตี๋ยว"],
+
+// ===== กับข้าว/แกง =====
+["แกงเขียวหวานไก่",300,18,12,20,"1 ถ้วย","กับข้าว"],
+["แกงเผ็ดหมู",320,18,12,22,"1 ถ้วย","กับข้าว"],
+["แกงส้มผักรวมกุ้ง",180,16,14,6,"1 ถ้วย","กับข้าว"],
+["แกงมัสมั่นไก่",380,20,20,25,"1 ถ้วย","กับข้าว"],
+["พะแนงหมู",350,20,10,26,"1 ถ้วย","กับข้าว"],
+["ต้มข่าไก่",280,16,10,20,"1 ถ้วย","กับข้าว"],
+["ผัดผักบุ้งไฟแดง",120,4,10,8,"1 จาน","กับข้าว"],
+["ผัดผักรวม",130,5,12,8,"1 จาน","กับข้าว"],
+["ผัดคะน้าหมูกรอบ",320,14,12,25,"1 จาน","กับข้าว"],
+["ไข่เจียว",220,12,2,18,"1 ฟอง (จาน)","กับข้าว"],
+["ไข่ดาว",120,7,1,10,"1 ฟอง","กับข้าว"],
+["ไข่ต้ม",78,6,0.6,5,"1 ฟอง","กับข้าว"],
+["ไข่ตุ๋น",130,10,3,8,"1 ถ้วย","กับข้าว"],
+["หมูทอดกระเทียม",380,26,6,28,"1 จาน","กับข้าว"],
+["ไก่ทอด",300,24,12,18,"1 ชิ้นใหญ่","กับข้าว"],
+["ไก่ย่าง",240,30,3,12,"1/4 ตัว","กับข้าว"],
+["ปลาทอด",280,28,4,17,"1 ตัวกลาง","กับข้าว"],
+["ปลานึ่งมะนาว",220,32,6,8,"1 จาน","กับข้าว"],
+["ปลาเผา",250,35,2,11,"1 ตัว","กับข้าว"],
+["หมูปิ้ง",90,7,4,5,"1 ไม้","กับข้าว"],
+["ไก่ปิ้ง",80,9,2,4,"1 ไม้","กับข้าว"],
+["ลูกชิ้นปิ้ง",120,6,10,6,"1 ไม้ (5 ลูก)","กับข้าว"],
+["ไส้กรอกอีสาน",180,8,10,12,"1 ไม้","กับข้าว"],
+["ส้มตำไทย",120,4,20,3,"1 จาน","กับข้าว"],
+["ส้มตำปูปลาร้า",150,8,18,5,"1 จาน","กับข้าว"],
+["ลาบหมู",280,24,8,17,"1 จาน","กับข้าว"],
+["น้ำตกหมู",300,26,8,18,"1 จาน","กับข้าว"],
+["ยำวุ้นเส้น",250,14,28,9,"1 จาน","กับข้าว"],
+["ยำทะเล",220,26,14,6,"1 จาน","กับข้าว"],
+["สลัดผัก (น้ำสลัดใส)",120,4,12,6,"1 จาน","กับข้าว"],
+["สลัดอกไก่",280,30,12,12,"1 จาน","กับข้าว"],
+["อกไก่ย่าง 100 ก.",165,31,0,3.6,"100 กรัม","กับข้าว"],
+["เต้าหู้ทอด",180,12,6,12,"1 จานเล็ก","กับข้าว"],
+["ปอเปี๊ยะทอด",180,5,20,9,"2 ชิ้น","กับข้าว"],
+["หมูสามชั้นทอด",420,20,2,38,"100 กรัม","กับข้าว"],
+["กุ้งเผา",120,24,1,2,"4 ตัว","กับข้าว"],
+["หมูกระทะ (ต่อมื้อ)",900,50,40,60,"1 มื้อ","กับข้าว"],
+["ชาบู (ต่อมื้อ)",700,45,45,35,"1 มื้อ","กับข้าว"],
+["ปิ้งย่างเกาหลี (ต่อมื้อ)",950,55,45,62,"1 มื้อ","กับข้าว"],
+
+// ===== ฟาสต์ฟู้ด/ขนมปัง =====
+["แฮมเบอร์เกอร์",550,25,45,30,"1 ชิ้น","ฟาสต์ฟู้ด"],
+["เฟรนช์ฟรายส์",340,4,44,17,"1 ห่อกลาง","ฟาสต์ฟู้ด"],
+["พิซซ่า",280,12,32,11,"1 ชิ้น","ฟาสต์ฟู้ด"],
+["ไก่ทอด KFC",290,20,12,18,"1 ชิ้น","ฟาสต์ฟู้ด"],
+["แซนด์วิชแฮมชีส",320,15,32,14,"1 ชิ้น","ฟาสต์ฟู้ด"],
+["ขนมปังปิ้งเนยน้ำตาล",250,5,32,11,"1 แผ่น","ฟาสต์ฟู้ด"],
+["ครัวซองต์",270,6,30,14,"1 ชิ้น","ฟาสต์ฟู้ด"],
+["โดนัท",250,4,32,12,"1 ชิ้น","ฟาสต์ฟู้ด"],
+["ซาลาเปาไส้หมูสับ",220,9,32,6,"1 ลูก","ฟาสต์ฟู้ด"],
+["ปาท่องโก๋",90,2,10,5,"1 คู่","ฟาสต์ฟู้ด"],
+["ข้าวเหนียวหมูปิ้ง",370,12,60,9,"1 ชุด","ฟาสต์ฟู้ด"],
+["ข้าวเหนียวไก่ทอด",520,22,62,20,"1 ชุด","ฟาสต์ฟู้ด"],
+
+// ===== ผลไม้ =====
+["กล้วยน้ำว้า",100,1.2,25,0.3,"1 ผล","ผลไม้"],
+["แอปเปิ้ล",80,0.4,21,0.3,"1 ผล","ผลไม้"],
+["ส้ม",60,1,15,0.2,"1 ผล","ผลไม้"],
+["มะม่วงสุก",150,1,38,0.5,"1 ผล","ผลไม้"],
+["แตงโม",50,1,12,0.2,"1 จานเล็ก","ผลไม้"],
+["สับปะรด",60,0.6,15,0.1,"1 จานเล็ก","ผลไม้"],
+["มะละกอสุก",55,0.6,14,0.2,"1 จานเล็ก","ผลไม้"],
+["ฝรั่ง",70,2.6,14,1,"1 ผล","ผลไม้"],
+["ทุเรียนหมอนทอง",180,2,33,5,"2 พู","ผลไม้"],
+["ลำไย",70,1,18,0.1,"10 ผล","ผลไม้"],
+["องุ่น",70,0.7,18,0.2,"15 ผล","ผลไม้"],
+
+// ===== ขนม/ของหวาน =====
+["ไอศกรีม",200,4,24,10,"1 ถ้วย","ของหวาน"],
+["เค้กช็อกโกแลต",350,5,45,17,"1 ชิ้น","ของหวาน"],
+["บิงซู",450,8,70,15,"1 ถ้วย","ของหวาน"],
+["ข้าวเหนียวมะม่วง",480,6,85,13,"1 จาน","ของหวาน"],
+["บัวลอยน้ำขิง",280,4,52,7,"1 ถ้วย","ของหวาน"],
+["ทองหยิบ/ฝอยทอง",150,3,30,3,"3 ชิ้น","ของหวาน"],
+["มันฝรั่งทอดกรอบ (ถุง)",270,3,28,16,"1 ถุงเล็ก","ของหวาน"],
+["ช็อกโกแลตแท่ง",250,3,28,14,"1 แท่ง","ของหวาน"],
+["คุกกี้",120,1.5,16,6,"2 ชิ้น","ของหวาน"],
+["ถั่วอบ",180,7,7,15,"1 กำมือ (30 ก.)","ของหวาน"],
+
+// ===== เครื่องดื่ม =====
+["น้ำเปล่า",0,0,0,0,"1 แก้ว","เครื่องดื่ม"],
+["ชาเขียวไม่หวาน",0,0,0,0,"1 แก้ว","เครื่องดื่ม"],
+["กาแฟดำไม่ใส่น้ำตาล",5,0.3,0,0,"1 แก้ว","เครื่องดื่ม"],
+["กาแฟเย็น (หวานปกติ)",250,4,38,9,"1 แก้ว","เครื่องดื่ม"],
+["ลาเต้ร้อน",150,8,14,7,"1 แก้ว","เครื่องดื่ม"],
+["ชาไทยเย็น",280,4,45,10,"1 แก้ว","เครื่องดื่ม"],
+["ชานมไข่มุก",400,6,70,10,"1 แก้ว","เครื่องดื่ม"],
+["น้ำอัดลม",150,0,38,0,"1 กระป๋อง","เครื่องดื่ม"],
+["น้ำผลไม้กล่อง",120,0.5,29,0,"1 กล่อง","เครื่องดื่ม"],
+["นมสด",150,8,12,8,"1 กล่อง 200 มล.","เครื่องดื่ม"],
+["นมถั่วเหลือง",120,6,15,4,"1 กล่อง","เครื่องดื่ม"],
+["โยเกิร์ตรสธรรมชาติ",100,6,12,3,"1 ถ้วย","เครื่องดื่ม"],
+["เวย์โปรตีน 1 สคูป",120,24,3,1.5,"1 สคูป","เครื่องดื่ม"],
+["เบียร์",150,1.5,13,0,"1 กระป๋อง 330 มล.","เครื่องดื่ม"],
+["เหล้า/วิสกี้",100,0,0,0,"1 เป๊ก 30 มล.","เครื่องดื่ม"],
+["ไวน์แดง",125,0,4,0,"1 แก้ว 150 มล.","เครื่องดื่ม"],
+["น้ำหวาน/น้ำแดง",120,0,30,0,"1 แก้ว","เครื่องดื่ม"]
+];
+
+
+const EX = [
+["เดิน",3.5],["เดินเร็ว",4.3],["วิ่งเหยาะ",7],["วิ่ง",9.8],["วิ่งบนลู่",8.5],
+["ปั่นจักรยาน",7.5],["ปั่นจักรยานอยู่กับที่",7],["ว่ายน้ำ",8],["เดินขึ้นเขา/เทรล",6],["ขึ้นบันได",8],
+["ยกน้ำหนัก/เวท",5],["บอดี้เวท (วิดพื้น สควอท)",4.5],["HIIT",9],["คาร์ดิโอกลุ่ม/แอโรบิค",6.5],
+["โยคะ",3],["พิลาทิส",3.8],["ยืดเหยียด",2.3],["เต้น",5],
+["ฟุตบอล",7],["ตะกร้อ",6],["แบดมินตัน",5.5],["บาสเกตบอล",6.5],["วอลเลย์บอล",4],
+["ปิงปอง",4],["เทนนิส",7],["กอล์ฟ (เดิน)",4.8],["มวย/ชกกระสอบ",9],["กระโดดเชือก",11],
+["ทำงานบ้าน/ทำสวน",3.5],["อื่นๆ",5]
+];
+
+/* คลังท่าเวท แยกตามกลุ่มกล้ามเนื้อ */
+const EXDB = {
+ "อก":["เบนช์เพรส (บาร์เบล)","เบนช์เพรส (ดัมเบล)","อินไคลน์เบนช์เพรส","อินไคลน์ดัมเบลเพรส","ดิคไลน์เพรส","ดัมเบลฟลาย","เคเบิลครอสโอเวอร์","เพคเด็ค (แมชชีน)","ชิสต์เพรส (แมชชีน)","วิดพื้น","ดิป (อก)"],
+ "หลัง":["เดดลิฟต์","บาร์เบลโรว์","ดัมเบลโรว์","ทีบาร์โรว์","ซีทเต็ดเคเบิลโรว์","แลทพูลดาวน์","พูลอัพ/ชินอัพ","เฟซพูล","ชรัก","ไฮเปอร์เอ็กซ์เทนชัน","สเตรทอาร์มพูลดาวน์"],
+ "ขา":["สควอท","ฟรอนต์สควอท","เลกเพรส","ลันจ์","บัลแกเรียนสปลิทสควอท","โรมาเนียนเดดลิฟต์","เลกเอ็กซ์เทนชัน","เลกเคิร์ล","ฮิปทรัสต์","คาฟเรส","แฮ็คสควอท"],
+ "ไหล่":["โอเวอร์เฮดเพรส (บาร์เบล)","ดัมเบลโชลเดอร์เพรส","อาร์โนลด์เพรส","ไซด์ลาเทอรัลเรส","ฟรอนต์เรส","รีเวิร์สฟลาย","อัพไรท์โรว์","แมชชีนโชลเดอร์เพรส"],
+ "แขน":["บาร์เบลเคิร์ล","ดัมเบลเคิร์ล","แฮมเมอร์เคิร์ล","พรีเชอร์เคิร์ล","เคเบิลเคิร์ล","ทริเซปพุชดาวน์","สกัลครัชเชอร์","โอเวอร์เฮดทริเซปเอ็กซ์เทนชัน","ดิป (แขน)","ริสเคิร์ล"],
+ "แกนกลาง":["แพลงก์","ไซด์แพลงก์","ครันช์","เคเบิลครันช์","แฮงกิงเลกเรส","รัสเซียนทวิสต์","แอบโรลเลอร์","ไบซิเคิลครันช์"],
+ "อื่นๆ":["พิมพ์ชื่อท่าเอง"]
+};
+
+const S = {
+  date: today(),
+  ex: [], food: [], sleep: [], water: {}, wo: [], body: [], photo: [],
+  user: {sex:"m",age:35,w:70,h:170,act:1.375,goal:0},
+  chosen: null, qty: 1, meal: "เช้า", sq: 3, range: 7,
+  view:"day", grp: "อก", sets: [[0,10],[0,10],[0,10]],
+  charts: {}
+};
+
+function today(){const d=new Date();return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate());}
+function p2(n){return String(n).padStart(2,"0");}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function el(id){return document.getElementById(id);}
+function n1(v){return Math.round(v*10)/10;}
+
+/* ---------- การเชื่อมต่อ ---------- */
+function setStatus(t,cls){const s=el("status");s.textContent=t;s.className=cls||"";}
+async function api(payload){
+  if(!GAS_URL) return null;
+  try{
+    const r = await fetch(GAS_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({...payload,key:PIN})});
+    const j = await r.json();
+    setStatus("เชื่อมต่อแล้ว","ok");
+    return j;
+  }catch(e){ setStatus("ต่อไม่ติด","err"); return null; }
+}
+async function loadAll(){
+  if(!GAS_URL){el("noUrlWarn").style.display="block";setStatus("ออฟไลน์");return;}
+  el("noUrlWarn").style.display="none";
+  setStatus("กำลังโหลด...");
+  const j = await api({action:"getAll"});
+  if(j && j.ok){
+    S.ex=j.ex||[]; S.food=j.food||[]; S.sleep=j.sleep||[]; S.water=j.water||{};
+    S.wo=(j.wo||[]).map(w=>({...w,sets:typeof w.sets==="string"?JSON.parse(w.sets||"[]"):(w.sets||[])}));
+    S.body=j.body||[]; S.photo=j.photo||[];
+    if(j.user) Object.assign(S.user,j.user), fillUser();
+    setStatus("เชื่อมต่อแล้ว","ok");
+  }
+  render();
+}
+
+/* ---------- นำทาง ---------- */
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("nav button").forEach(x=>x.classList.remove("on"));
+  document.querySelectorAll(".page").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on"); el("p-"+b.dataset.p).classList.add("on");
+  window.scrollTo(0,0);
+  if(b.dataset.p==="body") renderBody();
+});
+
+el("dateSel").value = S.date;
+el("dateSel").onchange = e=>{S.date=e.target.value;render();renderWo();if(S.view==="stat")drawCharts();};
+el("viewSeg").onclick=e=>{const b=e.target.closest("button");if(!b)return;
+  el("viewSeg").querySelectorAll("button").forEach(x=>x.classList.remove("on"));b.classList.add("on");
+  S.view=b.dataset.v;
+  el("viewDay").style.display=S.view==="day"?"block":"none";
+  el("viewStat").style.display=S.view==="stat"?"block":"none";
+  window.scrollTo(0,0);
+  if(S.view==="stat")drawCharts();};
+
+/* ---------- ออกกำลังกาย ---------- */
+el("exType").innerHTML = EX.map((e,i)=>`<option value="${i}">${e[0]}</option>`).join("");
+function exCalc(){
+  const met = EX[+el("exType").value][1] * (+el("exInt").value);
+  const min = +el("exMin").value||0;
+  const k = Math.round(met * S.user.w * (min/60));
+  el("exKcal").textContent = k; el("exW").textContent = S.user.w;
+  return k;
+}
+["exType","exMin","exInt"].forEach(id=>el(id).oninput=exCalc);
+el("exAdd").onclick=async()=>{
+  const min=+el("exMin").value||0;
+  if(min<=0) return alert("ใส่ระยะเวลาก่อนนะ");
+  const r={date:S.date,type:EX[+el("exType").value][0],min:min,
+    intensity:el("exInt").selectedOptions[0].text,km:+el("exKm").value||0,
+    kcal:exCalc(),note:el("exNote").value,ts:Date.now()};
+  S.ex.push(r); el("exNote").value=""; el("exKm").value="";
+  render(); await api({action:"add",sheet:"Exercise",row:r});
+};
+
+/* ---------- เวทเทรนนิ่ง ---------- */
+el("modeSeg").onclick=e=>{const b=e.target.closest("button");if(!b)return;
+  el("modeSeg").querySelectorAll("button").forEach(x=>x.classList.remove("on"));b.classList.add("on");
+  const w=b.dataset.m==="weight";
+  el("weightForm").style.display=w?"block":"none";
+  el("cardioForm").style.display=w?"none":"block";
+  if(w){renderWo();drawProg();}
+};
+el("grpChips").innerHTML=Object.keys(EXDB).map((g,i)=>
+  `<div class="chip${i===0?" on":""}" data-g="${g}">${g}</div>`).join("");
+el("grpChips").onclick=e=>{const c=e.target.closest(".chip");if(!c)return;
+  el("grpChips").querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));c.classList.add("on");
+  S.grp=c.dataset.g; fillExList();};
+function fillExList(){
+  el("woEx").innerHTML=EXDB[S.grp].map(x=>`<option>${x}</option>`).join("");
+  woChange();
+}
+el("woEx").onchange=woChange;
+function woChange(){
+  const custom = el("woEx").value==="พิมพ์ชื่อท่าเอง";
+  el("woCustomWrap").style.display=custom?"block":"none";
+  const last=lastSession(woName());
+  if(last) S.sets=last.sets.map(x=>[x[0],x[1]]);      // เติมจากครั้งก่อนให้อัตโนมัติ
+  else S.sets=[[0,10],[0,10],[0,10]];
+  drawSets(); showLast();
+}
+function woName(){
+  return el("woEx").value==="พิมพ์ชื่อท่าเอง" ? (el("woCustom").value.trim()||"ท่าอื่นๆ") : el("woEx").value;
+}
+function drawSets(){
+  el("setRows").innerHTML=S.sets.map((s0,i)=>`<div class="setrow">
+    <div class="no">${i+1}</div>
+    <input type="number" inputmode="decimal" step="0.5" value="${s0[0]||""}" placeholder="นน." data-i="${i}" data-f="0">
+    <div class="u">กก. ×</div>
+    <input type="number" inputmode="numeric" value="${s0[1]||""}" placeholder="ครั้ง" data-i="${i}" data-f="1">
+    <div class="u">ครั้ง</div>
+    <button onclick="rmSet(${i})">✕</button></div>`).join("");
+  el("setRows").querySelectorAll("input").forEach(inp=>inp.oninput=e=>{
+    S.sets[+e.target.dataset.i][+e.target.dataset.f]=+e.target.value||0; calcWo();});
+  calcWo();
+}
+function rmSet(i){ if(S.sets.length<=1)return; S.sets.splice(i,1); drawSets(); }
+el("setAdd").onclick=()=>{const l=S.sets[S.sets.length-1]||[0,10];S.sets.push([l[0],l[1]]);drawSets();};
+el("setCopy").onclick=()=>{
+  const last=lastSession(woName());
+  if(!last)return alert("ยังไม่เคยบันทึกท่านี้");
+  S.sets=last.sets.map(x=>[x[0],x[1]]); drawSets();
+};
+function lastSession(name,beforeDate){
+  const arr=S.wo.filter(w=>w.ex===name && (!beforeDate||w.date<beforeDate));
+  arr.sort((a,b)=> a.date===b.date ? a.ts-b.ts : (a.date<b.date?-1:1));
+  return arr.length?arr[arr.length-1]:null;
+}
+function volOf(sets){return sets.reduce((a,s0)=>a+(+s0[0]||0)*(+s0[1]||0),0);}
+function e1rmOf(sets){return Math.round(sets.reduce((a,s0)=>{
+  const w=+s0[0]||0,r=+s0[1]||0; return Math.max(a, r?w*(1+r/30):0);},0));}
+function calcWo(){
+  const v=volOf(S.sets), e=e1rmOf(S.sets);
+  el("woVol").textContent=Math.round(v); el("wo1rm").textContent=e;
+  const last=lastSession(woName());
+  if(last){
+    const dv=v-last.vol, de=e-last.e1rm;
+    el("woCmp").innerHTML= (!v)?"" : `เทียบครั้งก่อน: ปริมาณ <b class="${dv>0?"up":dv<0?"down":"flat"}">${dv>0?"+":""}${Math.round(dv)}</b> กก.·ครั้ง · 1RM <b class="${de>0?"up":de<0?"down":"flat"}">${de>0?"+":""}${de}</b> กก.`;
+  } else el("woCmp").textContent="ยังไม่มีข้อมูลครั้งก่อนของท่านี้";
+}
+function showLast(){
+  const last=lastSession(woName()), box=el("lastTime");
+  if(!last){box.style.display="none";return;}
+  box.style.display="block";
+  box.innerHTML=`📖 ครั้งล่าสุด <b>${thShort(last.date)}</b><br>${last.sets.map(x=>x[0]+"กก.×"+x[1]).join(" · ")}
+    <br>ปริมาณ ${Math.round(last.vol)} · 1RM ~${last.e1rm} กก.`;
+}
+el("woCustom").oninput=()=>{showLast();calcWo();};
+el("woAdd").onclick=async()=>{
+  const sets=S.sets.filter(x=>(+x[1]||0)>0);
+  if(!sets.length) return alert("ใส่จำนวนครั้งอย่างน้อย 1 เซ็ตก่อนนะ");
+  const name=woName(), min=sets.length*3;
+  const r={ts:Date.now(),date:S.date,group:S.grp,ex:name,sets:sets.map(x=>[+x[0]||0,+x[1]||0]),
+    vol:Math.round(volOf(sets)),top:Math.max(...sets.map(x=>+x[0]||0)),e1rm:e1rmOf(sets),
+    min:min,kcal:Math.round(5*S.user.w*(min/60)),note:el("woNote").value};
+  S.wo.push(r); el("woNote").value="";
+  renderWo(); render(); drawProg();
+  await api({action:"add",sheet:"Workout",row:{...r,sets:JSON.stringify(r.sets)}});
+};
+
+function renderWo(){
+  const list=S.wo.filter(w=>w.date===S.date);
+  const byG={};
+  list.forEach(w=>{(byG[w.group]=byG[w.group]||[]).push(w);});
+  el("woToday").innerHTML=list.length?
+    `<div class="mini" style="margin-bottom:10px">รวม <b style="color:var(--move)">${list.length}</b> ท่า · ${list.reduce((a,b)=>a+b.sets.length,0)} เซ็ต · ปริมาณรวม <b style="color:var(--move)">${Math.round(list.reduce((a,b)=>a+b.vol,0)).toLocaleString()}</b> กก.·ครั้ง</div>`+
+    Object.entries(byG).map(([g,arr])=>
+      `<div style="color:var(--move);font-size:12.5px;font-weight:700;margin:11px 0 6px">${g}</div>`+
+      arr.map(w=>`<div class="wo"><div class="h"><span>${esc(w.ex)}</span>
+        ${isPR(w)?'<span class="badge">🏆 สถิติใหม่</span>':""}
+        <button class="del" onclick="del('wo',${w.ts})">✕</button></div>
+        <div class="st">${w.sets.map((x,i)=>`<b>${x[0]||"–"} กก. × ${x[1]}</b>`).join("")}</div>
+        <div class="ft">ปริมาณ ${Math.round(w.vol).toLocaleString()} กก.·ครั้ง · 1RM ~${w.e1rm} กก.${w.note?" · "+esc(w.note):""}</div></div>`).join("")
+    ).join("")
+    :`<div class="empty">ยังไม่ได้บันทึกเวทวันนี้</div>`;
+
+  // ตัวเลือกท่าในกราฟพัฒนาการ
+  const names=[...new Set(S.wo.map(w=>w.ex))];
+  const cur=el("progEx").value;
+  el("progEx").innerHTML=names.length?names.map(n=>`<option${n===cur?" selected":""}>${n}</option>`).join(""):`<option>ยังไม่มีข้อมูล</option>`;
+
+  // PR
+  const best={};
+  S.wo.forEach(w=>{ if(!best[w.ex]||w.e1rm>best[w.ex].e1rm) best[w.ex]=w; });
+  const bl=Object.values(best).sort((a,b)=>b.e1rm-a.e1rm);
+  el("prList").innerHTML=bl.length?bl.map(w=>`<div class="pr"><div>${esc(w.ex)}
+    <small>${thShort(w.date)} · ${w.sets.map(x=>x[0]+"×"+x[1]).join(", ")}</small></div>
+    <div style="text-align:right;white-space:nowrap"><b style="color:var(--acc)">${w.top}</b> กก.
+    <small>1RM ~${w.e1rm}</small></div></div>`).join(""):`<div class="empty">ยังไม่มีสถิติ</div>`;
+}
+function isPR(w){
+  const prev=S.wo.filter(x=>x.ex===w.ex&&x.ts!==w.ts&&(x.date<w.date||(x.date===w.date&&x.ts<w.ts)));
+  return prev.length && w.e1rm>Math.max(...prev.map(x=>x.e1rm));
+}
+el("progEx").onchange=drawProg;
+function drawProg(){
+  const name=el("progEx").value;
+  const arr=S.wo.filter(w=>w.ex===name).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.ts-b.ts);
+  if(!arr.length||typeof Chart==="undefined"){el("progInfo").innerHTML=`<div class="empty">${typeof Chart==="undefined"?"ต้องต่อเน็ตเพื่อโหลดกราฟ 📶":"บันทึกท่านี้ 2 ครั้งขึ้นไปจะเห็นพัฒนาการ"}</div>`;return;}
+  const lbl=arr.map(w=>thShort(w.date));
+  mk("c6",{data:{labels:lbl,datasets:[
+    {type:"line",label:"น้ำหนักสูงสุด (กก.)",data:arr.map(w=>w.top),borderColor:"#38bdf8",backgroundColor:"#38bdf8",yAxisID:"y",tension:.3,pointRadius:3},
+    {type:"bar",label:"ปริมาณรวม",data:arr.map(w=>w.vol),backgroundColor:"rgba(74,222,128,.45)",yAxisID:"y1",borderRadius:5}
+  ]},options:{responsive:true,plugins:{legend:{labels:{color:"#8b97ad",font:{size:10.5},boxWidth:12}}},
+    scales:{x:{ticks:{color:"#8b97ad",font:{size:9.5}},grid:{color:"#2e3950"}},
+      y:{position:"left",ticks:{color:"#38bdf8",font:{size:10}},grid:{color:"#2e3950"},beginAtZero:true},
+      y1:{position:"right",ticks:{color:"#4ade80",font:{size:10}},grid:{display:false},beginAtZero:true}}}});
+  const f=arr[0],l=arr[arr.length-1];
+  const dw=l.top-f.top, dv=l.vol-f.vol;
+  el("progInfo").innerHTML=`<div class="hint" style="margin-top:10px">
+    บันทึกแล้ว <b>${arr.length}</b> ครั้ง · ตั้งแต่ ${thShort(f.date)}<br>
+    น้ำหนัก ${f.top} → <b>${l.top}</b> กก. <b class="${dw>0?"up":dw<0?"down":"flat"}">${dw>0?"+":""}${n1(dw)} กก.</b><br>
+    ปริมาณ ${Math.round(f.vol)} → <b>${Math.round(l.vol)}</b> <b class="${dv>0?"up":dv<0?"down":"flat"}">${dv>0?"+":""}${Math.round(dv)}</b><br>
+    สถิติสูงสุด <b style="color:var(--acc)">${Math.max(...arr.map(w=>w.top))}</b> กก. · 1RM ~${Math.max(...arr.map(w=>w.e1rm))} กก.</div>`;
+}
+fillExList(); drawSets();
+
+/* ---------- อาหาร ---------- */
+el("mealChips").onclick=e=>{const c=e.target.closest(".chip");if(!c)return;
+  el("mealChips").querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));c.classList.add("on");S.meal=c.dataset.m;};
+el("qtyChips").onclick=e=>{const c=e.target.closest(".chip");if(!c)return;
+  el("qtyChips").querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));c.classList.add("on");S.qty=+c.dataset.q;fPreview();};
+
+el("fSearch").oninput=e=>{
+  const q=e.target.value.trim().toLowerCase();
+  const pk=el("fPick");
+  if(!q){pk.classList.remove("on");el("fManual").style.display="none";return;}
+  const hit=FOODS.filter(f=>f[0].toLowerCase().includes(q)).slice(0,25);
+  if(!hit.length){pk.classList.remove("on");el("fManual").style.display="block";el("mName").value=e.target.value;el("fChosen").style.display="none";return;}
+  el("fManual").style.display="none";
+  pk.innerHTML=hit.map(f=>`<div data-n="${esc(f[0])}">${esc(f[0])} <span class="tag">${esc(f[6])}</span><small>${f[1]} kcal · ${f[5]}</small></div>`).join("");
+  pk.classList.add("on");
+};
+el("fPick").onclick=e=>{
+  const d=e.target.closest("div[data-n]"); if(!d)return;
+  S.chosen=FOODS.find(f=>f[0]===d.dataset.n);
+  el("fPick").classList.remove("on"); el("fSearch").value="";
+  el("fChosen").style.display="block";
+  el("fName").textContent=S.chosen[0];
+  el("fUnit").textContent="1 หน่วย = "+S.chosen[5];
+  fPreview();
+};
+function fPreview(){
+  if(!S.chosen)return;
+  const f=S.chosen,q=S.qty;
+  el("fKcal").textContent=Math.round(f[1]*q);
+  el("fMac").textContent=`โปรตีน ${n1(f[2]*q)} ก. · คาร์บ ${n1(f[3]*q)} ก. · ไขมัน ${n1(f[4]*q)} ก.`;
+}
+el("fClear").onclick=()=>{S.chosen=null;el("fChosen").style.display="none";};
+el("fAdd").onclick=async()=>{
+  const f=S.chosen,q=S.qty;if(!f)return;
+  const r={date:S.date,meal:S.meal,name:f[0],qty:q,unit:f[5],
+    kcal:Math.round(f[1]*q),protein:n1(f[2]*q),carb:n1(f[3]*q),fat:n1(f[4]*q),ts:Date.now()};
+  S.food.push(r);S.chosen=null;el("fChosen").style.display="none";
+  render(); await api({action:"add",sheet:"Food",row:r});
+};
+el("mGuess").onchange=e=>{el("mExact").style.display=e.target.value==="-1"?"block":"none";};
+el("mAdd").onclick=async()=>{
+  const name=el("mName").value.trim(); if(!name)return alert("ใส่ชื่อเมนูก่อนนะ");
+  let k=+el("mGuess").value; if(k===-1)k=+el("mKcal").value||0;
+  const r={date:S.date,meal:S.meal,name:name,qty:1,unit:"ประมาณเอง",
+    kcal:k,protein:n1(k*0.17/4),carb:n1(k*0.48/4),fat:n1(k*0.35/9),ts:Date.now()};
+  S.food.push(r);el("mName").value="";el("fSearch").value="";el("fManual").style.display="none";
+  render(); await api({action:"add",sheet:"Food",row:r});
+};
+
+/* ---------- กินบ่อย / คัดลอกเมื่อวาน / ส่งออก ---------- */
+function renderFav(){
+  const cnt={};
+  S.food.forEach(f=>{ if(f.unit!=="ประมาณเอง") cnt[f.name]=(cnt[f.name]||0)+1; });
+  const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,8).map(x=>x[0]);
+  el("favWrap").style.display=top.length?"block":"none";
+  el("favChips").innerHTML=top.map(n=>`<div class="chip y" data-n="${esc(n)}">${esc(n)}</div>`).join("");
+}
+el("favChips").onclick=async e=>{
+  const c=e.target.closest(".chip"); if(!c)return;
+  const f=FOODS.find(x=>x[0]===c.dataset.n); if(!f)return;
+  const r={date:S.date,meal:S.meal,name:f[0],qty:1,unit:f[5],
+    kcal:f[1],protein:f[2],carb:f[3],fat:f[4],ts:Date.now()};
+  S.food.push(r); render();
+  await api({action:"add",sheet:"Food",row:r});
+};
+el("copyYtd").onclick=async()=>{
+  const y=shiftDate(S.date,-1), src=S.food.filter(f=>f.date===y);
+  if(!src.length) return alert("เมื่อวานไม่มีข้อมูลอาหาร");
+  if(!confirm(`คัดลอก ${src.length} รายการจากเมื่อวานมาวันนี้?`))return;
+  for(const f of src){
+    const r={...f,date:S.date,ts:Date.now()+Math.floor(Math.random()*0)+src.indexOf(f)};
+    S.food.push(r); await api({action:"add",sheet:"Food",row:r});
+  }
+  render();
+};
+el("expCsv").onclick=()=>{
+  const rows=[];
+  const push=(t,o,cols)=>{rows.push([t]);rows.push(cols);o.forEach(x=>rows.push(cols.map(c=>x[c]!==undefined?x[c]:"")));rows.push([]);};
+  push("EXERCISE",S.ex,["date","type","min","intensity","km","kcal","note"]);
+  push("WORKOUT",S.wo.map(w=>({...w,sets:w.sets.map(x=>x[0]+"x"+x[1]).join(" ")})),["date","group","ex","sets","vol","top","e1rm","note"]);
+  push("FOOD",S.food,["date","meal","name","qty","unit","kcal","protein","carb","fat"]);
+  push("SLEEP",S.sleep,["date","bed","wake","hours","quality","wakeups","note"]);
+  push("BODY",S.body,["date","w","fat","waist","chest","arm","thigh","hip","note"]);
+  push("WATER",Object.entries(S.water).map(([d,g])=>({date:d,glass:g})),["date","glass"]);
+  const csv="\uFEFF"+rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+  a.download="ข้อมูลสุขภาพ_"+S.date+".csv"; a.click();
+};
+
+/* ---------- น้ำ ---------- */
+async function water(d){
+  const c=Math.max(0,(S.water[S.date]||0)+d);
+  S.water[S.date]=c; render();
+  await api({action:"water",date:S.date,glass:c});
+}
+el("wPlus").onclick=()=>water(1); el("wMinus").onclick=()=>water(-1);
+
+/* ---------- ประเมินระยะการนอน (มาตรฐานผู้ใหญ่) ---------- */
+const STAGES=[
+  ["deep","หลับลึก (Deep)","#4f46e5",13,23,"ฟื้นฟูร่างกาย ซ่อมกล้ามเนื้อ หลั่ง growth hormone"],
+  ["core","หลับตื้น (Core)","#818cf8",45,60,"ช่วงยาวที่สุด ใช้เชื่อมความจำและพักร่างกาย"],
+  ["rem","REM","#38bdf8",20,25,"ฝัน จัดระเบียบความจำและอารมณ์"],
+  ["awake","ตื่นกลางดึก","#f87171",0,8,"ยิ่งน้อยยิ่งดี"]
+];
+function sleepEval(sl){
+  if(!sl) return null;
+  const v={awake:+sl.awake||0,rem:+sl.rem||0,core:+sl.core||0,deep:+sl.deep||0};
+  const tot=v.awake+v.rem+v.core+v.deep;
+  if(tot<30) return null;                        // ยังไม่ได้กรอกระยะ
+  const pct={}; STAGES.forEach(([k])=>pct[k]=n1(v[k]/tot*100));
+  const grades=STAGES.map(([k,name,c,lo,hi,why])=>{
+    const p=pct[k];
+    let st,txt;
+    if(k==="awake"){ st=p<=hi?"ok":p<=hi*2?"warn":"bad"; txt=st==="ok"?"ดี":st==="warn"?"ค่อนข้างมาก":"ตื่นบ่อยเกินไป"; }
+    else if(p<lo){ st=p<lo*0.65?"bad":"warn"; txt="น้อยกว่าเกณฑ์"; }
+    else if(p>hi){ st="warn"; txt="มากกว่าเกณฑ์"; }
+    else { st="ok"; txt="อยู่ในเกณฑ์"; }
+    return {k,name,c,p,lo,hi,st,txt,why,min:v[k]};
+  });
+  const hrs=n1(tot/60);
+  let score=grades.reduce((a,g)=>a+(g.st==="ok"?100:g.st==="warn"?60:25),0)/grades.length;
+  score = score*0.7 + (hrs>=7&&hrs<=9?100:Math.max(0,100-Math.abs(hrs-8)*18))*0.3;
+  score=Math.round(score);
+  return {v,tot,hrs,pct,grades,score,
+    msg: score>=80?"คุณภาพการนอนดีมาก 🎉":score>=65?"คุณภาพพอใช้ ยังพัฒนาได้":score>=45?"คุณภาพไม่ค่อยดี ลองปรับกิจวัตรก่อนนอน":"คุณภาพแย่ ควรจัดการเรื่องการนอนจริงจัง"};
+}
+function stageBar(ev){
+  return `<div class="stg">${STAGES.map(([k,n,c])=>
+    `<i style="background:${c};width:${ev.pct[k]}%"></i>`).join("")}</div>
+    <div class="stglg">${STAGES.map(([k,n,c])=>
+    `<span><i style="background:${c}"></i>${n} ${ev.pct[k]}%</span>`).join("")}</div>`;
+}
+function stageGrades(ev){
+  return ev.grades.map(g=>`<div class="grade"><div>${g.name}
+    <small style="display:block;color:var(--dim);font-size:10.5px">เกณฑ์ ${g.k==="awake"?"ไม่เกิน "+g.hi:g.lo+"–"+g.hi}%</small></div>
+    <div style="text-align:right"><b style="color:${g.st==="ok"?"var(--move)":g.st==="warn"?"var(--food)":"var(--bad)"}">${g.p}%</b>
+    <small style="display:block;color:var(--dim);font-size:10.5px">${Math.round(g.min)} นาที · ${g.txt}</small></div></div>`).join("");
+}
+/* ---------- นอน ---------- */
+el("sQual").onclick=e=>{const c=e.target.closest(".chip");if(!c)return;
+  el("sQual").querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));c.classList.add("on");S.sq=+c.dataset.q;};
+function sCalc(){
+  const b=el("sBed").value.split(":"),w=el("sWake").value.split(":");
+  let m=(+w[0]*60+ +w[1])-(+b[0]*60+ +b[1]); if(m<=0)m+=1440;
+  const h=n1(m/60); el("sHr").textContent=h;
+  el("sTip").textContent = h<6?"น้อยไปนะ ควรได้ 7-9 ชม.":h<7?"เกือบพอ ควรได้ 7-9 ชม.":h<=9?"อยู่ในเกณฑ์ดี 👍":"นานกว่าปกติ";
+  return h;
+}
+["sBed","sWake"].forEach(id=>el(id).oninput=sCalc);
+["stAwake","stRem","stCore","stDeep"].forEach(id=>el(id).oninput=stPreview);
+function stObj(){return {awake:+el("stAwake").value||0,rem:+el("stRem").value||0,
+  core:+el("stCore").value||0,deep:+el("stDeep").value||0};}
+function stPreview(){
+  const ev=sleepEval(stObj());
+  el("stBox").innerHTML = ev? `<div class="card" style="background:var(--card2);margin:12px 0 0">
+    <div style="text-align:center"><b style="font-size:22px;color:${ev.score>=80?"var(--move)":ev.score>=65?"var(--food)":"var(--bad)"}">${ev.score}</b>
+    <span class="mini"> / 100 · รวม ${ev.hrs} ชม.</span></div>
+    ${stageBar(ev)}${stageGrades(ev)}
+    <div class="mini" style="margin-top:8px">${ev.msg}</div></div>` : "";
+}
+el("sAdd").onclick=async()=>{
+  const st=stObj(), evv=sleepEval(st);
+  const r={date:S.date,bed:el("sBed").value,wake:el("sWake").value,
+    hours: evv? evv.hrs : sCalc(),
+    quality:S.sq,wakeups:+el("sWakeup").value||0,
+    awake:st.awake,rem:st.rem,core:st.core,deep:st.deep,
+    stageScore: evv?evv.score:0, note:el("sNote").value,ts:Date.now()};
+  S.sleep=S.sleep.filter(x=>x.date!==S.date); S.sleep.push(r);
+  el("sNote").value="";
+  render(); await api({action:"add",sheet:"Sleep",row:r,unique:"date"});
+};
+
+/* ---------- ร่างกาย ---------- */
+function bodySorted(){return [...S.body].sort((a,b)=>a.date<b.date?-1:1);}
+function ma7(arr,i){                       // ค่าเฉลี่ยเคลื่อนที่ 7 วัน
+  const w=arr.slice(Math.max(0,i-6),i+1).filter(x=>x.w>0);
+  return w.length?n1(w.reduce((a,b)=>a+ +b.w,0)/w.length):null;
+}
+el("bAdd").onclick=async()=>{
+  const g=id=>+el(id).value||0;
+  if(!g("bW")&&!g("bWaist")) return alert("ใส่น้ำหนักหรือรอบเอวอย่างน้อยอย่างหนึ่งนะ");
+  const r={ts:Date.now(),date:S.date,w:g("bW"),fat:g("bFat"),waist:g("bWaist"),
+    chest:g("bChest"),arm:g("bArm"),thigh:g("bThigh"),hip:g("bHip"),note:el("bNote").value};
+  S.body=S.body.filter(x=>x.date!==S.date); S.body.push(r);
+  if(r.w){S.user.w=r.w; el("uW").value=r.w; calcTdee(); exCalc();
+    api({action:"user",user:{sex:S.user.sex,age:S.user.age,w:S.user.w,h:S.user.h,act:S.user.act,goal:S.user.goal}});}
+  el("bNote").value="";
+  renderBody(); render();
+  await api({action:"add",sheet:"Body",row:r,unique:"date"});
+};
+function renderBody(){
+  const arr=bodySorted(), last=arr[arr.length-1];
+  const wArr=arr.filter(x=>x.w>0), lastW=wArr[wArr.length-1];
+  const trend = wArr.length?ma7(wArr,wArr.length-1):null;
+  // เทียบ 30 วันก่อน
+  const cut=shiftDate(S.date,-30);
+  const old=wArr.filter(x=>x.date<=cut).pop() || wArr[0];
+  const d30 = (lastW&&old&&old!==lastW)? n1(lastW.w-old.w) : null;
+  const bmi = lastW? n1(lastW.w/Math.pow(S.user.h/100,2)) : null;
+  el("bStat").innerHTML=`
+    <div class="s"><span>น้ำหนักล่าสุด</span><b>${lastW?n1(lastW.w):"-"}</b><span>กก. ${lastW?"· "+thShort(lastW.date):""}</span></div>
+    <div class="s"><span>เฉลี่ย 7 วัน (ดูอันนี้)</span><b style="color:var(--acc)">${trend||"-"}</b><span>กก.</span></div>
+    <div class="s"><span>เปลี่ยนแปลง ~30 วัน</span><b class="${d30>0?"down":d30<0?"up":"flat"}">${d30!==null?(d30>0?"+":"")+d30:"-"}</b><span>กก.</span></div>
+    <div class="s"><span>BMI</span><b>${bmi||"-"}</b><span>${bmi?(bmi<18.5?"ผอม":bmi<23?"ปกติ":bmi<25?"ท้วม":bmi<30?"อ้วน":"อ้วนมาก"):""}</span></div>`;
+  const waistArr=arr.filter(x=>x.waist>0), lw=waistArr[waistArr.length-1];
+  if(lw){
+    const lim=S.user.sex==="m"?90:80;   // เกณฑ์คนเอเชีย (IDF)
+    const ok=lw.waist<lim;
+    const oldW=waistArr.filter(x=>x.date<=cut).pop()||waistArr[0];
+    const dw=n1(lw.waist-oldW.waist);
+    el("bWaistBox").innerHTML=`<div class="${ok?"lastbox":"warn"}" style="margin-top:12px">
+      รอบเอวล่าสุด <b>${lw.waist}</b> ซม. ${ok?"✅ อยู่ในเกณฑ์":"⚠️ เกินเกณฑ์"} (${S.user.sex==="m"?"ชาย":"หญิง"}เอเชียควรต่ำกว่า ${lim} ซม.)
+      ${waistArr.length>1?`<br>เทียบ ~30 วันก่อน: <b>${dw>0?"+":""}${dw}</b> ซม.`:""}
+      <br><span style="opacity:.8">รอบเอวทำนายความเสี่ยงโรคหัวใจ/เบาหวานได้ดีกว่าน้ำหนักหรือ BMI</span></div>`;
+  } else el("bWaistBox").innerHTML=`<div class="hint" style="margin-top:12px">ยังไม่มีข้อมูลรอบเอว — วัดตรงระดับสะดือ ตอนหายใจออกปกติ</div>`;
+
+  // ฟอร์มเติมค่าล่าสุดไว้ให้แก้ง่าย
+  const t=S.body.find(x=>x.date===S.date)||last||{};
+  [["bW","w"],["bFat","fat"],["bWaist","waist"],["bChest","chest"],["bArm","arm"],["bThigh","thigh"],["bHip","hip"]]
+    .forEach(([id,k])=>{ if(!el(id).value) el(id).value=t[k]?n1(t[k]):""; });
+
+  renderPhotos(); drawBodyCharts();
+}
+function drawBodyCharts(){
+  if(typeof Chart==="undefined")return;
+  const arr=bodySorted().filter(x=>x.w>0);
+  if(arr.length){
+    const lbl=arr.map(x=>thShort(x.date));
+    mk("c7",{data:{labels:lbl,datasets:[
+      {type:"line",label:"เฉลี่ย 7 วัน",data:arr.map((_,i)=>ma7(arr,i)),borderColor:"#38bdf8",borderWidth:2.5,tension:.3,pointRadius:0},
+      {type:"line",label:"ชั่งจริง",data:arr.map(x=>+x.w),borderColor:"rgba(139,151,173,.55)",borderWidth:1,pointRadius:2.5,pointBackgroundColor:"#8b97ad",tension:.2}
+    ]},options:{responsive:true,plugins:{legend:{labels:{color:"#8b97ad",font:{size:10.5},boxWidth:12}}},
+      scales:{x:{ticks:{color:"#8b97ad",font:{size:9.5}},grid:{color:"#2e3950"}},
+        y:{ticks:{color:"#8b97ad",font:{size:10}},grid:{color:"#2e3950"}}}}});
+  }
+  const m=bodySorted().filter(x=>x.waist>0||x.chest>0||x.arm>0||x.thigh>0||x.hip>0);
+  if(m.length){
+    const lbl=m.map(x=>thShort(x.date));
+    const ds=[["waist","เอว","#fbbf24"],["chest","อก","#4ade80"],["hip","สะโพก","#818cf8"],["thigh","ต้นขา","#f472b6"],["arm","แขน","#38bdf8"]]
+      .filter(([k])=>m.some(x=>x[k]>0))
+      .map(([k,n,c])=>({label:n,data:m.map(x=>x[k]>0?+x[k]:null),borderColor:c,tension:.3,pointRadius:2,spanGaps:true}));
+    mk("c8",{type:"line",data:{labels:lbl,datasets:ds},options:{responsive:true,
+      plugins:{legend:{labels:{color:"#8b97ad",font:{size:10.5},boxWidth:12}}},
+      scales:{x:{ticks:{color:"#8b97ad",font:{size:9.5}},grid:{color:"#2e3950"}},
+        y:{ticks:{color:"#8b97ad",font:{size:10}},grid:{color:"#2e3950"}}}}});
+  }
+}
+/* รูป progress — ย่อรูปก่อนเก็บ */
+el("phBtn").onclick=()=>el("phFile").click();
+el("phFile").onchange=e=>{
+  const f=e.target.files[0]; if(!f)return;
+  const img=new Image(), rd=new FileReader();
+  rd.onload=()=>{img.onload=async()=>{
+    const MAX=420, sc=Math.min(1,MAX/Math.max(img.width,img.height));
+    const cv=document.createElement("canvas");
+    cv.width=Math.round(img.width*sc); cv.height=Math.round(img.height*sc);
+    cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height);
+    let q=0.6, data=cv.toDataURL("image/jpeg",q);
+    while(data.length>44000 && q>0.25){ q-=0.1; data=cv.toDataURL("image/jpeg",q); }
+    const r={ts:Date.now(),date:S.date,img:data,note:""};
+    S.photo.push(r); renderPhotos();
+    await api({action:"add",sheet:"Photo",row:r});
+  }; img.src=rd.result;};
+  rd.readAsDataURL(f); e.target.value="";
+};
+function renderPhotos(){
+  const arr=[...S.photo].sort((a,b)=>a.date<b.date?-1:1);
+  el("phGrid").innerHTML=arr.map(x=>`<div class="ph"><img src="${x.img}">
+    <u>${thShort(x.date)}</u><button onclick="delPhoto(${x.ts})">✕</button></div>`).join("");
+  el("phCompare").innerHTML = arr.length>=2 ? `<div class="cmp">
+    <figure><img src="${arr[0].img}"><figcaption>เริ่มต้น · ${thShort(arr[0].date)}</figcaption></figure>
+    <figure><img src="${arr[arr.length-1].img}"><figcaption>ล่าสุด · ${thShort(arr[arr.length-1].date)}</figcaption></figure>
+    </div><div class="mini" style="text-align:center">ห่างกัน ${Math.round((new Date(arr[arr.length-1].date)-new Date(arr[0].date))/86400000)} วัน</div>`:"";
+}
+async function delPhoto(ts){
+  if(!confirm("ลบรูปนี้?"))return;
+  S.photo=S.photo.filter(x=>x.ts!=ts); renderPhotos();
+  await api({action:"del",sheet:"Photo",ts:ts});
+}
+
+/* ---------- ตั้งค่า ---------- */
+function fillUser(){
+  el("uSex").value=S.user.sex;el("uAge").value=S.user.age;el("uW").value=S.user.w;
+  el("uH").value=S.user.h;el("uAct").value=S.user.act;el("uGoal").value=S.user.goal;
+  calcTdee();
+}
+function calcTdee(){
+  const u=S.user;
+  const bmr = u.sex==="m" ? 10*u.w+6.25*u.h-5*u.age+5 : 10*u.w+6.25*u.h-5*u.age-161;
+  u.bmr=Math.round(bmr); u.tdee=Math.round(bmr*u.act); u.target=u.tdee+ (+u.goal);
+  u.pGoal=Math.round(u.w*1.6); u.cGoal=Math.round(u.target*0.45/4); u.fGoal=Math.round(u.target*0.28/9);
+  const bmi=n1(u.w/Math.pow(u.h/100,2));
+  el("tdee").innerHTML=`<div class="hint">
+    BMR (เผาผลาญขณะพัก): <b>${u.bmr}</b> kcal<br>
+    TDEE (ใช้จริงต่อวัน): <b>${u.tdee}</b> kcal<br>
+    🎯 เป้าหมายกินต่อวัน: <b style="color:var(--food)">${u.target}</b> kcal<br>
+    🥩 โปรตีนแนะนำ: <b>${u.pGoal}</b> ก./วัน<br>
+    BMI: <b>${bmi}</b> (${bmi<18.5?"ผอม":bmi<23?"ปกติ":bmi<25?"ท้วม":bmi<30?"อ้วน":"อ้วนมาก"})</div>`;
+}
+el("uSave").onclick=async()=>{
+  S.user.sex=el("uSex").value;S.user.age=+el("uAge").value;S.user.w=+el("uW").value;
+  S.user.h=+el("uH").value;S.user.act=+el("uAct").value;S.user.goal=+el("uGoal").value;
+  calcTdee();exCalc();render();
+  await api({action:"user",user:{sex:S.user.sex,age:S.user.age,w:S.user.w,h:S.user.h,act:S.user.act,goal:S.user.goal}});
+  alert("บันทึกแล้ว ✅");
+};
+el("gasSave").onclick=async()=>{
+  GAS_URL=el("gasUrl").value.trim(); PIN=el("gasPin").value.trim();
+  if(!GAS_URL)return;
+  setStatus("กำลังทดสอบ...");
+  const j=await api({action:"ping"});
+  if(j&&j.ok){ LS.set("gas",GAS_URL); LS.set("pin",PIN); alert("เชื่อมต่อสำเร็จ ✅ เครื่องนี้จำไว้แล้ว"); loadAll(); }
+  else if(j&&j.error) alert("เชื่อมต่อได้ แต่ "+j.error+" ❌\nตรวจว่า PIN ตรงกับที่ตั้งไว้ใน Code.gs");
+  else alert("ต่อไม่ได้ ❌ ตรวจว่า:\n1) ลิงก์ลงท้ายด้วย /exec\n2) Deploy แบบ Anyone (ทุกคน)");
+};
+el("gasClear").onclick=()=>{
+  if(!confirm("ลบลิงก์และ PIN ออกจากเครื่องนี้? (ข้อมูลใน Google Sheets ไม่หาย)"))return;
+  LS.set("gas",""); LS.set("pin",""); GAS_URL=""; PIN="";
+  el("gasUrl").value=""; el("gasPin").value=""; setStatus("ออฟไลน์"); location.reload();
+};
+
+/* ---------- แสดงผล ---------- */
+let _ddc={};
+function clearDD(){_ddc={};}
+function dayData(d){
+  if(_ddc[d]) return _ddc[d];
+  const ex=S.ex.filter(x=>x.date===d), fd=S.food.filter(x=>x.date===d), sl=S.sleep.find(x=>x.date===d);
+  const wo=S.wo.filter(x=>x.date===d);
+  const kOut=ex.reduce((a,b)=>a+(+b.kcal||0),0)+wo.reduce((a,b)=>a+(+b.kcal||0),0),
+        min=ex.reduce((a,b)=>a+(+b.min||0),0)+wo.reduce((a,b)=>a+(+b.min||0),0);
+  const kIn=fd.reduce((a,b)=>a+(+b.kcal||0),0);
+  const pr=fd.reduce((a,b)=>a+(+b.protein||0),0), cb=fd.reduce((a,b)=>a+(+b.carb||0),0), ft=fd.reduce((a,b)=>a+(+b.fat||0),0);
+  const vol=wo.reduce((a,b)=>a+(+b.vol||0),0);
+  return _ddc[d]={key:d,ex,fd,sl,wo,vol,kOut,min,kIn,pr,cb,ft,hours:sl?+sl.hours:0};
+}
+function render(){
+  calcTdee(); clearDD();
+  const d=dayData(S.date), u=S.user, A=agg([d]);
+  el("homeDate").textContent=thDate(S.date);
+
+  /* ----- แถบสรุปรวม ----- */
+  el("dScore").textContent=A.score;
+  el("dScore").style.color=A.score>=75?"var(--move)":A.score>=50?"var(--food)":"var(--bad)";
+  el("dBars").innerHTML=[
+    ["🍽️ อาหาร",A.sFood,`${d.kIn} / ${u.target} kcal`,"var(--food)"],
+    ["🏃 ออกกำลัง",A.sMove,`${d.min} / 30 นาที`,"var(--move)"],
+    ["😴 นอน",A.sSleep,d.sl?`${d.sl.hours} ชม.`:"ยังไม่บันทึก","var(--sleep)"]
+  ].map(b=>`<div class="hb"><div class="l"><span>${b[0]}</span><b>${b[2]}</b></div>
+    <div class="bar"><i style="background:${b[3]};width:${Math.min(100,b[1])}%"></i></div></div>`).join("");
+  const miss=[!d.fd.length&&"อาหาร",!d.min&&"ออกกำลังกาย",!d.sl&&"การนอน"].filter(Boolean);
+  el("dMsg").innerHTML = miss.length? `ยังไม่ได้บันทึก: <b>${miss.join(" · ")}</b>`
+    : `บันทึกครบทั้ง 3 ด้านแล้ววันนี้ 🎉`;
+
+  /* ----- อาหาร ----- */
+  const meals={"เช้า":[],"กลางวัน":[],"เย็น":[],"ว่าง":[]};
+  d.fd.forEach(x=>(meals[x.meal]||meals["ว่าง"]).push(x));
+  const g=S.water[S.date]||0;
+  el("secFood").innerHTML=`
+    <div class="stat" style="margin-bottom:12px">
+      <div class="s"><span>กินเข้า</span><b style="color:var(--food)">${d.kIn}</b><span>kcal</span>
+        <div class="bar"><i style="background:var(--food);width:${Math.min(100,d.kIn/u.target*100)}%"></i></div>
+        <div class="mini">เป้า ${u.target} · ${d.kIn>u.target?"เกิน "+(d.kIn-u.target):"เหลือ "+(u.target-d.kIn)}</div></div>
+      <div class="s"><span>น้ำดื่ม</span><b style="color:var(--acc)">${g}</b><span>แก้ว (${g*250} มล.)</span>
+        <div class="bar"><i style="background:var(--acc);width:${Math.min(100,g/8*100)}%"></i></div>
+        <div class="mini">เป้า 8 แก้ว</div></div>
+    </div>
+    ${[["โปรตีน",d.pr,u.pGoal,"var(--move)"],["คาร์บ",d.cb,u.cGoal,"var(--food)"],["ไขมัน",d.ft,u.fGoal,"var(--sleep)"]]
+      .map(m=>`<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;font-size:12.5px">
+      <span>${m[0]}</span><span><b>${n1(m[1])}</b> / ${m[2]} ก.</span></div>
+      <div class="bar"><i style="background:${m[3]};width:${Math.min(100,m[1]/m[2]*100)}%"></i></div></div>`).join("")}
+    <div style="margin-top:11px">${d.fd.length? Object.entries(meals).filter(([,v])=>v.length).map(([k,v])=>
+      `<div class="meal"><div>${k} <span>· ${v.length} รายการ</span><small style="display:block;color:var(--dim);font-size:11px">${v.map(x=>esc(x.name)).join(", ")}</small></div>
+      <b style="color:var(--food);white-space:nowrap">${v.reduce((a,b)=>a+(+b.kcal||0),0)} kcal</b></div>`).join("")
+      :`<div class="empty">ยังไม่ได้บันทึกอาหาร</div>`}</div>`;
+
+  /* ----- ออกกำลังกาย ----- */
+  el("secMove").innerHTML=`
+    <div class="stat" style="margin-bottom:12px">
+      <div class="s"><span>เผาผลาญ</span><b style="color:var(--move)">${d.kOut}</b><span>kcal</span></div>
+      <div class="s"><span>เวลารวม</span><b style="color:var(--move)">${d.min}</b><span>นาที
+        <div class="bar"><i style="background:var(--move);width:${Math.min(100,d.min/30*100)}%"></i></div></span></div>
+    </div>
+    ${d.vol?`<div class="mini" style="margin-bottom:9px">🏋️ ปริมาณเวท <b style="color:var(--move)">${Math.round(d.vol).toLocaleString()}</b> กก.·ครั้ง · ${d.wo.length} ท่า</div>`:""}
+    ${(d.ex.length||d.wo.length)? [...d.ex.map(x=>`<div class="meal"><div>🏃 ${esc(x.type)}<small style="display:block;color:var(--dim);font-size:11px">${x.min} นาที${x.km?" · "+x.km+" กม.":""}</small></div><b style="color:var(--move)">${x.kcal} kcal</b></div>`),
+      ...d.wo.map(x=>`<div class="meal"><div>🏋️ ${esc(x.ex)}<small style="display:block;color:var(--dim);font-size:11px">${x.sets.map(y=>y[0]+"×"+y[1]).join(", ")}</small></div><b style="color:var(--move)">${Math.round(x.vol)}</b></div>`)].join("")
+      :`<div class="empty">วันนี้ยังไม่ได้ออกกำลังกาย</div>`}`;
+
+  /* ----- การนอน ----- */
+  const ev=sleepEval(d.sl);
+  el("secSleep").innerHTML = d.sl? `
+    <div class="stat" style="margin-bottom:12px">
+      <div class="s"><span>นอนได้</span><b style="color:var(--sleep)">${d.sl.hours}</b><span>ชั่วโมง (${d.sl.bed} → ${d.sl.wake})</span>
+        <div class="bar"><i style="background:var(--sleep);width:${Math.min(100,d.hours/8*100)}%"></i></div></div>
+      <div class="s"><span>คะแนนคุณภาพ</span><b style="color:${ev?(ev.score>=80?"var(--move)":ev.score>=65?"var(--food)":"var(--bad)"):"var(--dim)"}">${ev?ev.score:"–"}</b>
+        <span>${ev?"/ 100 จากระยะการนอน":"ยังไม่ได้กรอกระยะ"}</span></div>
+    </div>
+    ${ev? stageBar(ev)+stageGrades(ev)+`<div class="mini" style="margin-top:9px">${ev.msg}</div>`
+       : `<div class="mini">รู้สึกว่า: ${["","แย่มาก","ไม่ค่อยดี","พอใช้","ดี","ดีมาก"][d.sl.quality]} · ตื่นกลางดึก ${d.sl.wakeups} ครั้ง<br>ใส่ระยะการนอน (Awake/REM/Core/Deep) ในแท็บนอน เพื่อให้ระบบประเมินคุณภาพให้</div>`}`
+    : `<div class="empty">ยังไม่ได้บันทึกการนอน</div>`;
+
+  /* ----- ร่างกาย ----- */
+  const bArr=bodySorted(), wArr=bArr.filter(x=>x.w>0), lw=wArr[wArr.length-1];
+  const trend=wArr.length?ma7(wArr,wArr.length-1):null;
+  const prev=wArr.length>1?ma7(wArr,wArr.length-2):null;
+  const waistA=bArr.filter(x=>x.waist>0), lwa=waistA[waistA.length-1];
+  el("secBody").innerHTML = lw? `<div class="stat">
+      <div class="s"><span>น้ำหนักล่าสุด</span><b>${n1(lw.w)}</b><span>กก. · ${thShort(lw.date)}</span></div>
+      <div class="s"><span>เฉลี่ย 7 วัน</span><b style="color:var(--acc)">${trend}</b>
+        <span>${prev?(trend>prev?"▲ +":"▼ ")+n1(trend-prev)+" กก.":"กก."}</span></div>
+      ${lwa?`<div class="s"><span>รอบเอว</span><b>${lwa.waist}</b><span>ซม. · ${thShort(lwa.date)}</span></div>`:""}
+      <div class="s"><span>รูป progress</span><b>${S.photo.length}</b><span>รูป</span></div>
+    </div>` : `<div class="empty">ยังไม่มีข้อมูลร่างกาย — ไปที่แท็บ ⚖️ ร่างกาย</div>`;
+
+  /* ----- รายการในแท็บอื่น ----- */
+  renderFav();
+  el("wGlass").textContent=g; el("wMl").textContent=g*250; el("wBar").style.width=Math.min(100,g/8*100)+"%";
+  el("exList").innerHTML=d.ex.length?d.ex.map(x=>row(
+    `${esc(x.type)} <span class="tag">${esc(x.intensity||"")}</span>`,
+    `${x.min} นาที${x.km?" · "+x.km+" กม.":""}${x.note?" · "+esc(x.note):""}`,
+    `<span style="color:var(--move)">${x.kcal}</span><small style="display:block;color:var(--dim);font-weight:400">kcal</small>`,
+    "ex",x.ts)).join(""):`<div class="empty">ยังไม่มีบันทึก</div>`;
+  el("fList").innerHTML=d.fd.length?Object.entries(meals).filter(([,v])=>v.length).map(([k,v])=>
+    `<div style="margin:9px 0 3px;color:var(--food);font-size:13px;font-weight:700">${k} · ${v.reduce((a,b)=>a+(+b.kcal||0),0)} kcal</div>`+
+    v.map(x=>row(esc(x.name),`${x.qty} × ${esc(x.unit)} · P${n1(x.protein)} C${n1(x.carb)} F${n1(x.fat)}`,
+      `<span style="color:var(--food)">${x.kcal}</span>`,"food",x.ts)).join("")
+  ).join(""):`<div class="empty">ยังไม่มีบันทึก</div>`;
+  el("sList").innerHTML=d.sl?row(`${d.sl.bed} → ${d.sl.wake}`,
+    `คุณภาพที่รู้สึก: ${["","แย่มาก","ไม่ค่อยดี","พอใช้","ดี","ดีมาก"][d.sl.quality]} · ตื่นกลางดึก ${d.sl.wakeups} ครั้ง${ev?" · คะแนนระยะ "+ev.score:""}${d.sl.note?" · "+esc(d.sl.note):""}`,
+    `<span style="color:var(--sleep)">${d.sl.hours}</span><small style="display:block;color:var(--dim);font-weight:400">ชม.</small>`,"sleep",d.sl.ts)
+    :`<div class="empty">ยังไม่มีบันทึก</div>`;
+}
+function row(title,sub,val,kind,ts){
+  return `<div class="item"><div class="m">${title}<small>${sub}</small></div><div class="v">${val}</div>
+  <button class="del" onclick="del('${kind}',${ts})">✕</button></div>`;
+}
+async function del(kind,ts){
+  if(!confirm("ลบรายการนี้?"))return;
+  if(kind==="ex")S.ex=S.ex.filter(x=>x.ts!=ts);
+  if(kind==="food")S.food=S.food.filter(x=>x.ts!=ts);
+  if(kind==="sleep")S.sleep=S.sleep.filter(x=>x.ts!=ts);
+  if(kind==="wo"){S.wo=S.wo.filter(x=>x.ts!=ts);renderWo();drawProg();}
+  const sheet={ex:"Exercise",food:"Food",sleep:"Sleep",wo:"Workout"}[kind];
+  render(); await api({action:"del",sheet:sheet,ts:ts});
+}
+function thDate(s){
+  const [y,m,d]=s.split("-").map(Number);
+  const M=["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+  const W=["อาทิตย์","จันทร์","อังคาร","พุธ","พฤหัสฯ","ศุกร์","เสาร์"];
+  const dt=new Date(y,m-1,d);
+  return `${W[dt.getDay()]} ${d} ${M[m-1]} ${y+543}`;
+}
+
+/* ---------- กราฟ ---------- */
+el("rangeChips").onclick=e=>{const c=e.target.closest(".chip");if(!c)return;
+  el("rangeChips").querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));c.classList.add("on");
+  S.range=(c.dataset.d==="ytd"||c.dataset.d==="all")?c.dataset.d:+c.dataset.d;drawCharts();};
+function firstDate(){
+  const all=[...S.food,...S.ex,...S.sleep,...S.wo,...S.body,...Object.keys(S.water).map(d=>({date:d}))]
+    .map(x=>x.date).filter(Boolean).sort();
+  return all.length?all[0]:S.date;
+}
+function dayDiff(a,b){return Math.round((new Date(b+"T00:00:00")-new Date(a+"T00:00:00"))/86400000);}
+function rangeN(){
+  if(S.range==="ytd") return Math.max(7,dayDiff(S.date.slice(0,4)+"-01-01",S.date)+1);
+  if(S.range==="all") return Math.min(1095,Math.max(7,dayDiff(firstDate(),S.date)+1));
+  return S.range;
+}
+function bucketize(days){
+  const n=days.length, size = n<=45?1 : n<=210?7 : 30;
+  if(size===1) return days.map(d=>({lbl:thTiny(d.key),days:[d]}));
+  const MO=["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+  const out=[];
+  for(let i=0;i<n;i+=size){
+    const g=days.slice(i,i+size), [y,m]=g[0].key.split("-");
+    out.push({lbl: size===7? thTiny(g[0].key) : MO[+m-1]+" "+String(+y+543).slice(-2), days:g});
+  }
+  return out;
+}
+function bAvg(b,f){const v=b.days.map(f).filter(x=>x!==null&&x!==undefined);
+  return v.length?Math.round(v.reduce((a,c)=>a+c,0)/v.length*10)/10:0;}
+function bAvgNZ(b,f){const v=b.days.map(f).filter(x=>x>0);
+  return v.length?Math.round(v.reduce((a,c)=>a+c,0)/v.length*10)/10:null;}
+function thTiny(k){const [y,m,d]=k.split("-");return +d+"/"+ +m;}
+
+function shiftDate(base,off){
+  const dt=new Date(base+"T00:00:00"); dt.setDate(dt.getDate()+off);
+  return dt.getFullYear()+"-"+p2(dt.getMonth()+1)+"-"+p2(dt.getDate());
+}
+function period(endDate,n){
+  const a=[];
+  for(let i=n-1;i>=0;i--){const k=shiftDate(endDate,-i);const d=dayData(k);d.key=k;a.push(d);}
+  return a;
+}
+function foodScore(kIn){
+  const off=Math.abs(kIn-S.user.target)/S.user.target;   // ห่างจากเป้ากี่ %
+  return Math.max(0,Math.round(100-Math.max(0,off-0.10)*150));  // ±10% ถือว่าเต็ม
+}
+function agg(days){
+  const n=days.length,u=S.user;
+  const fdDays=days.filter(d=>d.kIn>0), slDays=days.filter(d=>d.hours>0), exDays=days.filter(d=>d.min>0);
+  const sum=k=>days.reduce((a,b)=>a+b[k],0);
+  const o={n:n,
+    kIn:sum("kIn"), kOut:sum("kOut"), min:sum("min"), pr:sum("pr"), cb:sum("cb"), ft:sum("ft"),
+    avgIn: fdDays.length?Math.round(sum("kIn")/fdDays.length):0,
+    avgOut: Math.round(sum("kOut")/n),
+    avgMin: Math.round(sum("min")/n),
+    avgPr: fdDays.length?Math.round(sum("pr")/fdDays.length):0,
+    avgSleep: slDays.length?n1(slDays.reduce((a,b)=>a+b.hours,0)/slDays.length):0,
+    exDays:exDays.length, fdDays:fdDays.length, slDays:slDays.length,
+    vol: days.reduce((a,b)=>a+b.vol,0),
+    woDays: days.filter(d=>d.wo.length>0).length,
+    water: days.reduce((a,b)=>a+(S.water[b.key]||0),0)
+  };
+  o.avgWater = n1(o.water/n);
+  // คะแนน 3 ด้าน
+  o.sMove = Math.min(100, Math.round(o.min/(n*30)*100));
+  o.sFood = fdDays.length ? Math.round(fdDays.reduce((a,d)=>a+foodScore(d.kIn),0)/fdDays.length) : 0;
+  o.sSleep = slDays.length ? Math.round(slDays.reduce((a,d)=>
+      a+(d.hours>=7&&d.hours<=9?100:Math.max(0,100-Math.abs(d.hours-8)*18)),0)/slDays.length) : 0;
+  o.score = Math.round((o.sMove+o.sFood+o.sSleep)/3);
+  return o;
+}
+function streak(test){
+  let c=0;
+  for(let i=0;i<400;i++){
+    const d=dayData(shiftDate(S.date,-i));
+    if(i===0 && !test(d)) continue;      // วันนี้ยังไม่บันทึกก็ไม่ตัดสตรีค
+    if(test(d)) c++; else break;
+  }
+  return c;
+}
+function delta(now,prev,higherBetter){
+  if(!prev) return `<em class="flat">— ไม่มีข้อมูลเทียบ</em>`;
+  const d=now-prev, pc=Math.round(d/prev*100);
+  if(Math.abs(pc)<2) return `<em class="flat">≈ เท่าเดิม</em>`;
+  const good = higherBetter===null ? null : (d>0)===higherBetter;
+  const cls = good===null?"flat":good?"up":"down";
+  return `<em class="${cls}">${d>0?"▲":"▼"} ${Math.abs(pc)}%</em>`;
+}
+
+function drawCharts(){
+  const N=rangeN();
+  const days=period(S.date,N), prev=period(shiftDate(S.date,-N),N);
+  const A=agg(days), P=agg(prev), u=S.user;
+
+  /* ---- วงแหวน 3 ด้าน ---- */
+  [["r1",A.sMove,82],["r2",A.sFood,64],["r3",A.sSleep,46]].forEach(([id,pct,r])=>{
+    const c=2*Math.PI*r, v=Math.min(100,pct)/100*c;
+    el(id).setAttribute("stroke-dasharray",v+" "+(c-v));
+  });
+  el("scoreN").textContent=A.score;
+  el("scoreN").style.color=A.score>=75?"var(--move)":A.score>=50?"var(--food)":"var(--bad)";
+  el("lgMove").textContent=A.sMove+"%"; el("lgFood").textContent=A.sFood+"%"; el("lgSleep").textContent=A.sSleep+"%";
+  const weak=[["ออกกำลังกาย",A.sMove],["การกิน",A.sFood],["การนอน",A.sSleep]].sort((a,b)=>a[1]-b[1])[0];
+  el("scoreTxt").innerHTML = A.score>=80?`ภาพรวม <b style="color:var(--move)">ดีมาก</b> ทำต่อเนื่องแบบนี้เลย 💪`
+    : A.score>=60?`ภาพรวม <b style="color:var(--move)">ค่อนข้างดี</b> จุดที่ควรดันเพิ่มคือ <b>${weak[0]}</b>`
+    : A.score>=40?`ภาพรวม <b style="color:var(--food)">พอใช้</b> โฟกัสที่ <b>${weak[0]}</b> ก่อนเป็นอันดับแรก`
+    : `ยังบันทึกน้อยหรือยังไม่เข้าเป้า — เริ่มจาก <b>${weak[0]}</b> ก่อนก็ได้`;
+
+  /* ---- KPI ---- */
+  el("cmpLbl").textContent="เทียบ "+N+" วันก่อนหน้า";
+  el("kpiGrid").innerHTML=[
+    ["กินเฉลี่ย/วัน",A.avgIn+" <small style='font-size:11px;color:#8b97ad'>kcal</small>",delta(A.avgIn,P.avgIn,null),"var(--food)"],
+    ["เผาผลาญรวม",A.kOut+" <small style='font-size:11px;color:#8b97ad'>kcal</small>",delta(A.kOut,P.kOut,true),"var(--move)"],
+    ["ออกกำลังรวม",A.min+" <small style='font-size:11px;color:#8b97ad'>นาที</small>",delta(A.min,P.min,true),"var(--move)"],
+    ["วันที่ออกกำลัง",A.exDays+" <small style='font-size:11px;color:#8b97ad'>/"+A.n+" วัน</small>",delta(A.exDays,P.exDays,true),"var(--move)"],
+    ["นอนเฉลี่ย",A.avgSleep+" <small style='font-size:11px;color:#8b97ad'>ชม.</small>",delta(A.avgSleep,P.avgSleep,true),"var(--sleep)"],
+    ["คืนที่บันทึก",A.slDays+" <small style='font-size:11px;color:#8b97ad'>/"+A.n+" คืน</small>",delta(A.slDays,P.slDays,true),"var(--sleep)"],
+    ["โปรตีนเฉลี่ย",A.avgPr+" <small style='font-size:11px;color:#8b97ad'>/"+u.pGoal+" ก.</small>",delta(A.avgPr,P.avgPr,true),"var(--acc)"],
+    ["ปริมาณเวทรวม",Math.round(A.vol).toLocaleString()+" <small style='font-size:11px;color:#8b97ad'>กก.·ครั้ง</small>",delta(A.vol,P.vol,true),"var(--move)"],
+    ["วันเล่นเวท",A.woDays+" <small style='font-size:11px;color:#8b97ad'>/"+A.n+" วัน</small>",delta(A.woDays,P.woDays,true),"var(--move)"],
+    ["น้ำเฉลี่ย",A.avgWater+" <small style='font-size:11px;color:#8b97ad'>แก้ว/วัน</small>",delta(A.avgWater,P.avgWater,true),"var(--acc)"]
+  ].map(k=>`<div class="k"><span>${k[0]}</span><b style="color:${k[3]}">${k[1]}</b>${k[2]}</div>`).join("");
+
+  /* ---- สตรีค ---- */
+  const stEx=streak(d=>d.min>0), stLog=streak(d=>d.kIn>0||d.min>0||d.hours>0), stSl=streak(d=>d.hours>=7);
+  const best=days.reduce((a,b)=>b.min>a.min?b:a,days[0]);
+  el("streaks").innerHTML=`
+    <div class="s"><span>ออกกำลังติดกัน</span><b style="color:var(--move)">${stEx}</b><span>วัน</span></div>
+    <div class="s"><span>บันทึกติดกัน</span><b style="color:var(--acc)">${stLog}</b><span>วัน</span></div>
+    <div class="s"><span>นอนครบ 7 ชม.ติดกัน</span><b style="color:var(--sleep)">${stSl}</b><span>คืน</span></div>
+    <div class="s"><span>วันที่ออกหนักสุด</span><b style="font-size:16px">${best&&best.min?thShort(best.key):"-"}</b><span>${best?best.min:0} นาที</span></div>`;
+
+  /* ---- ปฏิทิน ---- */
+  const hd=days.slice(-Math.min(days.length,35));
+  el("heat").innerHTML=hd.map(d=>`<div class="hc"><u>${(+d.key.slice(8))}</u><div>
+    <i style="background:${d.min>0?"var(--move)":"#0d1220"}"></i>
+    <i style="background:${d.kIn>0?"var(--food)":"#0d1220"}"></i>
+    <i style="background:${d.hours>0?"var(--sleep)":"#0d1220"}"></i></div></div>`).join("");
+
+  /* ---- ข้อสังเกต ---- */
+  const ins=[];
+  const exd=days.filter(d=>d.min>0&&d.hours>0), nod=days.filter(d=>d.min===0&&d.hours>0);
+  if(exd.length>=2&&nod.length>=2){
+    const a1=exd.reduce((a,b)=>a+b.hours,0)/exd.length, a2=nod.reduce((a,b)=>a+b.hours,0)/nod.length;
+    if(Math.abs(a1-a2)>=0.4) ins.push(["😴",`วันที่ออกกำลังกาย นอนเฉลี่ย <b>${n1(a1)}</b> ชม. เทียบกับวันที่ไม่ออก <b>${n1(a2)}</b> ชม. — ${a1>a2?"ออกกำลังกายช่วยให้นอนดีขึ้น":"วันออกกำลังกลับนอนน้อยลง ลองเลี่ยงออกกำลังดึกดู"}`]);
+  }
+  if(A.slDays&&A.avgSleep<7) ins.push(["⚠️",`นอนเฉลี่ยแค่ <b>${A.avgSleep}</b> ชม./คืน ต่ำกว่าเกณฑ์ 7-9 ชม. — การนอนไม่พอทำให้หิวของหวานมากขึ้นและกล้ามฟื้นตัวช้า`]);
+  if(A.fdDays){
+    const diff=A.avgIn-u.target;
+    const kg=n1(Math.abs(diff-A.avgOut)*7/7700);
+    if(Math.abs(diff-A.avgOut)>200) ins.push([diff-A.avgOut>0?"📈":"📉",
+      `กินเฉลี่ย ${A.avgIn} kcal เทียบเป้า ${u.target} kcal (เผาจากออกกำลังอีก ${A.avgOut}) — ถ้าคงแบบนี้ต่อ น้ำหนักจะ<b>${diff-A.avgOut>0?"เพิ่ม":"ลด"}ประมาณ ${kg} กก./สัปดาห์</b>`]);
+  }
+  if(A.fdDays&&A.avgPr<u.pGoal*0.8) ins.push(["🥩",`โปรตีนเฉลี่ย ${A.avgPr} ก. ต่ำกว่าเป้า ${u.pGoal} ก. — เพิ่มไข่ อกไก่ ปลา หรือเวย์ จะช่วยรักษากล้ามเนื้อ`]);
+  if(A.exDays>=Math.ceil(A.n*0.6)) ins.push(["🎉",`ออกกำลังกาย ${A.exDays} จาก ${A.n} วัน (${Math.round(A.exDays/A.n*100)}%) — สม่ำเสมอมาก เก่ง!`]);
+  else if(A.exDays<A.n*0.3) ins.push(["🏃",`ออกกำลังแค่ ${A.exDays} จาก ${A.n} วัน — ลองเริ่มจากเดินเร็ววันละ 20 นาทีก่อนก็ได้`]);
+  if(A.vol>0&&P.vol>0){const pc=Math.round((A.vol-P.vol)/P.vol*100);
+    if(Math.abs(pc)>=8) ins.push(["🏋️",`ปริมาณเวทรวม ${Math.round(A.vol).toLocaleString()} กก.·ครั้ง ${pc>0?`<b class="up">เพิ่มขึ้น ${pc}%</b> จากช่วงก่อน — โหลดกำลังขึ้นดี`:`<b class="down">ลดลง ${Math.abs(pc)}%</b> จากช่วงก่อน — ถ้าไม่ได้ตั้งใจดีโหลด ลองเพิ่มเซ็ตหรือน้ำหนักดู`}`]);}
+  if(A.avgWater<6) ins.push(["💧",`ดื่มน้ำเฉลี่ย ${A.avgWater} แก้ว/วัน — ควรได้ราว 8 แก้ว (2 ลิตร)`]);
+  if(A.fdDays<A.n*0.5) ins.push(["📝",`บันทึกอาหารแค่ ${A.fdDays} จาก ${A.n} วัน — ยิ่งบันทึกครบ ตัวเลขภาพรวมยิ่งแม่น`]);
+  el("insight").innerHTML=ins.length?ins.map(i=>`<div class="ins"><div>${i[0]}</div><div>${i[1]}</div></div>`).join("")
+    :`<div class="empty">บันทึกสัก 3-4 วันแล้วกลับมาดูใหม่ ระบบจะวิเคราะห์ให้</div>`;
+
+  el("summary").innerHTML=`<div class="hint">
+    เฉลี่ยกิน <b>${A.avgIn}</b> kcal/วัน (เป้า ${u.target}) จาก ${A.fdDays} วันที่บันทึก<br>
+    ออกกำลังกาย <b>${A.exDays}</b>/${A.n} วัน · รวม <b>${A.min}</b> นาที · เผา <b>${A.kOut}</b> kcal<br>
+    นอนเฉลี่ย <b>${A.avgSleep||"-"}</b> ชม./คืน (บันทึก ${A.slDays}/${A.n} คืน)<br>
+    โปรตีนเฉลี่ย <b>${A.avgPr}</b> ก./วัน (เป้า ${u.pGoal}) · น้ำ <b>${A.avgWater}</b> แก้ว/วัน
+  </div>`;
+
+  if(typeof Chart==="undefined"){
+    document.querySelectorAll("#p-chart canvas").forEach(c=>{
+      if(c.tagName==="CANVAS") c.outerHTML='<div class="empty">ต้องต่อเน็ตเพื่อโหลดกราฟ 📶</div>';});
+    return;
+  }
+  const B=bucketize(days), lbl=B.map(b=>b.lbl);
+  const per = B.length&&B[0].days.length>1 ? " (เฉลี่ย/วัน)" : "";
+  const opt={responsive:true,plugins:{legend:{labels:{color:"#8b97ad",font:{size:11}}}},
+    scales:{x:{ticks:{color:"#8b97ad",font:{size:10},maxTicksLimit:12},grid:{color:"#2e3950"}},
+            y:{ticks:{color:"#8b97ad",font:{size:10}},grid:{color:"#2e3950"},beginAtZero:true}}};
+  mk("c1",{type:"line",data:{labels:lbl,datasets:[
+    {label:"กินเข้า"+per,data:B.map(b=>bAvg(b,d=>d.kIn)),borderColor:"#fbbf24",backgroundColor:"rgba(251,191,36,.15)",fill:true,tension:.35,pointRadius:B.length>40?0:2},
+    {label:"เผาผลาญ"+per,data:B.map(b=>bAvg(b,d=>d.kOut)),borderColor:"#4ade80",backgroundColor:"rgba(74,222,128,.15)",fill:true,tension:.35,pointRadius:B.length>40?0:2}
+  ]},options:opt});
+  mk("c2",{type:"bar",data:{labels:lbl,datasets:[{label:"นาที"+per,data:B.map(b=>bAvg(b,d=>d.min)),backgroundColor:"#4ade80",borderRadius:4}]},options:opt});
+  mk("c3",{type:"bar",data:{labels:lbl,datasets:[{label:"ชั่วโมง"+per,data:B.map(b=>bAvgNZ(b,d=>d.hours)),backgroundColor:"#818cf8",borderRadius:4}]},options:opt});
+  mk("c4",{type:"doughnut",data:{labels:["โปรตีน","คาร์บ","ไขมัน"],
+    datasets:[{data:[n1(A.pr*4),n1(A.cb*4),n1(A.ft*9)],backgroundColor:["#4ade80","#fbbf24","#818cf8"],borderWidth:0}]},
+    options:{responsive:true,plugins:{legend:{position:"bottom",labels:{color:"#8b97ad"}}}}});
+  mk("c5",{type:"line",data:{labels:lbl,datasets:[
+    {label:"ออกกำลัง (เป้า 30 น.)",data:B.map(b=>Math.round(bAvg(b,d=>Math.min(200,d.min/30*100)))),borderColor:"#4ade80",tension:.35,pointRadius:B.length>40?0:2},
+    {label:"การกิน (ใกล้เป้าแค่ไหน)",data:B.map(b=>bAvgNZ(b,d=>d.kIn?foodScore(d.kIn):null)),borderColor:"#fbbf24",tension:.35,pointRadius:B.length>40?0:2,spanGaps:true},
+    {label:"การนอน (เป้า 8 ชม.)",data:B.map(b=>bAvgNZ(b,d=>d.hours?Math.round(d.hours/8*100):null)),borderColor:"#818cf8",tension:.35,pointRadius:B.length>40?0:2,spanGaps:true}
+  ]},options:{responsive:true,plugins:{legend:{labels:{color:"#8b97ad",font:{size:10.5},boxWidth:12}}},
+    scales:{x:{ticks:{color:"#8b97ad",font:{size:10},maxTicksLimit:12},grid:{color:"#2e3950"}},
+      y:{ticks:{color:"#8b97ad",font:{size:10},callback:v=>v+"%"},grid:{color:"#2e3950"},beginAtZero:true,suggestedMax:120}}}});
+}
+function thShort(k){const [y,m,d]=k.split("-");
+  return +d+" "+["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."][+m-1];}
+function mk(id,cfg){ if(S.charts[id])S.charts[id].destroy(); S.charts[id]=new Chart(el(id),cfg); }
+
+/* ---------- เริ่ม ---------- */
+exCalc(); sCalc(); fillUser(); render(); renderWo(); renderBody();
+GAS_URL = GAS_URL || LS.get("gas");
+PIN = PIN || LS.get("pin");
+el("gasUrl").value=GAS_URL; el("gasPin").value=PIN;
+if(GAS_URL){loadAll();}else{el("noUrlWarn").style.display="block";}
+if("serviceWorker" in navigator && location.protocol.startsWith("http"))
+  navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
