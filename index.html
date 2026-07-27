@@ -175,7 +175,7 @@ nav button.on{color:var(--acc)}
 .hb .l b{color:var(--txt);font-size:12px}
 .sec{border-left:4px solid var(--line)}
 .sec.f{border-left-color:var(--food)} .sec.m{border-left-color:var(--move)}
-.sec.s{border-left-color:var(--sleep)} .sec.b{border-left-color:var(--acc)}
+.sec.sl{border-left-color:var(--sleep)} .sec.b{border-left-color:var(--acc)}   /* ใช้ .sl ไม่ใช่ .s — .s ถูกใช้เป็นกล่องตัวเลขอยู่แล้ว จะตีกัน */
 .meal{display:flex;justify-content:space-between;font-size:13.5px;padding:6px 0;border-bottom:1px solid var(--line)}
 .meal:last-child{border:0}
 .meal span{color:var(--dim)}
@@ -355,7 +355,7 @@ nav button.on{color:var(--acc)}
 
   <div class="card sec f"><h2>🍽️ อาหาร</h2><div id="secFood"></div></div>
   <div class="card sec m"><h2>🏃 ออกกำลังกาย</h2><div id="secMove"></div></div>
-  <div class="card sec s"><h2>😴 การนอน</h2><div id="secSleep"></div></div>
+  <div class="card sec sl"><h2>😴 การนอน</h2><div id="secSleep"></div></div>
   <div class="card sec b"><h2>⚖️ ร่างกาย</h2><div id="secBody"></div></div>
 
   </div>
@@ -820,6 +820,12 @@ nav button.on{color:var(--acc)}
     <div class="lastbox" id="bedBox" style="margin-top:12px"></div>
     <div class="lastbox" style="margin-top:12px">🧬 <b>ระยะการนอน</b> — กรอกตามที่นาฬิกา/แหวนแสดง (ไม่มีก็เว้นว่าง ระบบจะใช้เวลาเข้านอน–ตื่นแทน)</div>
     <div class="stgin" id="stageInputs"></div>
+
+    <div style="margin-top:12px">
+      <label>ตื่นกลางดึกกี่ครั้ง (ไม่นับตอนตื่นเช้า)</label>
+      <input type="number" inputmode="numeric" id="sWakeN" min="0" step="1" placeholder="เว้นว่าง = ไม่ทราบ">
+      <div class="mini" style="margin-top:5px">ตื่น 0–1 ครั้ง/คืน ถือว่าปกติ · ตั้งแต่ครั้งที่ 2 หักคะแนนครั้งละ 3 (หักมากสุด 15)</div>
+    </div>
 
     <div id="stBox"></div>
     <label>โน้ต</label>
@@ -1407,7 +1413,7 @@ function loadLocal(){
 }
 
 const APP_NAME="สุขภาพ Tracker";
-const APP_VER="3.4";
+const APP_VER="3.5";
 const GS_CODE=`/*************************************************************
  *  สุขภาพ Tracker — Google Apps Script Backend
  *  วางโค้ดนี้ใน Extensions > Apps Script ของ Google Sheets
@@ -3231,12 +3237,19 @@ const STAGES=[
   ["rem","REM","#38bdf8",20,25,"ฝัน จัดระเบียบความจำและอารมณ์"],
   ["awake","ตื่นกลางดึก","#f87171",0,8,"ยิ่งน้อยยิ่งดี"]
 ];
+function hm(min){const m=Math.max(0,Math.round(min));return Math.floor(m/60)+" ชม. "+(m%60)+" นาที";}
+function effCol(e){return e>=85?"var(--move)":e>=80?"var(--food)":"var(--bad)";}
+/* หลับจริง (TST) = REM + Core + Deep · เวลาบนเตียง = TST + ตื่นกลางดึก
+   เกณฑ์ % ของแต่ละระยะเป็นเกณฑ์เทียบ "เวลาหลับจริง" ตามมาตรฐาน — ห้ามเอาเวลาตื่นมาหารรวม
+   ส่วน "ตื่นกลางดึก" คิดเป็น % ของเวลาบนเตียง (= 100 − ประสิทธิภาพการนอน) */
 function sleepEval(sl){
   if(!sl) return null;
   const v={awake:+sl.awake||0,rem:+sl.rem||0,core:+sl.core||0,deep:+sl.deep||0};
-  const tot=v.awake+v.rem+v.core+v.deep;
-  if(tot<30) return null;                        // ยังไม่ได้กรอกระยะ
-  const pct={}; STAGES.forEach(([k])=>pct[k]=n1(v[k]/tot*100));
+  const tst=v.rem+v.core+v.deep;                 // เวลาหลับจริง
+  const bed=tst+v.awake;                         // เวลาอยู่บนเตียง
+  if(tst<30) return null;                        // ยังไม่ได้กรอกระยะ
+  const wk=Math.max(0,Math.round(+sl.wakeups||0));
+  const pct={}; STAGES.forEach(([k])=>pct[k]=n1(v[k]/(k==="awake"?bed:tst)*100));
   const grades=STAGES.map(([k,name,c,lo,hi,why])=>{
     const p=pct[k];
     let st,txt;
@@ -3244,26 +3257,46 @@ function sleepEval(sl){
     else if(p<lo){ st=p<lo*0.65?"bad":"warn"; txt="น้อยกว่าเกณฑ์"; }
     else if(p>hi){ st="warn"; txt="มากกว่าเกณฑ์"; }
     else { st="ok"; txt="อยู่ในเกณฑ์"; }
-    return {k,name,c,p,lo,hi,st,txt,why,min:v[k]};
+    return {k,name,c,p,lo,hi,st,txt,why,min:v[k],base:k==="awake"?"เวลาบนเตียง":"เวลาหลับจริง"};
   });
-  const hrs=n1(tot/60);
+  const hrs=n1(tst/60), bedHrs=n1(bed/60);
+  const eff=bed? n1(tst/bed*100) : 0;            // ประสิทธิภาพการนอน · เกณฑ์มาตรฐาน ≥ 85%
   let score=grades.reduce((a,g)=>a+(g.st==="ok"?100:g.st==="warn"?60:25),0)/grades.length;
   score = score*0.7 + (hrs>=7&&hrs<=9?100:Math.max(0,100-Math.abs(hrs-8)*18))*0.3;
-  score=Math.round(score);
-  return {v,tot,hrs,pct,grades,score,
+  const wkPen=Math.min(15,Math.max(0,wk-1)*3);   // ตื่น 0–1 ครั้งถือว่าปกติ · ครั้งที่ 2 ขึ้นไปหักครั้งละ 3
+  score=Math.max(0,Math.round(score-wkPen));
+  return {v,tot:bed,tst,bed,hrs,bedHrs,eff,wakeups:wk,wkPen,pct,grades,score,
+    effTxt: eff>=90?"ดีมาก":eff>=85?"ผ่านเกณฑ์ (≥85%)":eff>=80?"ต่ำกว่าเกณฑ์เล็กน้อย":"ต่ำกว่าเกณฑ์",
     msg: score>=80?"คุณภาพการนอนดีมาก 🎉":score>=65?"คุณภาพพอใช้ ยังพัฒนาได้":score>=45?"คุณภาพไม่ค่อยดี ลองปรับกิจวัตรก่อนนอน":"คุณภาพแย่ ควรจัดการเรื่องการนอนจริงจัง"};
+}
+/* หัวสรุป: หลับจริง / บนเตียง / ประสิทธิภาพ — ใช้ทั้งหน้านอนและหน้าสรุป */
+function sleepHead(ev){
+  return `<div class="mini" style="margin-top:5px;line-height:1.75">
+    หลับจริง <b style="color:var(--sleep)">${hm(ev.tst)}</b> · อยู่บนเตียง ${hm(ev.bed)}<br>
+    ประสิทธิภาพการนอน <b style="color:${effCol(ev.eff)}">${ev.eff}%</b> <span style="color:var(--dim)">· ${ev.effTxt}</span>
+    ${ev.wkPen?`<br><span style="color:var(--food)">ตื่นกลางดึก ${ev.wakeups} ครั้ง — หัก ${ev.wkPen} คะแนน</span>`
+      :ev.wakeups?`<br>ตื่นกลางดึก ${ev.wakeups} ครั้ง <span style="color:var(--dim)">· อยู่ในเกณฑ์</span>`:""}</div>`;
 }
 function stageBar(ev){
   return `<div class="stg">${STAGES.map(([k,n,c])=>
-    `<i style="background:${c};width:${ev.pct[k]}%"></i>`).join("")}</div>
+    `<i style="background:${c};width:${ev.bed?n1(ev.v[k]/ev.bed*100):0}%"></i>`).join("")}</div>
     <div class="stglg">${STAGES.map(([k,n,c])=>
-    `<span><i style="background:${c}"></i>${n} ${ev.pct[k]}%</span>`).join("")}</div>`;
+    `<span><i style="background:${c}"></i>${n} ${Math.round(ev.v[k])} นาที</span>`).join("")}</div>
+    <div class="mini" style="margin-top:5px;color:var(--dim)">แถบ = สัดส่วนของเวลาบนเตียง · ตัวเลข % ด้านล่างเทียบกับเวลาหลับจริง</div>`;
 }
 function stageGrades(ev){
   return ev.grades.map(g=>`<div class="grade"><div>${esc(g.name)}
-    <small style="display:block;color:var(--dim);font-size:10.5px">เกณฑ์ ${g.k==="awake"?"ไม่เกิน "+g.hi:g.lo+"–"+g.hi}%</small></div>
+    <small style="display:block;color:var(--dim);font-size:10.5px">เกณฑ์ ${g.k==="awake"?"ไม่เกิน "+g.hi:g.lo+"–"+g.hi}% ของ${g.base}</small></div>
     <div style="text-align:right"><b style="color:${g.st==="ok"?"var(--move)":g.st==="warn"?"var(--food)":"var(--bad)"}">${g.p}%</b>
     <small style="display:block;color:var(--dim);font-size:10.5px">${Math.round(g.min)} นาที · ${g.txt}</small></div></div>`).join("");
+}
+/* ชั่วโมง "หลับจริง" ของบันทึกหนึ่งคืน — คำนวณใหม่ทุกครั้งที่แสดงผล
+   บันทึกเก่าที่เคยเก็บเวลารวม (นับตอนตื่นกลางดึกด้วย) จึงถูกแก้ให้เอง โดยไม่ต้องแตะข้อมูลเดิมในเครื่องหรือในชีต */
+function slHours(sl){
+  if(!sl) return 0;
+  const tst=(+sl.rem||0)+(+sl.core||0)+(+sl.deep||0);
+  if(tst>=30) return n1(tst/60);
+  return +sl.hours||0;                           // ไม่มีระยะการนอน → ใช้เวลาเข้านอน–ตื่นที่บันทึกไว้
 }
 /* ---------- นอน ---------- */
 function sCalc(){
@@ -3281,12 +3314,15 @@ el("stageInputs").innerHTML=STAGES.map(([k,name,c])=>`<div class="f" style="bord
   <input type="number" inputmode="numeric" placeholder="0" id="st_${k}_h"><span>ชม.</span>
   <input type="number" inputmode="numeric" placeholder="0" id="st_${k}_m"><span>นาที</span></div></div>`).join("");
 STAGES.forEach(([k])=>["h","m"].forEach(u=>el("st_"+k+"_"+u).oninput=stPreview));
-function stObj(){const o={};STAGES.forEach(([k])=>{o[k]=(+el("st_"+k+"_h").value||0)*60+(+el("st_"+k+"_m").value||0);});return o;}
+el("sWakeN").oninput=stPreview;
+function stObj(){const o={};STAGES.forEach(([k])=>{o[k]=(+el("st_"+k+"_h").value||0)*60+(+el("st_"+k+"_m").value||0);});
+  o.wakeups=Math.max(0,Math.round(+el("sWakeN").value||0)); return o;}
 function stPreview(){
   const ev=sleepEval(stObj());
   el("stBox").innerHTML = ev? `<div class="card" style="background:var(--card2);margin:12px 0 0">
     <div style="text-align:center"><b style="font-size:26px;color:${ev.score>=80?"var(--move)":ev.score>=65?"var(--food)":"var(--bad)"}">${ev.score}</b>
-    <span class="mini"> / 100 · รวม ${Math.floor(ev.tot/60)} ชม. ${ev.tot%60} นาที</span></div>
+    <span class="mini"> / 100</span></div>
+    ${sleepHead(ev)}
     ${stageBar(ev)}${stageGrades(ev)}
     <div class="mini" style="margin-top:8px">${ev.msg}</div></div>` : "";
 }
@@ -3301,6 +3337,7 @@ function sleepFill(){
     if(h) h.value = v? Math.floor(v/60) : "";
     if(m) m.value = v? v%60 : "";
   });
+  if(el("sWakeN")) el("sWakeN").value = r&&+r.wakeups>0 ? Math.round(+r.wakeups) : "";
   if(el("sNote")) el("sNote").value = r&&r.note ? r.note : "";
   sCalc(); stPreview();
   const b=el("sExist");
@@ -3311,12 +3348,13 @@ el("sAdd").onclick=async()=>{
   const old=arr(S.sleep).find(x=>okRow(x)&&x.date===S.date);
   const empty = !evv && !sCalc();
   if(empty) return alert("ยังไม่ได้ใส่เวลานอนหรือระยะการนอนเลยนะครับ");
-  if(old && (+old.stageScore>0) && !evv &&
-     !confirm("วันนี้เคยบันทึกระยะการนอนไว้แล้ว (คะแนน "+old.stageScore+")\nบันทึกทับด้วยข้อมูลที่ไม่มีระยะการนอน?")) return;
+  const oldEv=sleepEval(old);
+  if(oldEv && !evv &&
+     !confirm("วันนี้เคยบันทึกระยะการนอนไว้แล้ว (คะแนน "+oldEv.score+")\nบันทึกทับด้วยข้อมูลที่ไม่มีระยะการนอน?")) return;
   const r={date:S.date,bed:el("sBed").value,wake:el("sWake").value,
-    hours: evv? evv.hrs : sCalc(),
+    hours: evv? evv.hrs : sCalc(),                 /* = เวลาหลับจริง ไม่รวมตอนตื่นกลางดึก */
     quality: evv? Math.max(1,Math.min(5,Math.round(evv.score/20))) : 0,
-    wakeups: 0,
+    wakeups: st.wakeups,
     awake:st.awake,rem:st.rem,core:st.core,deep:st.deep,
     stageScore: evv?evv.score:0, note:el("sNote").value,ts:newTs()};
   S.sleep=arr(S.sleep).filter(x=>okRow(x)&&x.date!==S.date); S.sleep.push(r);
@@ -3656,7 +3694,7 @@ function dayData(d){
   const vol=wo.reduce((a,b)=>a+(+b.vol||0),0);
   const load=ex.reduce((a,b)=>a+(+b.load|| (+b.min||0)*2 ),0)
            + wo.reduce((a,b)=>a+(b.sets?b.sets.length*2.5:0),0);
-  return _ddc[d]={key:d,ex,fd,sl,wo,vol,load,kOut,min,kIn,pr,cb,ft,fb,na,sat,sug,alc,hours:sl?+sl.hours:0};
+  return _ddc[d]={key:d,ex,fd,sl,wo,vol,load,kOut,min,kIn,pr,cb,ft,fb,na,sat,sug,alc,hours:slHours(sl)};
 }
 /* คำแนะนำจากการเล่นเวท */
 function woAdvice(list){
@@ -4252,14 +4290,14 @@ function render(){
 
   /* ---------- การนอน ---------- */
   el("secSleep").innerHTML = d.sl? `
-    <div class="big"><b style="color:var(--sleep)">${d.sl.hours}</b><span>ชม. · ${d.sl.bed} → ${d.sl.wake}</span></div>
+    <div class="big"><b style="color:var(--sleep)">${d.hours}</b><span>ชม.${ev?" หลับจริง":""} · ${d.sl.bed} → ${d.sl.wake}</span></div>
     <div class="bar" style="height:10px;margin-top:9px"><i style="background:var(--sleep);width:${Math.min(100,d.hours/8*100)}%"></i></div>
     <div class="remain">${d.hours<7?`ขาดอีก <b style="color:var(--food)">${n1(7-d.hours)}</b> ชม. ถึงเกณฑ์ต่ำสุด (7 ชม.)`
       : d.hours>9?`นานกว่าเกณฑ์ ${n1(d.hours-9)} ชม.`:`<b style="color:var(--move)">อยู่ในเกณฑ์ 7–9 ชม.</b> ✅`}</div>
     ${ev? `<div class="stat" style="margin-top:13px">
         <div class="s"><span>คะแนนคุณภาพ</span><b style="color:${ev.score>=80?"var(--move)":ev.score>=65?"var(--food)":"var(--bad)"}">${ev.score}</b><span>/ 100</span></div>
-        <div class="s"><span>หลับลึก</span><b style="color:var(--sleep)">${Math.round(ev.v.deep)}</b><span>นาที (${ev.pct.deep}%)</span></div>
-      </div>${stageBar(ev)}${stageGrades(ev)}<div class="mini" style="margin-top:9px">${ev.msg}</div>`
+        <div class="s"><span>ประสิทธิภาพ</span><b style="color:${effCol(ev.eff)}">${ev.eff}</b><span>% (เกณฑ์ ≥85)</span></div>
+      </div>${sleepHead(ev)}${stageBar(ev)}${stageGrades(ev)}<div class="mini" style="margin-top:9px">${ev.msg}</div>`
       : `<div class="mini" style="margin-top:10px">ยังไม่ได้ใส่ระยะการนอน — ใส่ที่แท็บ 😴 นอน แล้วระบบจะให้คะแนนคุณภาพอัตโนมัติ</div>`}`
     : `<div class="empty">ยังไม่ได้บันทึกการนอน</div>`;
 
@@ -4328,8 +4366,8 @@ function render(){
     `${x.qty} × ${esc(x.unit)} · P${n1(x.protein)} C${n1(x.carb)} F${n1(x.fat)}${x.fiber?" · ไฟ "+n1(x.fiber):""}${x.sodium?" · 🧂 "+x.sodium+" มก.":""}`,
     `<span style="color:var(--food)">${x.kcal}</span>`,"food",x.ts)).join(""):`<div class="empty">ยังไม่มีบันทึก</div>`;
   el("sList").innerHTML=d.sl?row(`${d.sl.bed} → ${d.sl.wake}`,
-    `${ev?"คะแนนคุณภาพ "+ev.score+"/100 · หลับลึก "+ev.pct.deep+"% · REM "+ev.pct.rem+"%":"ยังไม่ได้ใส่ระยะการนอน"}${d.sl.note?" · "+esc(d.sl.note):""}`,
-    `<span style="color:var(--sleep)">${d.sl.hours}</span><small style="display:block;color:var(--dim);font-weight:400">ชม.</small>`,"sleep",d.sl.ts)
+    `${ev?"คะแนน "+ev.score+"/100 · ประสิทธิภาพ "+ev.eff+"% · หลับลึก "+ev.pct.deep+"% · REM "+ev.pct.rem+"%"+(ev.wakeups?" · ตื่น "+ev.wakeups+" ครั้ง":""):"ยังไม่ได้ใส่ระยะการนอน"}${d.sl.note?" · "+esc(d.sl.note):""}`,
+    `<span style="color:var(--sleep)">${d.hours}</span><small style="display:block;color:var(--dim);font-weight:400">ชม.</small>`,"sleep",d.sl.ts)
     :`<div class="empty">ยังไม่มีบันทึก</div>`;
 }
 function row(title,sub,val,kind,ts){
