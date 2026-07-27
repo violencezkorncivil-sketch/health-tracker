@@ -864,22 +864,6 @@ nav button.on{color:var(--acc)}
 
 <!-- ============ ตั้งค่า ============ -->
 <section class="page" id="p-set">
-  <div class="card" id="acctCard" style="display:none">
-    <h2>☁️ ซิงก์ข้ามเครื่องด้วยอีเมล</h2>
-    <div id="acctState" class="hint"></div>
-    <div id="acctForm">
-      <label>อีเมล</label><input type="email" id="sbEmail" placeholder="you@example.com" autocomplete="email">
-      <label>รหัสผ่าน</label><input type="password" id="sbPass" placeholder="อย่างน้อย 6 ตัว" autocomplete="current-password">
-      <div class="row" style="margin-top:12px">
-        <button class="btn" id="sbLogin" style="margin:0">เข้าสู่ระบบ</button>
-        <button class="btn ghost" id="sbSignup" style="margin:0">สมัครใหม่</button>
-      </div>
-      <div id="sbMsg" class="mini"></div>
-    </div>
-    <button class="btn ghost" id="sbOut" style="display:none">ออกจากระบบเครื่องนี้</button>
-    <div class="hint" style="margin-top:11px">ข้อมูลจะซิงก์อัตโนมัติทุกครั้งที่บันทึก เปิดเครื่องไหนก็เห็นเหมือนกัน · ไม่ต้องยุ่งกับ Google Sheets</div>
-  </div>
-
   <div class="card">
     <h2>🔗 เชื่อม Google Sheets <span class="tag">ทางเลือกขั้นสูง</span></h2>
     <label>ลิงก์ Web App (.../exec)</label>
@@ -1100,8 +1084,6 @@ let PIN = "";
    วิธีตั้ง: สร้างโปรเจกต์ฟรีที่ supabase.com → Settings → API
    แล้ววาง URL กับ anon key ตรงนี้ (คีย์ anon เปิดเผยได้ ปลอดภัยเพราะมี RLS)
    ============================================================ */
-const SUPA_URL = "";
-const SUPA_KEY = "";
 
 /* ============================================================
    📄 ลิงก์ "ทำสำเนา" ของไฟล์ Google Sheets ต้นแบบ (ผู้แจก/ผู้ขายใส่ครั้งเดียว)
@@ -1260,7 +1242,7 @@ function saveLocal(){
   _pend={ex:S.ex.slice(),food:S.food.slice(),wo:S.wo.slice(),sleep:S.sleep.slice(),
          body:S.body.slice(),photo:S.photo.slice(),myfood:S.myfood.slice(),water:{...S.water}};
   clearTimeout(saveTimer);
-  saveTimer=setTimeout(()=>{ sbPush(); saveNow(); _pend={}; },400);
+  saveTimer=setTimeout(()=>{ saveNow(); _pend={}; },400);
 }
 /* ================= จุดกู้คืนอัตโนมัติ =================
    เก็บสำเนาข้อมูลวันละ 1 ชุด ย้อนหลัง 7 วัน ไว้คนละที่กับข้อมูลหลัก
@@ -1403,7 +1385,7 @@ function loadLocal(){
 }
 
 const APP_NAME="สุขภาพ Tracker";
-const APP_VER="3.1";
+const APP_VER="3.2";
 const GS_CODE=`/*************************************************************
  *  สุขภาพ Tracker — Google Apps Script Backend
  *  วางโค้ดนี้ใน Extensions > Apps Script ของ Google Sheets
@@ -2385,77 +2367,11 @@ function el(id){return document.getElementById(id);}
 function n1(v){return Math.round(v*10)/10;}
 
 /* ---------- ซิงก์ด้วยบัญชีอีเมล (Supabase) ---------- */
-const SUPA_ON = !!(SUPA_URL && SUPA_KEY);
-let SB = {token:"", refresh:"", email:"", uid:""};
-function sbLoad(){ try{SB=JSON.parse(LS.get("sb")||"{}")||{};}catch(e){SB={};} return !!SB.token; }
-function sbSave(){ LS.set("sb",JSON.stringify(SB)); }
-async function sbFetch(path,opt={}){
-  const r=await fetch(SUPA_URL+path,{...opt,headers:{
-    "apikey":SUPA_KEY,"Content-Type":"application/json",
-    ...(SB.token?{"Authorization":"Bearer "+SB.token}:{}),...(opt.headers||{})}});
-  return r;
-}
-async function sbAuth(mode,email,pass){
-  const path = mode==="signup" ? "/auth/v1/signup" : "/auth/v1/token?grant_type=password";
-  const r=await sbFetch(path,{method:"POST",body:JSON.stringify({email:email,password:pass})});
-  const j=await r.json().catch(()=>({}));
-  if(!r.ok || (!j.access_token && !j.user)) return {err:(j.msg||j.error_description||j.message||"ไม่สำเร็จ")};
-  if(!j.access_token) return {info:"สมัครแล้ว — ตรวจอีเมลเพื่อยืนยันก่อนเข้าใช้งาน"};
-  SB={token:j.access_token,refresh:j.refresh_token,email:email,uid:(j.user&&j.user.id)||""};
-  sbSave(); return {ok:true};
-}
-async function sbRefresh(){
-  if(!SB.refresh) return false;
-  const r=await sbFetch("/auth/v1/token?grant_type=refresh_token",{method:"POST",body:JSON.stringify({refresh_token:SB.refresh})});
-  if(!r.ok) return false;
-  const j=await r.json(); SB.token=j.access_token; SB.refresh=j.refresh_token; sbSave(); return true;
-}
-function dataBlob(){ return {v:3,ex:S.ex,food:S.food,wo:S.wo,sleep:S.sleep,body:S.body,
-  photo:S.photo,myfood:S.myfood,water:S.water,user:S.user,lt1log:S.lt1log};}
 function applyBlob(j){
   if(!j)return;
   applyClean(cleanBlob(j));
   if(!(+j.v>=3)) fixWater();
 }
-let sbTimer=null;
-async function sbPush(now){
-  if(!SUPA_ON||!SB.token) return;
-  clearTimeout(sbTimer);
-  const go=async()=>{
-    let r=await sbFetch("/rest/v1/health_data",{method:"POST",
-      headers:{"Prefer":"resolution=merge-duplicates,return=minimal"},
-      body:JSON.stringify({user_id:SB.uid,data:dataBlob(),updated_at:new Date().toISOString()})});
-    if(r.status===401 && await sbRefresh()) return go();
-    setStatus(r.ok?"ซิงก์แล้ว ☁️":"ซิงก์ไม่สำเร็จ", r.ok?"ok":"err");
-  };
-  if(now) return go();
-  sbTimer=setTimeout(go,1500);
-}
-async function sbPull(){
-  if(!SUPA_ON||!SB.token) return null;
-  let r=await sbFetch("/rest/v1/health_data?select=data,updated_at&user_id=eq."+SB.uid);
-  if(r.status===401 && await sbRefresh()) r=await sbFetch("/rest/v1/health_data?select=data,updated_at&user_id=eq."+SB.uid);
-  if(!r.ok) return null;
-  const j=await r.json(); return j&&j[0]? j[0] : null;
-}
-async function sbStart(){
-  if(!SUPA_ON) return false;
-  if(!sbLoad()) return false;
-  setStatus("กำลังซิงก์...");
-  const row=await sbPull();
-  const localCount=S.food.length+S.ex.length+S.wo.length+S.sleep.length+S.body.length;
-  if(row&&row.data){
-    const cloudCount=(row.data.food||[]).length+(row.data.ex||[]).length+(row.data.wo||[]).length+(row.data.sleep||[]).length+(row.data.body||[]).length;
-    if(localCount>cloudCount && localCount>0 &&
-       confirm("เครื่องนี้มีข้อมูลมากกว่าบนคลาวด์ ("+localCount+" vs "+cloudCount+" รายการ)\n\nกด OK = อัปข้อมูลในเครื่องขึ้นคลาวด์\nกด Cancel = ใช้ข้อมูลจากคลาวด์แทน")){
-      await sbPush(true);
-    } else { applyBlob(row.data); saveLocal(); }
-  } else if(localCount>0){ await sbPush(true); }
-  setStatus("ซิงก์แล้ว ☁️","ok");
-  fillUser(); drawZones(); render(); renderWo(); renderBody();
-  return true;
-}
-
 /* ---------- การเชื่อมต่อ ---------- */
 function setStatus(t,cls){const s=el("status");s.textContent=t;s.className=cls||"";}
 let queueWarned=false, queueFull=false;
@@ -3201,48 +3117,13 @@ el("icsBtn").onclick=()=>{
   setTimeout(()=>alert("ดาวน์โหลดแล้ว ✅\nเปิดไฟล์นี้ในมือถือ → เพิ่มเข้าปฏิทิน จะเตือนทุกวันแม้ไม่ได้เปิดแอป"),300);
 };
 
-/* ---------- บัญชีซิงก์ ---------- */
-function acctShow(){
-  if(!SUPA_ON){el("acctCard").style.display="none";return;}
-  el("acctCard").style.display="block";
-  const on=!!SB.token;
-  el("acctState").innerHTML = on
-    ? `<span style="color:var(--move)">✅ เข้าสู่ระบบแล้ว</span> — ${esc(SB.email||"")}`
-    : "ยังไม่ได้เข้าสู่ระบบ — ตอนนี้ข้อมูลอยู่ในเครื่องนี้เท่านั้น";
-  el("acctForm").style.display=on?"none":"block";
-  el("sbOut").style.display=on?"block":"none";
-}
-function obAuth(mode){                       // ปุ่มบนหน้าต้อนรับ (ใช้เมื่อเปิด Supabase)
-  const e=el("obEmail"), p=el("obPass"), m=el("obAuthMsg");
-  if(!e||!p) return;
-  if(!e.value.trim()||p.value.length<6){ if(m) m.textContent="ใส่อีเมลและรหัสผ่านอย่างน้อย 6 ตัว"; return; }
-  el("email").value=e.value; el("pass").value=p.value;
-  doAuth(mode);
-}
-async function doAuth(mode){
-  const e=el("sbEmail").value.trim(), pw=el("sbPass").value;
-  if(!e||!pw) return el("sbMsg").innerHTML='<span style="color:var(--bad)">ใส่อีเมลและรหัสผ่านก่อนนะ</span>';
-  el("sbMsg").textContent="กำลังดำเนินการ...";
-  const r=await sbAuth(mode,e,pw);
-  if(r.err) return el("sbMsg").innerHTML='<span style="color:var(--bad)">'+esc(r.err)+'</span>';
-  if(r.info) return el("sbMsg").innerHTML='<span style="color:var(--food)">'+esc(r.info)+'</span>';
-  el("sbMsg").innerHTML='<span style="color:var(--move)">สำเร็จ ✅ กำลังซิงก์...</span>';
-  await sbStart(); acctShow();
-}
-el("sbLogin").onclick=()=>doAuth("login");
-el("sbSignup").onclick=()=>doAuth("signup");
-el("sbOut").onclick=()=>{ if(!confirm("ออกจากระบบ? ข้อมูลในเครื่องยังอยู่"))return;
-  SB={}; sbSave(); acctShow(); setStatus("เก็บในเครื่อง"); };
-
 /* ---------- เตือนสำรองข้อมูล ---------- */
 function backupInfo(){
   const last=LS.get("lastBackup");
   const days = last? Math.floor((new Date(today())-new Date(last))/86400000) : null;
   const el2=el("backupWarn");
-  const risky = !SUPA_ON || !SB.token;
   if(!el2)return;
-  if(!risky){ el2.style.display="none"; return; }
-  if(GAS_URL){ el2.style.display="none"; return; }
+  if(GAS_URL){ el2.style.display="none"; return; }   /* เชื่อมชีตแล้ว = มีสำรองอยู่แล้ว */
   if(days===null || days>=14){
     el2.style.display="block";
     el2.innerHTML=`💾 ${days===null?"ยังไม่เคยสำรองข้อมูลเลย":"สำรองข้อมูลล่าสุดเมื่อ "+days+" วันก่อน"} — ข้อมูลอยู่ในเครื่องนี้ที่เดียว
@@ -4823,8 +4704,6 @@ PIN = PIN || LS.get("pin");
 updateQueueBadge(); flushQueue();
 el("gasUrl").value=GAS_URL; el("gasPin").value=PIN;
 (async()=>{
-  const synced = await sbStart();
-  if(synced) return;
   if(!GAS_URL && el("noUrlWarn")) el("noUrlWarn").style.display="block";
   {const st=licState();
    if(st.on && !st.ok){ licShow(st.why||""); return; }}
@@ -4918,13 +4797,7 @@ function showOnboard(){
       การเชื่อม Google Sheets ด้านล่างเป็น<b>ตัวเลือกเสริม</b> สำหรับคนที่อยากให้ข้อมูลอยู่หลายเครื่อง ไม่หายถ้าล้างเบราว์เซอร์ และมีระบบสำรองอัตโนมัติทุกคืน — ทำทีหลังก็ได้ที่แท็บตั้งค่า</div>
       <button class="btn" onclick="LS.set('skipSetup','1');el('onb').style.display='none'">▶️ เริ่มใช้เลย (เก็บในเครื่อง)</button></div>
 
-    ${SUPA_ON?`<div class="step"><h3><i>☁️</i> หรือสมัครด้วยอีเมล (ซิงก์ทุกเครื่อง)</h3>
-      <label>อีเมล</label><input type="email" id="obEmail" placeholder="you@example.com">
-      <label>รหัสผ่าน</label><input type="password" id="obPass" placeholder="อย่างน้อย 6 ตัว">
-      <div class="row" style="margin-top:12px">
-        <button class="btn" style="margin:0" onclick="obAuth('signup')">สมัครใหม่</button>
-        <button class="btn ghost" style="margin:0" onclick="obAuth('login')">มีบัญชีแล้ว</button></div>
-      <div id="obAuthMsg" class="mini"></div></div>`:""}
+
 
     <div class="hint" style="text-align:center;margin:20px 0 12px;font-size:15px">
       — หรือเชื่อม Google Sheets ของตัวเอง (แนะนำ ใช้เวลา ~3 นาที) —</div>
@@ -5026,7 +4899,7 @@ el("showSetup").onclick=showOnboard;
          : '<span style="color:var(--food)">ปิดอยู่</span> — ใครเปิดก็ใช้ได้ทันที (ไฟล์ของคุณเอง)';
        c.scrollIntoView({behavior:"smooth"}); } } };}
 el("licClear").onclick=()=>{ if(confirm("ล้างคีย์ในเครื่องนี้? (ข้อมูลสุขภาพไม่หาย)")){LS.set("lic","");location.reload();} };
-notiShow(); acctShow(); quickShow();
+notiShow(); quickShow();
 el("resetDev").onclick=()=>{
   if(!confirm("ล้างลิงก์และ PIN ออกจากเครื่องนี้? (ข้อมูลใน Google Sheets ไม่หาย)"))return;
   LS.set("gas","");LS.set("pin","");location.reload();
