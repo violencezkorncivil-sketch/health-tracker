@@ -320,8 +320,9 @@ nav button.on{color:var(--acc)}
   <div id="backupWarn" class="warn" style="display:none"></div>
   <div id="updBar" class="warn" style="display:none"></div>
   <div id="noUrlWarn" class="warn" style="display:none">
-    💾 ตอนนี้เก็บข้อมูลไว้ใน<b>เครื่องนี้</b>เท่านั้น — ใช้ได้ปกติทุกอย่าง แต่ถ้าล้างข้อมูลเบราว์เซอร์หรือเปลี่ยนเครื่องจะหาย<br>
-    อยากให้ปลอดภัยขึ้น: ไปที่ <b>⚙️ ตั้งค่า</b> → เชื่อม Google Sheets หรือกดสำรองเป็นไฟล์
+    💾 ตอนนี้เก็บข้อมูลไว้ใน<b>เครื่องนี้</b>เท่านั้น — ใช้ได้ปกติทุกอย่าง แต่ถ้าล้างข้อมูลเบราว์เซอร์หรือเปลี่ยนเครื่องจะหาย
+    <button class="btn" style="margin-top:9px" onclick="showOnboard()">📖 เชื่อม Google Sheets — มีคู่มือพาทำทีละขั้น</button>
+    <button class="btn ghost" style="margin-top:7px" onclick="el('expJson').click()">หรือกดสำรองเป็นไฟล์ไว้ก่อน</button>
   </div>
 
   <div class="seg a" id="viewSeg">
@@ -865,7 +866,10 @@ nav button.on{color:var(--acc)}
 <!-- ============ ตั้งค่า ============ -->
 <section class="page" id="p-set">
   <div class="card">
-    <h2>🔗 เชื่อม Google Sheets <span class="tag">ทางเลือกขั้นสูง</span></h2>
+    <h2>🔗 เชื่อม Google Sheets <span class="tag">ทางเลือกเสริม</span></h2>
+    <div class="hint">ทำแล้วข้อมูลจะไม่หายตอนเปลี่ยนเครื่อง และมีระบบสำรองอัตโนมัติทุกคืน — ใช้เวลา ~5 นาที</div>
+    <button class="btn" onclick="showOnboard()" style="margin-top:11px">📖 เปิดคู่มือพาทำทีละขั้น</button>
+    <div class="mini" style="margin-top:11px">หรือถ้ามีลิงก์กับ PIN อยู่แล้ว กรอกตรงนี้ได้เลย</div>
     <label>ลิงก์ Web App (.../exec)</label>
     <input type="text" id="gasUrl" placeholder="https://script.google.com/macros/s/.../exec">
     <label>PIN (ต้องตรงกับที่ตั้งใน Code.gs)</label>
@@ -1323,7 +1327,25 @@ function dayWatch(){
       <button class="btn ghost" style="margin-top:8px" onclick="this.parentNode.style.display='none'">รับทราบ</button>`; }
 }
 setInterval(dayWatch,30000);
-document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") dayWatch(); });
+
+/* ---------- กลับมาเปิดแอปอีกครั้ง ----------
+   มือถือไม่ได้โหลดแอปใหม่ตอนกดไอคอน มันคืนหน้าเดิมที่ค้างไว้
+   ถ้าทิ้งไว้นาน = ตั้งใจเปิดใหม่ → พากลับหน้าสรุป
+   ถ้าเพิ่งสลับไปแป๊บเดียว = ยังทำอะไรค้างอยู่ → อยู่หน้าเดิม        */
+let _hidAt=0;
+function goHome(){
+  const b=document.querySelector("nav [data-p=home]"); if(b) b.click();
+  const v=el("viewSeg")&&el("viewSeg").querySelector('[data-v="day"]'); if(v) v.click();
+  window.scrollTo(0,0);
+}
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="hidden"){ _hidAt=Date.now(); return; }
+  const away = _hidAt ? Date.now()-_hidAt : 0;
+  _hidAt=0;
+  dayWatch();
+  if(away > 900000) goHome();               /* ห่างเกิน 15 นาที ถือว่าเปิดใหม่ */
+});
+addEventListener("pageshow",e=>{ if(e.persisted) goHome(); });
 
 /* ---------- เปิดหลายแท็บพร้อมกัน ----------
    แท็บอื่นเขียนข้อมูลใหม่ → รวมเข้ากับของเรา ไม่ให้เขียนทับกันไปมา   */
@@ -1385,7 +1407,7 @@ function loadLocal(){
 }
 
 const APP_NAME="สุขภาพ Tracker";
-const APP_VER="3.2";
+const APP_VER="3.4";
 const GS_CODE=`/*************************************************************
  *  สุขภาพ Tracker — Google Apps Script Backend
  *  วางโค้ดนี้ใน Extensions > Apps Script ของ Google Sheets
@@ -4708,7 +4730,7 @@ el("gasUrl").value=GAS_URL; el("gasPin").value=PIN;
   {const st=licState();
    if(st.on && !st.ok){ licShow(st.why||""); return; }}
   if(GAS_URL){loadAll();}
-  else if(!hadLocal && !LS.get("skipSetup")){showOnboard();}
+  else if(!GAS_URL && !LS.get("skipSetup")){showOnboard();}
   else setStatus("เก็บในเครื่อง");
 })();
 /* ================= คีย์เปิดใช้งาน (ออฟไลน์ทั้งหมด) =================
@@ -4868,6 +4890,7 @@ function showOnboard(){
     `}
 
     <button class="btn ghost" onclick="LS.set('skipSetup','1');el('onb').style.display='none'">ข้ามไปก่อน — ใช้แบบเก็บในเครื่อง</button>
+    <div class="hint" style="text-align:center;margin-top:9px">กลับมาเปิดหน้านี้ได้ทุกเมื่อที่ <b>⚙️ ตั้งค่า → 🔗 เชื่อม Google Sheets</b></div>
     <div class="hint" style="text-align:center;padding:0 10px;margin-top:10px">เวอร์ชัน ${APP_VER}</div>`;
 }
 function copyCode(btn){
