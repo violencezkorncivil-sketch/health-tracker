@@ -185,6 +185,12 @@ nav button.on{color:var(--acc)}
 .stglg i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px}
 .grade{display:flex;justify-content:space-between;font-size:13.5px;padding:6px 0;border-bottom:1px solid var(--line)}
 .grade:last-child{border:0}
+.rdrow{display:flex;gap:6px;margin-top:6px}
+.rdrow button{flex:1;background:var(--card2);border:1px solid var(--line);border-radius:11px;
+  padding:8px 2px;color:var(--txt);font-weight:700;font-size:15px;cursor:pointer;line-height:1.15}
+.rdrow button small{display:block;font-weight:400;font-size:9.5px;color:var(--dim);margin-top:3px}
+.rdrow button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.rdrow button.on small{color:rgba(255,255,255,.85)}
 .zr{display:flex;align-items:center;gap:8px;margin-bottom:7px}
 .zr .zn{flex:1;font-size:12px}
 .zr .zn small{display:block;color:var(--dim);font-size:10px}
@@ -347,6 +353,19 @@ nav button.on{color:var(--acc)}
 
   <div class="card sec r" id="readyCard">
     <h2>🔋 ความพร้อมวันนี้</h2><div id="secReady"></div>
+    <button class="btn g" id="rdToggle" style="margin-top:13px">📝 เช็คความรู้สึกวันนี้</button>
+    <div id="rdForm" style="display:none;margin-top:12px">
+      <div class="mini">ตอบตามความรู้สึกจริงตอนนี้ ข้อไหนไม่อยากตอบข้ามได้ · กดซ้ำที่ตัวเลือกเดิมเพื่อล้าง</div>
+      <div id="rdQs"></div>
+      <div class="row" style="margin-top:12px">
+        <div><label>ชีพจรตอนตื่น (bpm)</label>
+          <input type="number" inputmode="numeric" id="rdRhr" min="20" max="200" placeholder="ไม่มีก็เว้นว่าง"></div>
+        <div><label>HRV ตอนตื่น (ms)</label>
+          <input type="number" inputmode="numeric" id="rdHrv" min="1" max="400" placeholder="ไม่มีก็เว้นว่าง"></div>
+      </div>
+      <div class="mini" style="margin-top:5px">วัดตอนเพิ่งตื่น ยังไม่ลุกจากเตียง จะเทียบกับค่าฐานของคุณเอง ไม่ใช่ค่ามาตรฐานคนอื่น</div>
+      <button class="btn p" id="rdSave">บันทึกความรู้สึก</button>
+    </div>
   </div>
 
   <div class="card sec t" id="tdeeCard" style="display:none">
@@ -1023,7 +1042,10 @@ nav button.on{color:var(--acc)}
       ส่วน<b>วัตถุดิบเดี่ยวและผลไม้</b> ใช้ค่าที่วัดจากห้องแล็บ แม่นกว่ามาก<br><br>
       แคลอรี่ที่เผาผลาญคำนวณด้วยสูตร MET × น้ำหนัก × ชั่วโมง<br>
       TDEE คำนวณด้วยสูตร Mifflin-St Jeor<br>
-      คุณภาพการนอนอ้างอิงสัดส่วนระยะการนอนของผู้ใหญ่และประสิทธิภาพการนอน (เกณฑ์ ≥85%)
+      คุณภาพการนอนอ้างอิงสัดส่วนระยะการนอนของผู้ใหญ่และประสิทธิภาพการนอน (เกณฑ์ ≥85%)<br>
+      ความพร้อมประจำวันคิดจาก 7 ตัวชี้วัด — การนอน · ความรู้สึกตัวเอง 4 ข้อ (แนวเดียวกับ Hooper index)
+      · สมดุลโหลดการฝึก 7 เทียบ 28 วัน (ACWR) · ชีพจรและ HRV ตอนตื่นเทียบค่าฐานของตัวเอง · แอลกอฮอล์เมื่อคืน
+      โดยนับเฉพาะตัวที่มีข้อมูลจริง
     </div>
     <div class="lastbox" style="margin-top:12px;font-size:12px;line-height:1.7">
       📚 <b>แหล่งข้อมูลโภชนาการ</b><br>
@@ -1164,6 +1186,24 @@ function cleanWater(o){
   return out;
 }
 const UNUM=["age","w","h","act","goal","rhr","hrmax","lthr","tdeeReal","z2goal","lt1","lt1d","lt1m"];
+/* บันทึกความพร้อมรายวัน: ล้า/ปวดกล้ามเนื้อ/เครียด/อารมณ์ (1-5) + ชีพจรตอนตื่น + HRV */
+const RDK=["f","s","st","m","rhr","hrv"];
+function cleanRd(o){
+  const out={};
+  if(!okRow(o)) return out;
+  Object.keys(o).forEach(k=>{
+    if(!DATE_RE.test(k) || !okRow(o[k])) return;
+    const v={}, src=o[k];
+    RDK.forEach(x=>{
+      const n=+src[x];
+      if(!isFinite(n)||n<=0) return;
+      if(["f","s","st","m"].includes(x)){ if(n>=1&&n<=5) v[x]=Math.round(n); }
+      else if(n<=999) v[x]=Math.round(n);
+    });
+    if(Object.keys(v).length) out[k]=v;
+  });
+  return out;
+}
 function cleanUser(u){
   if(!okRow(u)) return {};
   const o={};
@@ -1184,6 +1224,7 @@ function cleanBlob(j){
     wo:    cleanWo(j.wo),
     water: cleanWater(j.water),
     lt1log:arr(j.lt1log).filter(x=>okRow(x)&&DATE_RE.test(String(x.d||""))&&+x.hr>0),
+    rd:    cleanRd(j.rd),
     user:  cleanUser(j.user)
   };
 }
@@ -1191,6 +1232,7 @@ function applyClean(c){
   S.ex=c.ex; S.food=c.food; S.sleep=c.sleep; S.body=c.body;
   S.photo=c.photo; S.myfood=c.myfood; S.wo=c.wo; S.water=c.water;
   if(c.lt1log.length||!S.lt1log) S.lt1log=c.lt1log;
+  S.rd=c.rd;
   Object.assign(S.user,c.user);
 }
 function countAll(o){
@@ -1243,7 +1285,7 @@ function saveNow(force){
   try{
     localStorage.setItem(DKEY,JSON.stringify({
       v:3,ex:S.ex,food:S.food,wo:S.wo,sleep:S.sleep,body:S.body,
-      photo:S.photo,myfood:S.myfood,water:S.water,user:S.user,lt1log:S.lt1log}));
+      photo:S.photo,myfood:S.myfood,water:S.water,user:S.user,lt1log:S.lt1log,rd:S.rd}));
     _lastWritten={ex:S.ex.slice(),food:S.food.slice(),wo:S.wo.slice(),sleep:S.sleep.slice(),
                   body:S.body.slice(),photo:S.photo.slice(),myfood:S.myfood.slice()};
     saveFail=0;
@@ -1260,7 +1302,7 @@ let _pend={};
 function saveLocal(){
   if(saveBlocked) return;
   _pend={ex:S.ex.slice(),food:S.food.slice(),wo:S.wo.slice(),sleep:S.sleep.slice(),
-         body:S.body.slice(),photo:S.photo.slice(),myfood:S.myfood.slice(),water:{...S.water}};
+         body:S.body.slice(),photo:S.photo.slice(),myfood:S.myfood.slice(),water:{...S.water},rd:{...S.rd}};
   clearTimeout(saveTimer);
   saveTimer=setTimeout(()=>{ saveNow(); _pend={}; },400);
 }
@@ -1271,7 +1313,7 @@ function saveLocal(){
 const SNAPK="healthSnap", UNDOK="healthUndo";
 function snapList(){ try{const a=JSON.parse(LS.get(SNAPK)||"[]"); return Array.isArray(a)?a:[];}catch(e){return [];} }
 function snapBlob(){ return {v:3,ex:S.ex,food:S.food,wo:S.wo,sleep:S.sleep,body:S.body,
-  myfood:S.myfood,water:S.water,user:S.user,lt1log:S.lt1log}; }
+  myfood:S.myfood,water:S.water,user:S.user,lt1log:S.lt1log,rd:S.rd}; }
 function snapMake(){
   try{
     const L=snapList(), t=today();
@@ -1423,7 +1465,7 @@ function loadLocal(){
 }
 
 const APP_NAME="สุขภาพ Tracker";
-const APP_VER="3.8";
+const APP_VER="3.9";
 const GS_CODE=`/*************************************************************
  *  สุขภาพ Tracker — Google Apps Script Backend
  *  วางโค้ดนี้ใน Extensions > Apps Script ของ Google Sheets
@@ -2701,7 +2743,26 @@ function userPayload(){
   const prev=Math.min(24,+LS.get("lt1n")||0);
   for(let i=L.length;i<prev;i++) o["lt1h"+(i+1)]=0;    /* ล้างเฉพาะคีย์ที่เคยเขียนไว้แล้วตอนนี้ไม่มี */
   LS.set("lt1n",String(L.length));
+  /* บันทึกความพร้อม 60 วันล่าสุด — อัดเป็นตัวเลขก้อนเดียวต่อวัน ชีต User รับได้เลย ไม่ต้องแก้สคริปต์ */
+  Object.keys(S.rd||{}).filter(DATE_RE.test.bind(DATE_RE)).sort().slice(-60).forEach(d=>{
+    const r=S.rd[d]||{};
+    const num=(+r.f||0)*1e9+(+r.s||0)*1e8+(+r.st||0)*1e7+(+r.m||0)*1e6+(+r.rhr||0)*1e3+(+r.hrv||0);
+    if(num>0) o["rd"+d.replace(/-/g,"")]=num;
+  });
   return o;
+}
+function rdFromUser(u){
+  const out={};
+  Object.keys(u||{}).filter(k=>/^rd\d{8}$/.test(k)).forEach(k=>{
+    const v=+u[k]; if(!(v>0)) return;
+    const d=k.slice(2), o={};
+    const put=(key,val,lo,hi)=>{ if(val>=lo&&val<=hi) o[key]=val; };
+    put("f", Math.floor(v/1e9)%10,1,5);  put("s", Math.floor(v/1e8)%10,1,5);
+    put("st",Math.floor(v/1e7)%10,1,5);  put("m", Math.floor(v/1e6)%10,1,5);
+    put("rhr",Math.floor(v/1e3)%1000,20,999); put("hrv",v%1000,1,999);
+    if(Object.keys(o).length) out[d.slice(0,4)+"-"+d.slice(4,6)+"-"+d.slice(6,8)]=o;
+  });
+  return out;
 }
 function lt1FromUser(u){
   const out=[];
@@ -2715,7 +2776,7 @@ function lt1FromUser(u){
 }
 const S = {
   date: today(),
-  ex: [], food: [], sleep: [], water: {}, wo: [], body: [], photo: [], myfood: [], lt1log: [],
+  ex: [], food: [], sleep: [], water: {}, wo: [], body: [], photo: [], myfood: [], lt1log: [], rd: {},
   user: {sex:"m",age:35,w:70,h:170,act:1.375,goal:0,rhr:60,hrmax:0,lthr:0,zmodel:"hrr",tdeeReal:0,z2goal:150,
          lt1:0,lt1d:0,lt1m:0},
   chosen: null, qty: 1, meal: "เช้า", time: "", sq: 3, range: 7,
@@ -2835,6 +2896,8 @@ async function loadAll(){
       S.water=c.water;
       const hist=lt1FromUser(j.user||{});
       if(hist.length>=(S.lt1log||[]).length) S.lt1log=hist;
+      const cRd=rdFromUser(j.user||{});           /* ของในเครื่องชนะ คลาวด์เติมเฉพาะวันที่ยังไม่มี */
+      Object.keys(cRd).forEach(d=>{ if(!S.rd[d]) S.rd[d]=cRd[d]; });
       if(cloudN>0) Object.assign(S.user,c.user);      /* ชีตว่าง = ยังไม่เคยตั้งค่า อย่าทับของในเครื่อง */
       fillUser(); drawZones();
 
@@ -3189,8 +3252,9 @@ function sugarOf(name,carb,cat){
   return n1(carb*0.06);
 }
 /* กรัมแอลกอฮอล์บริสุทธิ์ (1 ดื่มมาตรฐาน = 10 ก.) */
-const ALC=[[/เบียร์/,13],[/ไวน์/,14],[/เหล้า|วิสกี้|วอดก้า|เตกีล่า|ยิน|รัม|สาเก|โซจู/,9.5],
- [/ค็อกเทล|ไฮบอล|เหล้าปั่น/,14],[/เบียร์ 0|ไม่มีแอลกอฮอล์/,0]];
+const ALC=[[/เบียร์ ?0|ไร้แอลกอฮอล์|ไม่มีแอลกอฮอล์|non-?alco/i,0],   /* ต้องเช็คก่อนกฎทั่วไป ไม่งั้น "เบียร์ 0" จะถูกนับเป็นเบียร์ปกติ */
+ [/เบียร์/,13],[/ไวน์/,14],[/เหล้า|วิสกี้|วอดก้า|เตกีล่า|ยิน|รัม|สาเก|โซจู/,9.5],
+ [/ค็อกเทล|ไฮบอล|เหล้าปั่น/,14]];
 function alcOf(name){ for(const [re,v] of ALC) if(re.test(name)) return v; return 0; }
 
 /* ---------- สัดส่วนไขมันอิ่มตัว (ประมาณจากชนิดอาหาร) ---------- */
@@ -3497,7 +3561,7 @@ function backupInfo(){
 }
 el("expJson").onclick=()=>{
   const data={v:3,exported:S.date,ex:S.ex,food:S.food,wo:S.wo,sleep:S.sleep,body:S.body,
-    photo:S.photo,myfood:S.myfood,water:S.water,user:S.user,lt1log:S.lt1log};
+    photo:S.photo,myfood:S.myfood,water:S.water,user:S.user,lt1log:S.lt1log,rd:S.rd};
   const a=document.createElement("a");
   a.href=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:"application/json"}));
   a.download="health-backup-"+S.date+".json"; a.click();
@@ -4024,11 +4088,14 @@ function dayData(d){
         min=ex.reduce((a,b)=>a+(+b.min||0),0)+wo.reduce((a,b)=>a+(+b.min||0),0);
   const kIn=fd.reduce((a,b)=>a+(+b.kcal||0),0);
   const pr=fd.reduce((a,b)=>a+(+b.protein||0),0), cb=fd.reduce((a,b)=>a+(+b.carb||0),0), ft=fd.reduce((a,b)=>a+(+b.fat||0),0);
-  const fb=fd.reduce((a,b)=>a+(+b.fiber|| fiberOf(b.name,+b.carb||0,"") ),0);
-  const na=fd.reduce((a,b)=>a+(+b.sodium|| sodiumOf(b.name,"") ),0);
-  const sat=fd.reduce((a,b)=>a+(+b.sat|| satOf(b.name,+b.fat||0,"") ),0);
-  const sug=fd.reduce((a,b)=>a+(+b.sugar|| sugarOf(b.name,+b.carb||0,"") ),0);
-  const alc=fd.reduce((a,b)=>a+(+b.alc|| alcOf(b.name) ),0);
+  /* ค่าที่บันทึกไว้เป็น 0 คือ "วัดแล้วได้ศูนย์" ไม่ใช่ "ไม่มีข้อมูล" — ห้ามเอาค่าประมาณไปทับ
+     (ไม่งั้นน้ำมันมะกอกที่โซเดียม 0 จะโดนเดาเป็น 400 มก.) */
+  const pick=(b,k,est)=>(b[k]!==undefined&&b[k]!=="")?(+b[k]||0):est;
+  const fb=fd.reduce((a,b)=>a+pick(b,"fiber", fiberOf(b.name,+b.carb||0,"")),0);
+  const na=fd.reduce((a,b)=>a+pick(b,"sodium",sodiumOf(b.name,"")),0);
+  const sat=fd.reduce((a,b)=>a+pick(b,"sat",  satOf(b.name,+b.fat||0,"")),0);
+  const sug=fd.reduce((a,b)=>a+pick(b,"sugar",sugarOf(b.name,+b.carb||0,"")),0);
+  const alc=fd.reduce((a,b)=>a+pick(b,"alc",  alcOf(b.name)),0);
   const vol=wo.reduce((a,b)=>a+(+b.vol||0),0);
   const load=ex.reduce((a,b)=>a+(+b.load|| (+b.min||0)*2 ),0)
            + wo.reduce((a,b)=>a+(b.sets?b.sets.length*2.5:0),0);
@@ -4340,49 +4407,179 @@ function alcHTML(){
 }
 
 /* ---------- คะแนนความพร้อม (แนวเดียวกับ Whoop/Oura/Garmin) ---------- */
+/* ---------- ความพร้อมวันนี้ ---------- */
+/* 4 ข้อนี้อิงแบบประเมินความรู้สึกที่ใช้กับนักกีฬา (Hooper index) — 1 = แย่สุด 5 = ดีสุด */
+const RDLB={
+  f :["ล้ามาก","ล้า","พอกลางๆ","ค่อนข้างสด","สดชื่นเต็มที่"],
+  s :["ปวดมาก","ปวด","ตึงนิดหน่อย","เกือบหาย","ไม่ปวดเลย"],
+  st:["เครียดมาก","เครียด","กลางๆ","ค่อนข้างสบาย","สบายมาก"],
+  m :["แย่มาก","ไม่ค่อยดี","เฉยๆ","ดี","ดีมาก"]
+};
+const RDQ=[["f","😮‍💨 ความล้าโดยรวม"],["s","💪 ปวดกล้ามเนื้อ"],["st","🧠 ความเครียด"],["m","🙂 อารมณ์"]];
+function rdGet(d){ return (S.rd&&S.rd[d]) || {}; }
+/* ค่าฐานของตัวเอง = มัธยฐานย้อนหลัง 7 วัน (ไม่นับวันนี้) ต้องมีอย่างน้อย 3 วันถึงจะเชื่อได้ */
+function rdBase(key,d){
+  const v=[];
+  for(let i=1;i<=10 && v.length<7;i++){ const x=+rdGet(shiftDate(d,-i))[key]; if(x>0) v.push(x); }
+  if(v.length<3) return null;
+  v.sort((a,b)=>a-b);
+  return v.length%2 ? v[(v.length-1)/2] : (v[v.length/2-1]+v[v.length/2])/2;
+}
 function readiness(){
   const d=dayData(S.date);
   const last7=period(S.date,7), last28=period(S.date,28);
+  const f=[];
+
+  /* 1) การนอนคืนล่าสุด — ใช้คะแนนคุณภาพเต็ม ไม่ใช่แค่จำนวนชั่วโมง */
+  const ev=sleepEval(d.sl);
+  const sSleep = ev? ev.score : (d.sl? Math.max(0,Math.min(100,Math.round((d.hours/8)*100))) : null);
+  f.push({k:"การนอนคืนล่าสุด",v:sSleep,w:.28,
+    txt: sSleep===null?"ยังไม่ได้บันทึก"
+       : (ev?`คะแนนคุณภาพ ${ev.score} · หลับจริง ${ev.hrs} ชม.`:`${d.hours} ชม. (ยังไม่ได้ใส่ระยะการนอน)`)});
+
+  /* 2) การนอน 7 คืน — ดูทั้งปริมาณ (หนี้) และคุณภาพเฉลี่ย */
+  const slN=last7.filter(x=>x.hours>0);
+  let sWeek=null, weekTxt="ยังไม่มีข้อมูล";
+  if(slN.length){
+    const debt=n1(slN.reduce((a,b)=>a+Math.max(0,7.5-b.hours),0));
+    const qs=last7.map(x=>sleepEval(x.sl)).filter(Boolean).map(x=>x.score);
+    const sDebt=Math.max(0,Math.round(100-debt*12));
+    const sQual=qs.length? Math.round(qs.reduce((a,b)=>a+b,0)/qs.length) : null;
+    sWeek = sQual===null ? sDebt : Math.round(sDebt*0.6 + sQual*0.4);
+    weekTxt = `ขาดสะสม ${debt} ชม.` + (sQual!==null?` · คุณภาพเฉลี่ย ${sQual}/100`:" · ยังไม่มีคะแนนคุณภาพ")
+            + ` (${slN.length}/7 คืน)`;
+  }
+  f.push({k:"การนอน 7 คืน",v:sWeek,w:.15,txt:weekTxt});
+
+  /* 3) ความรู้สึกวันนี้ — งานวิจัยพบว่าตอบสนองไวกว่าตัวเลขจากอุปกรณ์ (Saw 2016) */
+  const r=rdGet(S.date);
+  const sub=["f","s","st","m"].map(k=>+r[k]).filter(x=>x>=1&&x<=5);
+  let sSub=null, subTxt="ยังไม่ได้เช็ค — กดปุ่มด้านล่าง ใช้เวลา 20 วินาที";
+  if(sub.length){
+    const avg=sub.reduce((a,b)=>a+b,0)/sub.length;
+    sSub=Math.round((avg-1)/4*100);
+    const lab=[]; if(+r.f) lab.push("ล้า "+RDLB.f[r.f-1]); if(+r.s) lab.push("กล้ามเนื้อ "+RDLB.s[r.s-1]);
+    if(+r.st) lab.push("เครียด "+RDLB.st[r.st-1]); if(+r.m) lab.push("อารมณ์ "+RDLB.m[r.m-1]);
+    subTxt=lab.join(" · ");
+  }
+  f.push({k:"ความรู้สึกวันนี้",v:sSub,w:.22,txt:subTxt});
+
+  /* 4) สมดุลการฝึก (ACWR) — ต้องมีประวัติซ้อมจริงในช่วง 21 วันก่อนหน้า
+     ไม่งั้นสูตรจะได้ 28÷7 = 4.00 เป๊ะเสมอ ซึ่งเป็นผลทางคณิตศาสตร์ ไม่ใช่สัญญาณ */
   const acute=last7.reduce((a,b)=>a+b.load,0)/7;
   const chronic=last28.reduce((a,b)=>a+b.load,0)/28;
-  const acwr = chronic>3 ? acute/chronic : null;      // Acute:Chronic Workload Ratio
-  const f=[];
-  // 1) การนอนคืนล่าสุด
-  const ev=sleepEval(d.sl);
-  let sSleep = ev? ev.score : (d.sl? Math.max(0,Math.min(100,Math.round((d.hours/8)*100))) : null);
-  f.push({k:"การนอนคืนล่าสุด",v:sSleep,w:.40,
-    txt: sSleep===null?"ยังไม่ได้บันทึก": sSleep>=80?"ฟื้นตัวดี":sSleep>=60?"พอใช้":"นอนไม่พอ/คุณภาพต่ำ"});
-  // 2) หนี้การนอนสะสม 7 คืน
-  const slN=last7.filter(x=>x.hours>0);
-  const debt = slN.length? n1(slN.reduce((a,b)=>a+Math.max(0,7.5-b.hours),0)) : null;
-  f.push({k:"หนี้การนอนสะสม 7 คืน",v: debt===null?null:Math.max(0,Math.round(100-debt*12)),w:.20,
-    txt: debt===null?"ยังไม่มีข้อมูล":`ขาดสะสม ${debt} ชม.`});
-  // 3) โหลดการฝึกเทียบฐาน (ACWR)
-  let sLoad=null, loadTxt="ข้อมูลยังน้อย";
+  const early=last28.slice(0,21).reduce((a,b)=>a+b.load,0);   /* วันที่ 8-28 ย้อนหลัง */
+  const enough = early>=40 && chronic>3;
+  const acwr = enough ? acute/chronic : null;
+  let sLoad=null, loadTxt;
   if(acwr!==null){
     sLoad = acwr>1.5? 35 : acwr>1.3? 60 : acwr>=0.8? 100 : acwr>=0.5? 80 : 65;
     loadTxt = acwr>1.5?`ซ้อมหนักพุ่งเร็วเกินไป (${n1(acwr)}× ของฐาน) เสี่ยงบาดเจ็บ`
       : acwr>1.3?`เพิ่มโหลดค่อนข้างเร็ว (${n1(acwr)}× ของฐาน)`
       : acwr>=0.8?`โหลดสมดุลกับที่เคยทำ (${n1(acwr)}×)`
       : `ซ้อมน้อยกว่าฐานเดิม (${n1(acwr)}×) — เพิ่มได้`;
+  }else{
+    const left=Math.max(0,28-histDays());
+    loadTxt = left>0 ? `กำลังสร้างฐาน — อีก ${left} วันจึงเทียบได้ (ต้องมีประวัติซ้อม 4 สัปดาห์)`
+                     : "ยังซ้อมไม่สม่ำเสมอพอจะเทียบฐาน — ซ้อมต่อเนื่องอีกสักหน่อย";
   }
-  f.push({k:"สมดุลการฝึก (7 วัน เทียบ 28 วัน)",v:sLoad,w:.25,txt:loadTxt});
-  // 4) ความเหนื่อยจากเมื่อวาน
+  f.push({k:"สมดุลการฝึก (7 วัน เทียบ 28 วัน)",v:sLoad,w:.15,txt:loadTxt});
+
+  /* 5) ความหนักเมื่อวาน — ถ้ายังไม่เคยบันทึกการออกกำลังเลย ไม่ใช่ว่า "เบา" แต่คือ "ไม่รู้" */
   const y=dayData(shiftDate(S.date,-1));
-  const sY = y.load>110? 45 : y.load>80? 70 : 100;
-  f.push({k:"ความหนักเมื่อวาน",v:sY,w:.15,
-    txt: y.load>110?`เมื่อวานหนักมาก (โหลด ${Math.round(y.load)}) ควรผ่อน`:y.load>80?`เมื่อวานหนักพอควร (${Math.round(y.load)})`:`เมื่อวานเบา ฟื้นตัวได้`});
+  const everEx = arr(S.ex).length>0 || arr(S.wo).length>0;
+  const sY = !everEx? null : y.load>110? 45 : y.load>80? 70 : 100;
+  f.push({k:"ความหนักเมื่อวาน",v:sY,w:.10,
+    txt: !everEx? "ยังไม่เคยบันทึกการออกกำลังกาย"
+       : y.load>110?`เมื่อวานหนักมาก (โหลด ${Math.round(y.load)}) ควรผ่อน`
+       : y.load>80?`เมื่อวานหนักพอควร (${Math.round(y.load)})`:`เมื่อวานเบา ฟื้นตัวได้`});
+
+  /* 6) สัญญาณตอนตื่น — ชีพจร/HRV เทียบกับค่าฐานของตัวเอง ไม่ใช่ค่ามาตรฐานคนอื่น */
+  const parts=[], ptxt=[];
+  const rhr=+r.rhr, bRhr=rdBase("rhr",S.date);
+  if(rhr>0 && bRhr){
+    const dv=rhr-bRhr;
+    parts.push(dv<=0?100:dv<=3?85:dv<=6?65:dv<=10?45:30);
+    ptxt.push(`ชีพจร ${rhr} (ฐาน ${n1(bRhr)}, ${dv>0?"+":""}${n1(dv)})`);
+  }else if(rhr>0) ptxt.push(`ชีพจร ${rhr} — ยังไม่มีฐานเทียบ (ต้องวัด 3 วันขึ้นไป)`);
+  const hrv=+r.hrv, bHrv=rdBase("hrv",S.date);
+  if(hrv>0 && bHrv){
+    const pc=(hrv-bHrv)/bHrv*100;
+    parts.push(pc>=0?100:pc>=-10?80:pc>=-20?60:40);
+    ptxt.push(`HRV ${hrv} (ฐาน ${n1(bHrv)}, ${pc>0?"+":""}${Math.round(pc)}%)`);
+  }else if(hrv>0) ptxt.push(`HRV ${hrv} — ยังไม่มีฐานเทียบ`);
+  f.push({k:"สัญญาณตอนตื่น",v: parts.length? Math.round(parts.reduce((a,b)=>a+b,0)/parts.length) : null,
+    w:.10, txt: ptxt.length? ptxt.join(" · ") : "ยังไม่ได้วัดชีพจร/HRV ตอนตื่น (ไม่กรอกก็ได้)"});
+
+  /* 7) แอลกอฮอล์เมื่อคืน — ดื่มเย็นวานนี้คือคืนที่เพิ่งผ่านมา
+     ถ้าเมื่อวานไม่ได้บันทึกอาหารเลย ก็ไม่รู้ว่าดื่มหรือเปล่า อย่าเดาว่าไม่ดื่ม */
+  const ag=y.alc||0;
+  const knowAlc = y.fd.length>0 || ag>0;
+  const sAl = !knowAlc? null : ag<=0?100: ag<=10?85: ag<=20?65: ag<=40?45:30;
+  f.push({k:"แอลกอฮอล์เมื่อคืน",v:sAl,w:.10,
+    txt: !knowAlc? "เมื่อวานไม่ได้บันทึกอาหาร เลยไม่รู้ว่าดื่มหรือเปล่า"
+       : ag<=0?"ไม่ได้ดื่ม":`ดื่ม ${n1(ag)} ก. (${n1(ag/10)} ดื่มมาตรฐาน) — รบกวนหลับลึกและ REM`});
+
+  /* ต้องมีสัญญาณจริงอย่างน้อย 1 อย่างถึงจะประเมินได้ — ไม่งั้น "ไม่มีข้อมูล" จะกลายเป็น "คะแนนเต็ม" */
+  const core=[sSleep,sSub, f.find(x=>x.k==="สัญญาณตอนตื่น").v];
+  if(!core.some(x=>x!==null)) return null;
   const use=f.filter(x=>x.v!==null);
   if(!use.length) return null;
   const tw=use.reduce((a,b)=>a+b.w,0);
   const score=Math.round(use.reduce((a,b)=>a+b.v*b.w,0)/tw);
   const weak=[...use].sort((a,b)=>a.v-b.v)[0];
+
+  /* ธงเตือน (ไม่คิดคะแนน) — น้ำหนักหายเร็วผิดปกติมักแปลว่าขาดน้ำ */
+  const flags=[];
+  const bw=bodySorted().filter(x=>+x.w>0);
+  const todayW=bw.find(x=>x.date===S.date);
+  if(todayW){
+    const prev=bw.filter(x=>x.date<S.date).slice(-7);
+    if(prev.length>=3){
+      const avg=prev.reduce((a,b)=>a+ +b.w,0)/prev.length;
+      if(+todayW.w < avg*0.98) flags.push(`น้ำหนักต่ำกว่าค่าเฉลี่ย 7 วัน ${n1((1-todayW.w/avg)*100)}% — มักเป็นภาวะขาดน้ำ ดื่มน้ำให้พอก่อนซ้อม`);
+    }
+  }
   const verdict = score>=80?["พร้อมเต็มที่","ซ้อมหนักได้ตามแผน จะลองดัน PR วันนี้ก็ได้","var(--move)"]
     : score>=65?["พร้อมปานกลาง","ซ้อมได้ตามปกติ แต่อย่าเพิ่งดันสถิติ","var(--move)"]
     : score>=45?["ควรผ่อน","เอาแบบเบา–ปานกลางพอ เช่น Zone 2 หรือเวทเบาลง 20%","var(--food)"]
     : ["ควรพัก","วันนี้เน้นฟื้นตัว เดินเบาๆ ยืดเหยียด แล้วนอนให้เต็ม","var(--bad)"];
-  return {score,f:use,verdict,weak,acwr};
+  return {score,f,verdict,weak,acwr,flags,filled:use.length,total:f.length};
 }
+/* ---------- ฟอร์มเช็คความรู้สึก ---------- */
+function rdDraw(){
+  const r=rdGet(S.date);
+  el("rdQs").innerHTML=RDQ.map(([k,label])=>`<div style="margin-top:11px">
+    <label style="display:block">${label}</label>
+    <div class="rdrow" data-k="${k}">${[1,2,3,4,5].map(i=>
+      `<button type="button" data-v="${i}" class="${+r[k]===i?"on":""}">${i}<small>${esc(RDLB[k][i-1])}</small></button>`).join("")}</div>
+  </div>`).join("");
+  if(el("rdRhr")) el("rdRhr").value = +r.rhr>0 ? r.rhr : "";
+  if(el("rdHrv")) el("rdHrv").value = +r.hrv>0 ? r.hrv : "";
+  const done=RDQ.filter(([k])=>+r[k]>0).length;
+  el("rdToggle").textContent = done? `📝 แก้ความรู้สึกวันนี้ (ตอบแล้ว ${done}/4)` : "📝 เช็คความรู้สึกวันนี้";
+}
+el("rdToggle").onclick=()=>{
+  const b=el("rdForm"); const open=b.style.display==="none";
+  b.style.display=open?"block":"none";
+  if(open){ rdDraw(); b.scrollIntoView({behavior:"smooth",block:"nearest"}); }
+};
+el("rdQs").onclick=e=>{
+  const btn=e.target.closest("button[data-v]"); if(!btn) return;
+  const k=btn.closest(".rdrow").dataset.k, v=+btn.dataset.v;
+  const cur={...rdGet(S.date)};
+  if(+cur[k]===v) delete cur[k]; else cur[k]=v;          /* กดซ้ำ = ล้างคำตอบ */
+  S.rd[S.date]=cur; rdDraw();
+};
+el("rdSave").onclick=async()=>{
+  const cur={...rdGet(S.date)};
+  const rhr=+el("rdRhr").value||0, hrv=+el("rdHrv").value||0;
+  if(rhr>=20&&rhr<=200) cur.rhr=Math.round(rhr); else delete cur.rhr;
+  if(hrv>=1&&hrv<=400)  cur.hrv=Math.round(hrv); else delete cur.hrv;
+  if(Object.keys(cur).length) S.rd[S.date]=cur; else delete S.rd[S.date];
+  saveNow(); el("rdForm").style.display="none"; render();
+  await api({action:"user",user:userPayload()});
+};
 function adaptiveTDEE(){
   const N=21, days=period(S.date,N);
   const fd=days.filter(d=>d.kIn>0);
@@ -4668,11 +4865,18 @@ function render(){
         <div style="flex:1"><b style="font-size:17px;color:${R.verdict[2]}">${R.verdict[0]}</b>
           <div class="mini" style="margin-top:5px">${R.verdict[1]}</div></div>
       </div>
-      <div style="margin-top:12px">${R.f.map(x=>`<div class="fbar">
-        <span style="flex:1">${x.k}<small style="display:block;color:var(--dim);font-size:11.5px">${x.txt}</small></span>
-        <span class="fb2"><i style="width:${x.v}%;background:${x.v>=75?"var(--move)":x.v>=50?"var(--food)":"var(--bad)"}"></i></span>
-        <b style="width:32px;text-align:right">${x.v}</b></div>`).join("")}</div>
-      <div class="mini" style="margin-top:9px">ตัวที่ฉุดมากสุดคือ <b>${R.weak.k}</b> — แก้ตรงนี้คะแนนจะขึ้นเร็วสุด</div>`;
+      <div style="margin-top:12px">${R.f.map(x=>x.v===null
+        ? `<div class="fbar" style="opacity:.55">
+             <span style="flex:1">${x.k}<small style="display:block;color:var(--dim);font-size:11.5px">${x.txt}</small></span>
+             <span class="fb2"></span><b style="width:32px;text-align:right;color:var(--dim);font-size:13px">—</b></div>`
+        : `<div class="fbar">
+             <span style="flex:1">${x.k}<small style="display:block;color:var(--dim);font-size:11.5px">${x.txt}</small></span>
+             <span class="fb2"><i style="width:${x.v}%;background:${x.v>=75?"var(--move)":x.v>=50?"var(--food)":"var(--bad)"}"></i></span>
+             <b style="width:32px;text-align:right">${x.v}</b></div>`).join("")}</div>
+      ${R.flags.map(x=>`<div class="mini" style="margin-top:8px;color:var(--food)">⚠️ ${x}</div>`).join("")}
+      <div class="mini" style="margin-top:9px">ตัวที่ฉุดมากสุดคือ <b>${R.weak.k}</b> — แก้ตรงนี้คะแนนจะขึ้นเร็วสุด
+        <span style="color:var(--dim)">· คิดจาก ${R.filled}/${R.total} ตัวชี้วัดที่มีข้อมูล</span></div>`;
+     rdDraw();
    }}
 
   {const t=adaptiveTDEE();
