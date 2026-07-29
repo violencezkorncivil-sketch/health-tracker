@@ -65,9 +65,16 @@ input:focus,select:focus,textarea:focus{border-color:var(--acc)}
 /* ช่องเลือกเวลาของ iOS ย่อลงต่ำกว่า ~185px ไม่ได้ สองช่องต่อแถวจึงล้นการ์ดบนจอทั่วไป
    แถวไหนมีช่องเวลาให้เรียงลงมาเป็นบรรทัดแทน จอกว้างพอ (≥460px) ค่อยวางคู่กัน */
 @media (max-width:459px){ .row.rowtime>*{flex:1 1 100%} }
-/* ช่องเวลา/วันที่ของ iOS ย่อตาม width ไม่ได้ ความกว้างขั้นต่ำผูกกับขนาดตัวอักษร
-   (ยิ่งผู้ใช้ตั้งตัวอักษรใหญ่ยิ่งกว้าง) จึงตั้งฐานให้เล็กลงหน่อย แล้วมีตัววัดจริงตอนรันคอยย่อซ้ำอีกที */
-input[type=time],input[type=date]{font-size:16px;padding-left:10px;padding-right:10px}
+/* ช่องเวลา/วันที่ของ iOS ย่อตาม width ไม่ได้ ต้องให้ "ที่ว่างมากพอ" แทนการย่อตัวอักษร
+   จึงถ่างแถวเวลาออกจนชนขอบในของการ์ด (ยกเลิกช่องไฟซ้ายขวาของการ์ด) ได้กว้างเพิ่มอีกราว 30px */
+input[type=time],input[type=date]{padding-left:10px;padding-right:10px}
+/* ถ้าที่ว่างยังไม่พอจริง ๆ ค่อยถ่างแถวเวลาออกจนชนขอบการ์ด (ตัวโปรแกรมเป็นคนใส่คลาสนี้ให้) */
+.row.rowtime.tight{margin-left:-15px;margin-right:-15px}
+@media (max-width:459px){
+  main{padding:14px 10px}
+  .card{padding:15px 12px}
+  .row.rowtime.tight{margin-left:-12px;margin-right:-12px}
+}
 /* จอแคบหรือช่องกรอกที่ย่อไม่ได้ (เช่น input[type=time] บน iOS) → ตกลงมาเป็นบรรทัดใหม่ ไม่ล้นการ์ด */
 /* ลูกของ flex/grid ย่อไม่ได้ถ้าไม่ตั้ง min-width:0 — ช่องเวลา/ตัวเลขบน iOS กว้างขั้นต่ำเยอะ แล้วดันจนล้นกล่อง */
 .stgin>*,.ntiles>*,.stat>*,.z2g>*,.bud>*{min-width:0}
@@ -99,13 +106,7 @@ input[type=time],input[type=date]{font-size:16px;padding-left:10px;padding-right
 .empty{color:var(--dim);font-size:14px;text-align:center;padding:16px 0}
 nav{position:fixed;bottom:0;left:0;right:0;background:var(--navbg);border-top:1px solid var(--line);display:flex;z-index:30;padding-bottom:env(safe-area-inset-bottom)}
 nav button{flex:1;background:none;border:0;color:var(--dim);padding:9px 2px 10px;font-size:11.5px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
-nav button i{font-style:normal;font-size:21px;line-height:0;display:block}
-/* ไอคอนของแอป — เป็น SVG เส้น ใช้สีตามข้อความรอบตัว จึงเข้ากับธีมสว่าง/มืดเองทั้งชุด */
-i[data-ic]{font-style:normal;display:inline-flex;align-items:center;flex:none}
-svg.ic{display:block;flex:none}
-h2 i[data-ic]{color:var(--acc)}
-.card.sec.f h2 i[data-ic]{color:var(--food)} .card.sec.m h2 i[data-ic]{color:var(--move)}
-.card.sec.sl h2 i[data-ic]{color:var(--sleep)}
+nav button i{font-style:normal;font-size:21px;line-height:1}
 nav button.on{color:var(--acc)}
 .hint{font-size:13.5px;color:var(--dim);line-height:1.6}
 .pick{max-height:230px;overflow-y:auto;border:1px solid var(--line);border-radius:12px;margin-top:7px;display:none}
@@ -114,7 +115,7 @@ nav button.on{color:var(--acc)}
 .pick div:last-child{border:0}
 .pick div small{color:var(--dim);font-size:11.5px}
 .pick div.more{cursor:default;color:var(--dim);font-size:11.5px;text-align:center;background:var(--card2)}
-.tag{display:inline-flex;align-items:center;gap:5px;vertical-align:-4px;font-size:12px;padding:2px 8px;border-radius:20px;background:var(--card2);color:var(--dim);margin-left:6px}
+.tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:20px;background:var(--card2);color:var(--dim);margin-left:6px}
 .warn{background:var(--warn-bg);border:1px solid var(--warn-bd);color:var(--warn-tx);border-radius:12px;padding:11px;font-size:12.5px;line-height:1.6;margin-bottom:13px}
 .onb{position:fixed;inset:0;z-index:100;background:var(--bg);overflow-y:auto;padding:18px 14px 40px}
 .onbx{max-width:640px;margin:0 auto}
@@ -203,8 +204,6 @@ nav button.on{color:var(--acc)}
 .sec.r{border-left-color:var(--acc)}
 .fbar{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:7px 0;border-bottom:1px solid var(--line)}
 .fbar:last-child{border:0}
-details.fold>summary svg.ic{opacity:.9}
-.hb .l span{display:inline-flex;align-items:center;gap:6px}
 .fbar .fb2{width:96px;height:7px;background:var(--track);border-radius:6px;overflow:hidden;flex:none;margin:0 10px}
 .fbar .fb2 i{display:block;height:100%}
 .hscore{flex:none}
@@ -246,8 +245,7 @@ details.fold.sub .subh{margin:9px 0 5px}
 /* รายละเอียดสารอาหารของแต่ละมื้อ — แยกเป็นชิปเล็ก ๆ ไม่ใช่ประโยคยาวคั่นด้วยจุด
    เพราะเวลาตัดบรรทัดบนมือถือ ตัวคั่นจะไปขึ้นต้นบรรทัดใหม่แล้วอ่านยาก */
 .nchs{display:flex;flex-wrap:wrap;gap:3px 10px;margin-top:3px}
-.nch{white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
-.nch svg.ic{opacity:.85}
+.nch{white-space:nowrap}
 .offchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .offchips span{font-size:12px;padding:5px 11px;border-radius:20px;background:var(--card2);border:1px solid var(--line);line-height:1.45}
 .card>details.fold:first-child{margin-top:0}
@@ -284,7 +282,7 @@ details.fold.sub .subh{margin:9px 0 5px}
 .nutrows{margin-top:4px}
 .fbar.nut{align-items:center;padding:9px 0}
 .fbar.nut .nl{flex:1;min-width:0}
-.fbar.nut .nl>b{font-size:13.5px;display:flex;align-items:center;gap:6px}
+.fbar.nut .nl>b{font-size:13.5px;display:block}
 .fbar.nut .nl small b{display:inline;font-size:inherit}
 .fbar.nut .nl small{display:block;color:var(--dim);font-size:11.5px;line-height:1.5;margin-top:2px}
 .fbar.nut .fb2.wide{width:72px;margin:0 9px}
@@ -419,20 +417,20 @@ details.fold.sub .subh{margin:9px 0 5px}
   <div id="noUrlWarn" class="warn" style="display:none">
     💾 ข้อมูลเก็บใน<b>เครื่องนี้</b>ที่เดียว — ล้างข้อมูลเบราว์เซอร์หรือเปลี่ยนเครื่องแล้วจะหาย
     <details class="fold" data-fold="bkupHow"><summary>วิธีสำรองข้อมูล</summary><div class="foldc">
-      <button class="btn" style="margin-top:4px" onclick="showOnboard()"><i data-ic="book" data-sz="16"></i> เชื่อม Google Sheets — มีคู่มือพาทำทีละขั้น</button>
+      <button class="btn" style="margin-top:4px" onclick="showOnboard()">📖 เชื่อม Google Sheets — มีคู่มือพาทำทีละขั้น</button>
       <button class="btn ghost" style="margin-top:7px" onclick="el('expJson').click()">หรือกดสำรองเป็นไฟล์ไว้ก่อน</button>
     </div></details>
   </div>
 
   <div class="seg a" id="viewSeg">
-    <button class="on" data-v="day"><i data-ic="cal" data-sz="17"></i> รายวัน</button>
-    <button data-v="stat"><i data-ic="chart" data-sz="17"></i> ย้อนหลัง &amp; สถิติ</button>
+    <button class="on" data-v="day">📅 รายวัน</button>
+    <button data-v="stat">📊 ย้อนหลัง &amp; สถิติ</button>
   </div>
 
   <div id="viewDay">
 
   <div class="card">
-    <h2><i data-ic="cal" data-sz="19"></i><span id="homeDate"></span></h2>
+    <h2>📅 <span id="homeDate"></span></h2>
     <div id="budget"></div>
     <div class="hero" style="margin-top:14px">
       <div class="hscore">
@@ -445,8 +443,8 @@ details.fold.sub .subh{margin:9px 0 5px}
   </div>
 
   <div class="card sec r" id="readyCard">
-    <h2><i data-ic="target" data-sz="19"></i>ความพร้อมวันนี้</h2><div id="secReady"></div>
-    <button class="btn g" id="rdToggle" style="margin-top:13px"><i data-ic="note" data-sz="16"></i> เช็คความรู้สึกวันนี้</button>
+    <h2>🔋 ความพร้อมวันนี้</h2><div id="secReady"></div>
+    <button class="btn g" id="rdToggle" style="margin-top:13px">📝 เช็คความรู้สึกวันนี้</button>
     <div id="rdForm" style="display:none;margin-top:12px">
       <div class="mini">ตอบตามความรู้สึกจริงตอนนี้ ข้อไหนไม่อยากตอบข้ามได้ · กดซ้ำที่ตัวเลือกเดิมเพื่อล้าง</div>
       <div id="rdQs"></div>
@@ -462,19 +460,19 @@ details.fold.sub .subh{margin:9px 0 5px}
   </div>
 
   <div class="card sec t" id="tdeeCard" style="display:none">
-    <h2><i data-ic="flask" data-sz="19"></i>TDEE จริงของคุณ</h2><div id="secTdee"></div>
+    <h2>🔬 TDEE จริงของคุณ</h2><div id="secTdee"></div>
   </div>
 
-  <div class="card sec f"><h2><i data-ic="food" data-sz="19"></i>อาหาร</h2><div id="secFood"></div></div>
-  <div class="card sec m"><h2><i data-ic="run" data-sz="19"></i>ออกกำลังกาย</h2><div id="secMove"></div></div>
-  <div class="card sec sl"><h2><i data-ic="sleep" data-sz="19"></i>การนอน</h2><div id="secSleep"></div></div>
-  <div class="card sec b"><h2><i data-ic="body" data-sz="19"></i>ร่างกาย</h2><div id="secBody"></div></div>
+  <div class="card sec f"><h2>🍽️ อาหาร</h2><div id="secFood"></div></div>
+  <div class="card sec m"><h2>🏃 ออกกำลังกาย</h2><div id="secMove"></div></div>
+  <div class="card sec sl"><h2>😴 การนอน</h2><div id="secSleep"></div></div>
+  <div class="card sec b"><h2>⚖️ ร่างกาย</h2><div id="secBody"></div></div>
 
   </div>
 
   <div id="viewStat" style="display:none">
   <div class="card">
-    <h2><i data-ic="chart" data-sz="19"></i>ภาพรวมสุขภาพ</h2>
+    <h2>📊 ภาพรวมสุขภาพ</h2>
     <div class="chips" id="rangeChips">
       <div class="chip on" data-d="7">1 สัปดาห์</div>
       <div class="chip" data-d="14">2 สัปดาห์</div>
@@ -506,51 +504,51 @@ details.fold.sub .subh{margin:9px 0 5px}
   </div>
 
   <!-- ลำดับ: ภาพรวม → ตัวเลข → กราฟ → ข้อสังเกตเจาะลึก → เรื่องเฉพาะทาง → ร่างกาย/รูป (ดูนาน ๆ ครั้ง) -->
-  <div class="card"><h2><i data-ic="up" data-sz="19"></i>สรุปช่วงนี้</h2><div id="summary"></div></div>
+  <div class="card"><h2>📈 สรุปช่วงนี้</h2><div id="summary"></div></div>
 
   <!-- สถิติเทียบช่วงก่อน -->
   <div class="card">
-    <h2><i data-ic="pin" data-sz="19"></i>ตัวเลขสำคัญ <span class="tag" id="cmpLbl"></span></h2>
+    <h2>📌 ตัวเลขสำคัญ <span class="tag" id="cmpLbl"></span></h2>
     <div class="kpi" id="kpiGrid"></div>
   </div>
 
   <div class="card">
-    <h2><i data-ic="cal" data-sz="19"></i><span id="wkTitle">7 วันล่าสุด</span> <span class="tag" id="wkTag"></span></h2>
-    <button class="btn ghost" id="stripBtn" style="margin:0 0 4px;padding:8px;font-size:13px"><i data-ic="gear" data-sz="16"></i> เลือกตัวชี้วัดที่จะดู</button>
+    <h2>📅 <span id="wkTitle">7 วันล่าสุด</span> <span class="tag" id="wkTag"></span></h2>
+    <button class="btn ghost" id="stripBtn" style="margin:0 0 4px;padding:8px;font-size:13px">⚙️ เลือกตัวชี้วัดที่จะดู</button>
     <div class="chips" id="stripChips" style="margin-bottom:11px;display:none"></div>
     <div id="secWeek"></div>
   </div>
 
-  <div class="card"><h2><i data-ic="bowl" data-sz="19"></i>คุณภาพอาหารเฉลี่ย</h2>
+  <div class="card"><h2>🥗 คุณภาพอาหารเฉลี่ย</h2>
     <div class="mini">โดนัทบอกได้แค่ "พลังงานมาจากไหน" — ตัวที่บอกว่ากินดีหรือเปล่าคือแถบข้างล่าง</div>
     <div class="chart" id="c4"></div>
     <div id="statNut"></div></div>
 
-  <div class="card"><h2><i data-ic="flame" data-sz="19"></i>แคลอรี่ เข้า vs เผา</h2><div class="chart" id="c1"></div></div>
-  <div class="card"><h2><i data-ic="sleep" data-sz="19"></i>ชั่วโมงนอน</h2><div class="chart" id="c3"></div></div>
-  <div class="card"><h2><i data-ic="run" data-sz="19"></i>นาทีออกกำลังกาย</h2><div class="chart" id="c2"></div></div>
-  <div class="card"><h2><i data-ic="body" data-sz="19"></i>3 ด้านรวมในกราฟเดียว</h2><div class="chart" id="c5"></div>
+  <div class="card"><h2>🔥 แคลอรี่ เข้า vs เผา</h2><div class="chart" id="c1"></div></div>
+  <div class="card"><h2>😴 ชั่วโมงนอน</h2><div class="chart" id="c3"></div></div>
+  <div class="card"><h2>🏃 นาทีออกกำลังกาย</h2><div class="chart" id="c2"></div></div>
+  <div class="card"><h2>⚖️ 3 ด้านรวมในกราฟเดียว</h2><div class="chart" id="c5"></div>
     <div class="hint" style="margin-top:8px">เทียบเป็น % ของเป้าหมายแต่ละด้าน (100% = ทำได้ตามเป้า)</div></div>
 
   <!-- อ่านภาพรวมกับกราฟจบแล้ว ค่อยลงรายละเอียดเจาะลึก -->
-  <div class="card"><h2><i data-ic="bulb" data-sz="19"></i>ข้อสังเกต</h2><div id="insight"></div></div>
+  <div class="card"><h2>💡 ข้อสังเกต</h2><div id="insight"></div></div>
 
   <!-- สตรีค -->
   <div class="card">
-    <h2><i data-ic="flame" data-sz="19"></i>ความต่อเนื่อง</h2>
+    <h2>🔥 ความต่อเนื่อง</h2>
     <div class="stat" id="streaks"></div>
   </div>
 
   <!-- ปฏิทินความสม่ำเสมอ -->
   <div class="card">
-    <h2><i data-ic="cal" data-sz="19"></i>บันทึกครบไหม</h2>
+    <h2>🗓️ บันทึกครบไหม</h2>
     <div class="hmap" id="heat"></div>
     <div class="hlg"><span><i style="background:var(--move)"></i>ออกกำลัง</span><span><i style="background:var(--food)"></i>กิน</span><span><i style="background:var(--sleep)"></i>นอน</span></div>
   </div>
 
   <!-- แอลกอฮอล์ -->
   <div class="card">
-    <h2><i data-ic="beer" data-sz="19"></i>แอลกอฮอล์ <span class="tag" id="alcTag"></span></h2>
+    <h2>🍺 แอลกอฮอล์ <span class="tag" id="alcTag"></span></h2>
     <div id="secAlc"></div>
     <div class="chart" id="c10" style="margin-top:13px"></div>
     <div class="hint" style="margin-top:8px">แท่ง = จำนวนฝารวมในแต่ละช่วงเวลา (1 ฝา = 30 มล. ของเหล้า 35 ดีกรี)</div>
@@ -558,7 +556,7 @@ details.fold.sub .subh{margin:9px 0 5px}
 
   <!-- ต่อจากนี้เป็นเรื่องที่ดูนาน ๆ ครั้ง — Zone 2 และร่างกาย -->
   <div class="card">
-    <h2><i data-ic="heart" data-sz="19"></i>Zone 2 &amp; 80/20 <span class="tag" id="polTag"></span></h2>
+    <h2>🫀 Zone 2 &amp; 80/20 <span class="tag" id="polTag"></span></h2>
     <div id="secPolar"></div>
     <div class="chart" id="c9" style="margin-top:14px"></div>
     <div class="hint" style="margin-top:8px">แท่งเขียว = นาทีใน Zone 2 · แท่งแดง = นาทีหนัก (Z4–Z5) · ถ้าแท่งแดงสูงใกล้เขียวบ่อยๆ แปลว่าซ้อมหนักเกินสัดส่วน</div>
@@ -566,14 +564,14 @@ details.fold.sub .subh{margin:9px 0 5px}
 
   <!-- ร่างกาย -->
   <div class="card">
-    <h2><i data-ic="body" data-sz="19"></i>น้ำหนัก &amp; รอบตัว</h2>
+    <h2>⚖️ น้ำหนัก &amp; รอบตัว</h2>
     <div class="stat" id="bStat"></div>
     <div id="bWaistBox"></div>
   </div>
-  <div class="card"><h2><i data-ic="chart" data-sz="19"></i>น้ำหนัก + เส้นเฉลี่ย 7 วัน</h2><div class="chart" id="c7"></div>
+  <div class="card"><h2>📉 น้ำหนัก + เส้นเฉลี่ย 7 วัน</h2><div class="chart" id="c7"></div>
     <div class="hint" style="margin-top:8px">จุดจาง = ที่ชั่งจริงรายวัน (แกว่งจากน้ำในตัว) · เส้นทึบ = เฉลี่ย 7 วัน ให้ดูเส้นนี้เป็นหลัก</div></div>
-  <div class="card"><h2><i data-ic="ruler" data-sz="19"></i>รอบตัว</h2><div class="chart" id="c8"></div></div>
-  <div class="card"><h2><i data-ic="cam" data-sz="19"></i>เทียบรูป Progress</h2><div id="phCompare"></div></div>
+  <div class="card"><h2>📏 รอบตัว</h2><div class="chart" id="c8"></div></div>
+  <div class="card"><h2>📸 เทียบรูป Progress</h2><div id="phCompare"></div></div>
   </div>
 </section>
 
@@ -581,14 +579,14 @@ details.fold.sub .subh{margin:9px 0 5px}
 <section class="page" id="p-move">
 
   <div class="seg" id="modeSeg">
-    <button class="on" data-m="cardio"><i data-ic="run" data-sz="16"></i> คาร์ดิโอ</button>
-    <button data-m="weight"><i data-ic="dumb" data-sz="16"></i> เวท</button>
+    <button class="on" data-m="cardio">🏃 คาร์ดิโอ</button>
+    <button data-m="weight">🏋️ เวท</button>
   </div>
 
   <!-- ---------- เวทเทรนนิ่ง ---------- -->
   <div id="weightForm" style="display:none">
     <div class="card">
-      <h2><i data-ic="dumb" data-sz="19"></i>บันทึกเวท</h2>
+      <h2>🏋️ บันทึกเวท</h2>
       <label>กลุ่มกล้ามเนื้อ</label>
       <div class="chips" id="grpChips"></div>
       <label>ท่า</label>
@@ -620,12 +618,12 @@ details.fold.sub .subh{margin:9px 0 5px}
     </div>
 
     <div class="card">
-      <details class="fold" data-fold="lst-woToday" open><summary><i data-ic="list" data-sz="17"></i> วันนี้เล่นอะไรบ้าง <span class="fn" id="n-woToday"></span></summary>
+      <details class="fold" data-fold="lst-woToday" open><summary>📋 วันนี้เล่นอะไรบ้าง <span class="fn" id="n-woToday"></span></summary>
       <div class="foldc"><div id="woToday"></div></div></details>
     </div>
 
     <div class="card">
-      <details class="fold" data-fold="wprog"><summary><i data-ic="up" data-sz="17"></i> พัฒนาการรายท่า</summary>
+      <details class="fold" data-fold="wprog"><summary>📈 พัฒนาการรายท่า</summary>
       <div class="foldc">
         <select id="progEx"></select>
         <div class="chart" id="c6"></div>
@@ -634,7 +632,7 @@ details.fold.sub .subh{margin:9px 0 5px}
     </div>
 
     <div class="card">
-      <details class="fold" data-fold="wpr"><summary><i data-ic="star" data-sz="17"></i> สถิติส่วนตัว (PR)</summary>
+      <details class="fold" data-fold="wpr"><summary>🏆 สถิติส่วนตัว (PR)</summary>
       <div class="foldc"><div id="prList"></div></div></details>
     </div>
   </div>
@@ -642,7 +640,7 @@ details.fold.sub .subh{margin:9px 0 5px}
   <!-- ---------- คาร์ดิโอ ---------- -->
   <div id="cardioForm">
   <div class="card">
-    <h2><i data-ic="run" data-sz="19"></i>บันทึกคาร์ดิโอ</h2>
+    <h2>🏃 บันทึกคาร์ดิโอ</h2>
     <label>ประเภท</label>
     <select id="exType"></select>
     <div class="row">
@@ -659,19 +657,19 @@ details.fold.sub .subh{margin:9px 0 5px}
     <input type="text" id="exNote" placeholder="เช่น วิ่งรอบสวน / ลู่ไฟฟ้า">
     <button class="btn g" id="exAdd">+ บันทึกคาร์ดิโอ</button>
   </div>
-  <div class="card"><details class="fold" data-fold="lst-exList" open><summary><i data-ic="run" data-sz="17"></i> คาร์ดิโอวันนี้ <span class="fn" id="n-exList"></span></summary>
+  <div class="card"><details class="fold" data-fold="lst-exList" open><summary>🏃 คาร์ดิโอวันนี้ <span class="fn" id="n-exList"></span></summary>
     <div class="foldc"><div id="exList"></div></div></details></div>
 
   <div class="card">
-    <h2><i data-ic="heart" data-sz="19"></i>Zone 2 &amp; 80/20 <span class="tag">7 วันล่าสุด</span></h2>
+    <h2>🫀 Zone 2 &amp; 80/20 <span class="tag">7 วันล่าสุด</span></h2>
     <div id="mvPolar"></div>
   </div>
 
   <div class="card" id="lt1Card">
-    <h2><i data-ic="target" data-sz="19"></i>หา Zone 2 จากความฟิตจริงของคุณ</h2>
+    <h2>🎯 หา Zone 2 จากความฟิตจริงของคุณ</h2>
     <div id="lt1State"></div>
 
-    <details class="fold" data-fold="lt1test"><summary><i data-ic="flask" data-sz="17"></i> เริ่มทดสอบ <span class="fn">ใช้เวลา 25–60 นาที ทำครั้งเดียวใช้ได้ 2–3 เดือน</span></summary><div class="foldc">
+    <details class="fold" data-fold="lt1test"><summary>🧪 เริ่มทดสอบ <span class="fn">ใช้เวลา 25–60 นาที ทำครั้งเดียวใช้ได้ 2–3 เดือน</span></summary><div class="foldc">
     <div class="hint" data-nofold>
       สูตรอายุกับ %HRmax เป็นค่า<b>เฉลี่ยของคนหมู่มาก</b> ไม่ใช่ของคุณ — งานวิจัยพบว่าจุด LT1 (เพดาน Zone 2)
       ของแต่ละคนไม่ได้อยู่ที่ % เดียวกันเลย แม้จะฟิตเท่ากันก็ตาม<br>
@@ -679,8 +677,8 @@ details.fold.sub .subh{margin:9px 0 5px}
     </div>
 
     <div class="tabs2" style="margin-top:13px">
-      <button class="tb on" data-lt="talk"><i data-ic="note" data-sz="16"></i> ทดสอบพูด</button>
-      <button class="tb" data-lt="drift"><i data-ic="chart" data-sz="16"></i> ทดสอบ HR ดริฟต์</button>
+      <button class="tb on" data-lt="talk">🗣️ ทดสอบพูด</button>
+      <button class="tb" data-lt="drift">📉 ทดสอบ HR ดริฟต์</button>
       <button class="tb" data-lt="man">✍️ กรอกค่าเอง</button>
     </div>
 
@@ -753,7 +751,7 @@ details.fold.sub .subh{margin:9px 0 5px}
   </div>
 
   <div class="card">
-    <h2><i data-ic="heart" data-sz="19"></i>Zone 2 กับหลัก 80/20 คืออะไร</h2>
+    <h2>🫀 Zone 2 กับหลัก 80/20 คืออะไร</h2>
     <details class="fold" data-fold="z2doc"><summary>อ่านคำอธิบายฉบับเต็ม <span class="fn">ทฤษฎี · วิธีเช็กเอง · ปริมาณที่ควรได้</span></summary>
     <div class="foldc">
     <div class="hint">
@@ -810,7 +808,7 @@ details.fold.sub .subh{margin:9px 0 5px}
 <!-- ============ อาหาร ============ -->
 <section class="page" id="p-food">
   <div class="card">
-    <h2><i data-ic="food" data-sz="19"></i>บันทึกอาหาร</h2>
+    <h2>🍽️ บันทึกอาหาร</h2>
     <label>เวลาที่กิน</label>
     <div class="row">
       <input type="time" id="fTime">
@@ -818,7 +816,7 @@ details.fold.sub .subh{margin:9px 0 5px}
     </div>
     <div class="mini" id="fTimeTag"></div>
     <div id="favWrap" style="display:none">
-      <details class="fold" data-fold="favBox"><summary><i data-ic="star" data-sz="17"></i> กินบ่อย <span class="fn" id="favN"></span></summary>
+      <details class="fold" data-fold="favBox"><summary>⭐ กินบ่อย <span class="fn" id="favN"></span></summary>
         <div class="foldc"><div class="chips" id="favChips"></div></div></details>
     </div>
     <label>ค้นหาเมนู (พิมพ์ชื่ออาหาร)</label>
@@ -872,7 +870,7 @@ details.fold.sub .subh{margin:9px 0 5px}
       <label>ปริมาณ / หน่วย</label><input type="text" id="mUnit" placeholder="เช่น 1 จาน, 150 กรัม, 1 กล่อง">
 
       <div class="seg a" id="mModeSeg" style="margin-top:13px">
-        <button class="on" data-m="est"><i data-ic="ruler" data-sz="16"></i> ให้ระบบประมาณ</button>
+        <button class="on" data-m="est">📏 ให้ระบบประมาณ</button>
         <button data-m="exact">✍️ กรอกเอง</button>
       </div>
 
@@ -923,12 +921,12 @@ details.fold.sub .subh{margin:9px 0 5px}
     </div>
 
     <!-- เมนูที่ผู้ใช้เพิ่มเองไม่มีกล่องแยกแล้ว — อยู่รวมในช่องค้นหาเดียวกัน และขึ้นก่อนเสมอ -->
-    <button class="btn ghost" id="copyYtd"><i data-ic="list" data-sz="16"></i> คัดลอกอาหารทั้งวันจากเมื่อวาน</button>
+    <button class="btn ghost" id="copyYtd">📋 คัดลอกอาหารทั้งวันจากเมื่อวาน</button>
     <div class="hint" style="margin-top:12px">💧 ไม่รู้โปรตีน/คาร์บก็ไม่เป็นไร ระบบประมาณให้จากเมนูที่เลือก</div>
   </div>
 
   <div class="card">
-    <h2><i data-ic="drop" data-sz="19"></i>น้ำดื่มวันนี้</h2>
+    <h2>💧 น้ำดื่มวันนี้</h2>
     <div style="text-align:center"><b style="font-size:30px;color:var(--acc)" id="wMl">0</b> <span class="mini">มล. / เป้า <span id="wGoal">2000</span> มล.</span></div>
     <div class="bar" style="height:10px;margin:10px 0"><i id="wBar" style="background:var(--acc);width:0"></i></div>
     <div class="mini" id="wLeft" style="text-align:center;margin-bottom:11px"></div>
@@ -950,14 +948,14 @@ details.fold.sub .subh{margin:9px 0 5px}
     <div class="mini" id="wDirty"></div>
   </div>
 
-  <div class="card"><details class="fold" data-fold="lst-fList" open><summary><i data-ic="food" data-sz="17"></i> รายการอาหารวันนี้ <span class="fn" id="n-fList"></span></summary>
+  <div class="card"><details class="fold" data-fold="lst-fList" open><summary>🍽️ รายการอาหารวันนี้ <span class="fn" id="n-fList"></span></summary>
     <div class="foldc"><div id="fList"></div><div id="fListNote"></div></div></details></div>
 </section>
 
 <!-- ============ นอน ============ -->
 <section class="page" id="p-sleep">
   <div class="card">
-    <h2><i data-ic="sleep" data-sz="19"></i>บันทึกการนอน</h2>
+    <h2>😴 บันทึกการนอน</h2>
     <div class="row rowtime">
       <div><label>เข้านอน</label><input type="time" id="sBed" value="23:00"></div>
       <div><label>ตื่นนอน</label><input type="time" id="sWake" value="06:30"></div>
@@ -969,7 +967,7 @@ details.fold.sub .subh{margin:9px 0 5px}
 
     <div style="margin-top:12px">
       <label>ตื่นกลางดึกกี่ครั้ง (ไม่นับตอนตื่นเช้า)</label>
-      <input type="number" inputmode="numeric" id="sWakeN" min="0" step="1" placeholder="เว้นว่าง = ไม่ทราบ">
+      <input type="number" inputmode="decimal" id="sWakeN" min="0" step="any" placeholder="เว้นว่าง = ไม่ทราบ">
       <div class="mini" style="margin-top:5px">ตื่น 0–1 ครั้ง/คืน ถือว่าปกติ · ตั้งแต่ครั้งที่ 2 หักคะแนนครั้งละ 3 (หักมากสุด 15)</div>
     </div>
 
@@ -980,14 +978,14 @@ details.fold.sub .subh{margin:9px 0 5px}
     <button class="btn p" id="sAdd">+ บันทึกการนอน</button>
     <div class="hint" style="margin-top:10px">📌 บันทึกไว้ที่ "วันที่ตื่น" — นอนคืนวันศุกร์ ตื่นเช้าวันเสาร์ ให้เลือกวันเสาร์</div>
   </div>
-  <div class="card"><details class="fold" data-fold="lst-sList" open><summary><i data-ic="sleep" data-sz="17"></i> บันทึกการนอนวันนี้ <span class="fn" id="n-sList"></span></summary>
+  <div class="card"><details class="fold" data-fold="lst-sList" open><summary>😴 บันทึกการนอนวันนี้ <span class="fn" id="n-sList"></span></summary>
     <div class="foldc"><div id="sList"></div></div></details></div>
 </section>
 
 <!-- ============ ร่างกาย ============ -->
 <section class="page" id="p-body">
   <div class="card">
-    <h2><i data-ic="body" data-sz="19"></i>บันทึกตัวเลขร่างกาย</h2>
+    <h2>⚖️ บันทึกตัวเลขร่างกาย</h2>
     <div class="row">
       <div><label>น้ำหนัก (กก.)</label><input type="number" id="bW" step="any" inputmode="decimal" placeholder="เช่น 70.5"></div>
       <div><label>ไขมัน (%) — ถ้ามี</label><input type="number" id="bFat" step="any" inputmode="decimal" placeholder="เว้นว่างได้"></div>
@@ -1008,7 +1006,7 @@ details.fold.sub .subh{margin:9px 0 5px}
   </div>
 
   <div class="card">
-    <h2><i data-ic="cam" data-sz="19"></i>รูป Progress</h2>
+    <h2>📸 รูป Progress</h2>
     <input type="file" id="phFile" accept="image/*" style="display:none">
     <button class="btn ghost" id="phBtn" style="margin-top:0">+ เพิ่มรูปวันนี้</button>
     <div class="hint" style="margin-top:8px">รูปถูกย่อก่อนเก็บลง Google Sheets ของคุณเอง · ถ่ายมุมเดิม แสงเดิม ทุก 2 สัปดาห์จะเห็นความต่างชัดสุด</div>
@@ -1019,9 +1017,9 @@ details.fold.sub .subh{margin:9px 0 5px}
 <!-- ============ ตั้งค่า ============ -->
 <section class="page" id="p-set">
   <div class="card">
-    <h2><i data-ic="cloud" data-sz="19"></i>เชื่อม Google Sheets <span class="tag">ทางเลือกเสริม</span></h2>
+    <h2>🔗 เชื่อม Google Sheets <span class="tag">ทางเลือกเสริม</span></h2>
     <div class="hint">ทำแล้วข้อมูลจะไม่หายตอนเปลี่ยนเครื่อง และมีระบบสำรองอัตโนมัติทุกคืน — ใช้เวลา ~5 นาที</div>
-    <button class="btn" onclick="showOnboard()" style="margin-top:11px"><i data-ic="book" data-sz="16"></i> เปิดคู่มือพาทำทีละขั้น</button>
+    <button class="btn" onclick="showOnboard()" style="margin-top:11px">📖 เปิดคู่มือพาทำทีละขั้น</button>
     <div class="mini" style="margin-top:11px">หรือถ้ามีลิงก์กับ PIN อยู่แล้ว กรอกตรงนี้ได้เลย</div>
     <label>ลิงก์ Web App (.../exec)</label>
     <input type="text" id="gasUrl" placeholder="https://script.google.com/macros/s/.../exec">
@@ -1033,14 +1031,14 @@ details.fold.sub .subh{margin:9px 0 5px}
       <div class="lastbox" style="margin-top:13px">📲 <b>ย้ายไปเครื่องอื่นแบบไม่ต้องพิมพ์</b><br>
       ตั้งค่าบนคอมเสร็จแล้ว กดปุ่มนี้เพื่อคัดลอก "ลิงก์ตั้งค่าอย่างเร็ว" แล้วส่งเข้า LINE ตัวเอง →
       เปิดลิงก์บนมือถือ แอปจะเชื่อมต่อให้อัตโนมัติ ไม่ต้องพิมพ์ลิงก์หรือ PIN เลย</div>
-      <button class="btn ghost" id="quickCopy"><i data-ic="list" data-sz="16"></i> คัดลอกลิงก์ตั้งค่าอย่างเร็ว</button>
+      <button class="btn ghost" id="quickCopy">📋 คัดลอกลิงก์ตั้งค่าอย่างเร็ว</button>
       <div class="mini" id="quickMsg"></div>
     </div>
     <div class="hint" style="margin-top:11px">🔒 ลิงก์และ PIN ถูกเก็บไว้<b>ในเครื่องนี้เท่านั้น</b> ไม่ได้อยู่ในไฟล์ที่อัปขึ้น GitHub — วางครั้งเดียว เปิดครั้งต่อไปไม่ต้องวางอีก</div>
   </div>
 
   <div class="card">
-    <h2><i data-ic="body" data-sz="19"></i>ข้อมูลส่วนตัว</h2>
+    <h2>👤 ข้อมูลส่วนตัว</h2>
     <div class="row">
       <div><label>เพศ</label><select id="uSex"><option value="m">ชาย</option><option value="f">หญิง</option></select></div>
       <div><label>อายุ</label><input type="number" step="any" id="uAge" value="35" inputmode="decimal"></div>
@@ -1070,7 +1068,7 @@ details.fold.sub .subh{margin:9px 0 5px}
   </div>
 
   <div class="card">
-    <h2><i data-ic="heart" data-sz="19"></i>โซนหัวใจ</h2>
+    <h2>❤️ โซนหัวใจ</h2>
     <label>วิธีคำนวณโซน</label>
     <select id="uZm">
       <option value="fit">🎯 ความฟิตจริงของคุณ (LT1 ที่ทดสอบเอง) — แม่นที่สุด</option>
@@ -1105,14 +1103,14 @@ details.fold.sub .subh{margin:9px 0 5px}
   </div>
 
   <div class="card" style="border-color:var(--acc)">
-    <h2><i data-ic="target" data-sz="19"></i>อยากให้ Zone 2 แม่นกว่านี้?</h2>
+    <h2>🎯 อยากให้ Zone 2 แม่นกว่านี้?</h2>
     <div class="hint">เครื่องมือทดสอบหาเพดาน Zone 2 ของตัวเอง (ทดสอบพูด / HR ดริฟต์) กับคำอธิบายเรื่อง Zone 2 และหลัก 80/20
       ย้ายไปอยู่ที่แท็บ <b>🏃 ออกกำลัง</b> แล้ว — เลื่อนลงล่างสุดของโหมดคาร์ดิโอ</div>
     <button class="btn ghost" onclick="gotoLt1()">ไปที่เครื่องมือทดสอบ →</button>
   </div>
 
   <div class="card">
-    <h2><i data-ic="star" data-sz="19"></i>แจ้งเตือน</h2>
+    <h2>🔔 แจ้งเตือน</h2>
     <div id="notiState" class="hint"></div>
     <button class="btn" id="notiAsk" style="margin-top:11px">เปิดการแจ้งเตือน</button>
 
@@ -1128,12 +1126,12 @@ details.fold.sub .subh{margin:9px 0 5px}
         <div><label>😴 เตือนเข้านอน</label><input type="time" id="nS" value="22:30"></div>
       </div>
       <label>💧 เตือนดื่มน้ำทุกกี่ชั่วโมง (0 = ปิด)</label>
-      <input type="number" id="nW" value="2" min="0" max="6" inputmode="numeric">
+      <input type="number" step="any" id="nW" value="2" min="0" max="6" inputmode="decimal">
       <button class="btn ghost" id="nSave">บันทึกการตั้งค่าเตือน</button>
       <button class="btn ghost" id="nTest">ทดสอบแจ้งเตือนตอนนี้</button>
     </div>
 
-    <button class="btn ghost" id="icsBtn"><i data-ic="cal" data-sz="16"></i> ดาวน์โหลดไฟล์ปฏิทินเตือน (.ics)</button>
+    <button class="btn ghost" id="icsBtn">📅 ดาวน์โหลดไฟล์ปฏิทินเตือน (.ics)</button>
     <div class="hint" style="margin-top:11px">
       <b>เตือนได้ 3 ระดับ:</b><br>
       1. <b>ในแอป</b> — เตือนได้เฉพาะตอนเปิดแอปค้างไว้หรือเพิ่งปิดไม่นาน (ข้อจำกัดของเว็บแอปทุกตัว)<br>
@@ -1143,22 +1141,22 @@ details.fold.sub .subh{margin:9px 0 5px}
   </div>
 
   <div class="card">
-    <h2><i data-ic="cloud" data-sz="19"></i>ข้อมูลและการสำรอง</h2>
+    <h2>💾 ข้อมูลและการสำรอง</h2>
     <div class="hint" id="saveInfo">บันทึกในเครื่องแล้ว</div>
     <div class="hint" id="persistInfo" data-nofold="1" style="margin-top:4px"></div>
     <div class="hint" id="queueInfo" data-nofold="1" style="margin-top:4px"></div>
-    <button class="btn g" id="syncNow" style="margin-top:10px"><i data-ic="cloud" data-sz="16"></i> ดึงข้อมูลจากชีตเดี๋ยวนี้</button>
+    <button class="btn g" id="syncNow" style="margin-top:10px">🔄 ดึงข้อมูลจากชีตเดี๋ยวนี้</button>
     <div class="mini" id="syncInfo" data-nofold="1" style="margin-top:6px"></div>
-    <button class="btn ghost" id="expJson" style="margin-top:11px"><i data-ic="cloud" data-sz="16"></i> สำรองข้อมูลทั้งหมดเป็นไฟล์</button>
+    <button class="btn ghost" id="expJson" style="margin-top:11px">📦 สำรองข้อมูลทั้งหมดเป็นไฟล์</button>
     <input type="file" id="impFile" accept=".json" style="display:none">
-    <button class="btn ghost" id="impJson"><i data-ic="cloud" data-sz="16"></i> กู้คืนจากไฟล์สำรอง</button>
-    <button class="btn ghost" id="expCsv"><i data-ic="chart" data-sz="16"></i> ดาวน์โหลดเป็น CSV (เปิดใน Excel)</button>
+    <button class="btn ghost" id="impJson">📥 กู้คืนจากไฟล์สำรอง</button>
+    <button class="btn ghost" id="expCsv">📊 ดาวน์โหลดเป็น CSV (เปิดใน Excel)</button>
     <div class="hint" style="margin-top:9px">ข้อมูลถูกเก็บใน<b>เครื่องนี้</b>อัตโนมัติทุกครั้งที่บันทึก — ถ้าเชื่อม Google Sheets ไว้ด้วยจะส่งขึ้นคลาวด์ให้อีกชั้น<br>
     ⚠️ ถ้าล้างข้อมูลเบราว์เซอร์หรือเปลี่ยนเครื่อง ข้อมูลในเครื่องจะหาย — ควรกดสำรองเป็นไฟล์ไว้เดือนละครั้ง หรือเชื่อม Google Sheets</div>
   </div>
 
   <div class="card">
-    <h2><i data-ic="lock" data-sz="19"></i>จุดกู้คืนอัตโนมัติ</h2>
+    <h2>🧷 จุดกู้คืนอัตโนมัติ</h2>
     <div class="hint">แอปเก็บสำเนาข้อมูลไว้ให้เอง <b>วันละ 1 ชุด ย้อนหลัง 7 วัน</b> เก็บคนละที่กับข้อมูลหลัก
       และไม่เกี่ยวกับ Google Sheets เลย — ถ้าวันไหนตัวเลขเพี้ยนหรือข้อมูลหาย กดย้อนกลับได้ทันที<br>
       <span style="color:var(--dim)">ไม่รวมรูป progress (กินพื้นที่มาก) · การย้อนกลับไม่ลบรูปที่มีอยู่</span></div>
@@ -1166,7 +1164,7 @@ details.fold.sub .subh{margin:9px 0 5px}
   </div>
 
   <div class="card">
-    <h2><i data-ic="book" data-sz="19"></i>เกี่ยวกับ</h2>
+    <h2>ℹ️ เกี่ยวกับ</h2>
     <div class="hint">
       อาหารจานไทยเป็น<b>ค่าประมาณ</b>จากเมนูทั่วไป อาจต่างจากของจริง ±20% ใช้ดูแนวโน้มได้ ไม่ใช่ค่าทางการแพทย์<br>
       ส่วน<b>วัตถุดิบเดี่ยวและผลไม้</b> ใช้ค่าที่วัดจากห้องแล็บ แม่นกว่ามาก<br><br>
@@ -1190,7 +1188,7 @@ details.fold.sub .subh{margin:9px 0 5px}
 
   <!-- แผงของเจ้าของแอป — ผู้ใช้ทั่วไปมองไม่เห็น (แตะเลขเวอร์ชัน 5 ครั้งเพื่อเปิด) -->
   <div class="card" id="ownerCard" style="display:none;border-color:var(--acc)">
-    <h2><i data-ic="gear" data-sz="19"></i>แผงเจ้าของ</h2>
+    <h2>🔧 แผงเจ้าของ</h2>
     <div class="mini">ปุ่มชุดนี้ซ่อนจากผู้ใช้ทั่วไป — แตะเลขเวอร์ชัน 5 ครั้งเพื่อเปิด/ปิด</div>
     <button class="btn ghost" id="showSetup" style="margin-top:11px">ดูหน้าต้อนรับที่ผู้รับจะเห็น</button>
     <div class="lastbox" style="margin-top:11px">ลิงก์ไฟล์ต้นแบบ (TEMPLATE_URL):
@@ -1235,12 +1233,12 @@ details.fold.sub .subh{margin:9px 0 5px}
 </div>
 
 <nav>
-  <button class="on" data-p="home"><i data-ic="home" data-sz="22"></i>สรุป</button>
-  <button data-p="move"><i data-ic="run" data-sz="22"></i>ออกกำลัง</button>
-  <button data-p="food"><i data-ic="food" data-sz="22"></i>อาหาร</button>
-  <button data-p="sleep"><i data-ic="sleep" data-sz="22"></i>นอน</button>
-  <button data-p="body"><i data-ic="body" data-sz="22"></i>ร่างกาย</button>
-  <button data-p="set"><i data-ic="gear" data-sz="22"></i>ตั้งค่า</button>
+  <button class="on" data-p="home"><i>🏠</i>สรุป</button>
+  <button data-p="move"><i>🏃</i>ออกกำลัง</button>
+  <button data-p="food"><i>🍽️</i>อาหาร</button>
+  <button data-p="sleep"><i>😴</i>นอน</button>
+  <button data-p="body"><i>⚖️</i>ร่างกาย</button>
+  <button data-p="set"><i>⚙️</i>ตั้งค่า</button>
 </nav>
 
 <script>
@@ -1595,7 +1593,7 @@ function loadLocal(){
 }
 
 const APP_NAME="สุขภาพ Tracker";
-const APP_VER="5.2";
+const APP_VER="5.3";
 const GS_CODE=`/*************************************************************
  *  สุขภาพ Tracker — Google Apps Script Backend
  *  วางโค้ดนี้ใน Extensions > Apps Script ของ Google Sheets
@@ -3185,69 +3183,6 @@ function today(){const d=new Date();return d.getFullYear()+"-"+p2(d.getMonth()+1
 function p2(n){return String(n).padStart(2,"0");}
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
 
-/* ============================================================
-   ชุดไอคอนของแอป — วาดเองทั้งหมด ไม่ได้โหลดจากที่ไหน
-   ใช้เส้นหนาเท่ากันและปลายมนแบบเดียวกับไอคอนแอป จะได้เป็นชุดเดียวกันทั้งแอป
-   สีตาม currentColor จึงเปลี่ยนตามธีมสว่าง/มืดเองโดยไม่ต้องมีสองชุด
-   ============================================================ */
-const IC={
- home:'<path d="M3 10.6 12 3l9 7.6V20a1.5 1.5 0 0 1-1.5 1.5H15V15H9v6.5H4.5A1.5 1.5 0 0 1 3 20z"/>',
- run:'<circle cx="15.6" cy="4.6" r="1.9"/><path d="M8 21.2 11 16l-2.6-3 1-4.9 4 2L16 12.6h4"/><path d="m5.4 9.6 4-1.5"/>',
- food:'<path d="M6 3v6a2 2 0 0 0 4 0V3M8 11v10"/><path d="M17.6 3c-1.5 1.5-2.1 3.5-1.9 5.6.1 1.3.8 2.1 1.9 2.4V21"/>',
- sleep:'<path d="M20.5 14.6A8.5 8.5 0 1 1 9.9 4a6.8 6.8 0 0 0 10.6 10.6z"/>',
- body:'<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7.6 11.4a5 5 0 0 1 8.8 0"/><path d="m12 11.4 2.2-2.4"/>',
- gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2.2v2.3M12 19.5v2.3M4.8 4.8l1.6 1.6M17.6 17.6l1.6 1.6M2.2 12h2.3M19.5 12h2.3M4.8 19.2l1.6-1.6M17.6 6.4l1.6-1.6"/>',
- chart:'<path d="M3 21h18"/><path d="M6.5 21v-8M12 21V5.5M17.5 21v-5.5"/>',
- up:'<path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
- cal:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10.5h18"/>',
- pin:'<path d="M12 21.5V15"/><path d="M9 2.5h6l-1 6.2 3 3V14H7v-2.3l3-3z"/>',
- heart:'<path d="M12 20.3s-7-4.4-7-9.4A4.1 4.1 0 0 1 12 7.2a4.1 4.1 0 0 1 7 3.7c0 5-7 9.4-7 9.4z"/>',
- beer:'<path d="M6 8h8v12.5H6z"/><path d="M14 10.5h2.8a2.8 2.8 0 0 1 0 5.5H14"/><path d="M6 8a3 3 0 0 1 2.9-3 3 3 0 0 1 5-1 3 3 0 0 1 .1 4"/>',
- flame:'<path d="M12 21.2c3.3 0 6-2.5 6-5.7 0-3.6-3.4-5.4-4-9.5-2 1.6-3 3.5-3 5.5-1-.6-1.6-1.6-1.8-2.9C7.6 10.3 6 12.7 6 15.5c0 3.2 2.7 5.7 6 5.7z"/>',
- ruler:'<rect x="2.5" y="9" width="19" height="6" rx="2"/><path d="M7 9v2.6M12 9v3.6M17 9v2.6"/>',
- cam:'<rect x="3" y="7" width="18" height="13.5" rx="3"/><circle cx="12" cy="13.7" r="3.4"/><path d="m8.6 7 1.2-2.5h4.4L15.4 7"/>',
- bulb:'<path d="M9.6 18.2h4.8M10.4 21h3.2"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2h5c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/>',
- bowl:'<path d="M3 11.5h18a9 9 0 0 1-18 0z"/><path d="M6.5 8.5c.8-2 2.8-2.6 3.9-1.6M12.6 7c.4-2 2.4-3 3.9-2.6"/>',
- drop:'<path d="M12 3.2s6 6.5 6 10.2a6 6 0 1 1-12 0c0-3.7 6-10.2 6-10.2z"/>',
- flask:'<path d="M9 3h6M10.2 3v6.4L5.6 18A2 2 0 0 0 7.4 21h9.2a2 2 0 0 0 1.8-3l-4.6-8.6V3"/><path d="M7.6 15.2h8.8"/>',
- note:'<path d="M4 20.5h16"/><path d="m14.6 4.4 3 3L9 16l-4 1 1-4z"/>',
- dumb:'<path d="M3 9.5v5M6 7v10M18 7v10M21 9.5v5M6 12h12"/>',
- book:'<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15.5H6.5A2.5 2.5 0 0 0 4 21z"/><path d="M4 21a2.5 2.5 0 0 1 2.5-2.5H19"/>',
- star:'<path d="m12 3.2 2.6 5.6 6 .8-4.4 4.3 1.1 6-5.3-2.9-5.3 2.9 1.1-6-4.4-4.3 6-.8z"/>',
- target:'<circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="4.2"/><circle cx="12" cy="12" r="1"/>',
- cloud:'<path d="M7 18.5h10.2a4.2 4.2 0 0 0 .4-8.4A6.2 6.2 0 0 0 5.9 11 3.7 3.7 0 0 0 7 18.5z"/>',
- lock:'<rect x="4.5" y="10" width="15" height="10.5" rx="2.5"/><path d="M8 10V7.6a4 4 0 0 1 8 0V10"/>',
- clock:'<circle cx="12" cy="13.2" r="8"/><path d="M12 9.2v4l2.6 2M9 2.2h6"/>',
- list:'<rect x="6" y="4" width="12" height="17" rx="2.5"/><path d="M9.6 4V3h4.8v1"/><path d="M9.4 10h5.2M9.4 14h5.2"/>',
- /* --- ตัวชี้วัดอาหาร --- */
- egg:'<path d="M12 21c-3.3 0-6-2.6-6-5.9C6 10.6 8.7 6 12 6s6 4.6 6 9.1C18 18.4 15.3 21 12 21z"/>',
- rice:'<path d="M3 12.5h18a9 9 0 0 1-18 0z"/><path d="M12 9V5.6M8.8 9.6V7M15.2 9.6V7"/>',
- avo:'<path d="M12 3.2c-3 3-5 6.2-5 9.3a5 5 0 0 0 10 0c0-3.1-2-6.3-5-9.3z"/><circle cx="12" cy="14" r="2.1"/>',
- butter:'<rect x="3.5" y="9" width="17" height="8" rx="1.6"/><path d="M3.5 12.4h17"/>',
- candy:'<rect x="8" y="8.8" width="8" height="6.4" rx="2.2"/><path d="M8 12 4 8.6v6.8zM16 12l4-3.4v6.8z"/>',
- leaf:'<path d="M4 20.2c8.4 2 16.2-4.2 16.2-14.4C11.8 3.8 4 10 4 20.2z"/><path d="M4 20.2 14.4 9.8"/>',
- salt:'<path d="M7.6 21 9.1 9.4h5.8L16.4 21z"/><path d="M9.3 9.4a2.7 2.7 0 0 1 5.4 0"/><path d="M10.8 5.4V6M13.2 5.4V6M12 4v.7"/>',
- banana:'<path d="M4.6 6c0 7.4 5.4 12.6 12.4 12.6 1.7 0 2.8-.5 3.2-1.5-3.6-.4-6.5-2.1-8.4-4.6-1.7-2.3-2.6-4.6-2.6-6.9C8 5.3 6.2 5.4 4.6 6z"/>',
- sunrise:'<path d="M12 3.5v3M5 8.5 7 10M19 8.5 17 10M3 15h3M18 15h3"/><path d="M8 15a4 4 0 0 1 8 0"/><path d="M3 19.5h18"/>',
- sun:'<circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.4M12 19v2.4M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2.6 12H5M19 12h2.4M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/>',
- cookie:'<circle cx="12" cy="12" r="8.4"/><circle cx="9.6" cy="10" r="1"/><circle cx="14.3" cy="9.4" r="1"/><circle cx="12.4" cy="14.6" r="1"/>',
- night:'<path d="M20.5 14.6A8.5 8.5 0 1 1 9.9 4a6.8 6.8 0 0 0 10.6 10.6z"/><path d="M6.5 4.2v1.6M5.7 5h1.6"/>',
- scale:'<path d="M12 4.2v16.6M7 20.8h10M5 8.6h14"/><path d="m5 8.6-2.6 6.2h5.2zM19 8.6l-2.6 6.2h5.2"/>',
-};
-function ic(n,sz){
-  const p=IC[n]; if(!p) return "";
-  const s=sz||18;
-  return `<svg class="ic" viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor"
-    stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
-}
-/* ใน HTML เขียนแค่ <i data-ic="ชื่อ"></i> แล้วเติมรูปให้ตรงนี้
-   เขียนซ้ำได้ปลอดภัย (ตัวที่เติมแล้วจะไม่ว่าง จึงถูกข้าม) จึงเรียกหลังวาดใหม่ได้ทุกครั้ง */
-function paintIcons(root){
-  (root||document).querySelectorAll("i[data-ic]:empty").forEach(e=>{
-    e.innerHTML=ic(e.dataset.ic, +e.dataset.sz||18);
-  });
-}
-paintIcons();   /* สคริปต์อยู่ท้าย body แล้ว DOM พร้อมใช้ตั้งแต่ตอนนี้ */
 function el(id){return document.getElementById(id);}
 function n1(v){return Math.round(v*10)/10;}
 
@@ -3446,7 +3381,7 @@ function drawZones(){
     return `<div class="zr"${i===1?' style="background:color-mix(in srgb,var(--move) 9%,transparent);border-radius:10px"':""}>
     <div class="zd" style="background:${z[4]}"></div>
     <div class="zn">${z[1]}<small>${lo}–${hi} bpm · ${ZTIP[i]}</small></div>
-    <input type="number" inputmode="numeric" placeholder="0" data-z="${z[0]}"><div class="zu">นาที</div></div>`}).join("");
+    <input type="number" step="any" inputmode="decimal" placeholder="0" data-z="${z[0]}"><div class="zu">นาที</div></div>`}).join("");
   {const [a,b]=zoneBpm(1);
    el("zoneRows").insertAdjacentHTML("beforeend",
     `<div class="mini" style="margin-top:8px">🫀 <b>Zone 2 ของคุณ = ${a}–${b} bpm</b> คือช่วงที่คุ้มที่สุดสำหรับสร้างฐานความอดทนและเผาไขมัน · ดูสรุปสัดส่วน 80/20 ได้ที่หน้า 🏠 สรุป</div>`);}
@@ -3601,7 +3536,7 @@ function drawSets(){
     <div class="no">${i+1}</div>
     <input type="number" inputmode="decimal" step="any" value="${s0[0]||""}" placeholder="นน." data-i="${i}" data-f="0">
     <div class="u">กก. ×</div>
-    <input type="number" inputmode="numeric" value="${s0[1]||""}" placeholder="ครั้ง" data-i="${i}" data-f="1">
+    <input type="number" step="any" inputmode="decimal" value="${s0[1]||""}" placeholder="ครั้ง" data-i="${i}" data-f="1">
     <div class="u">ครั้ง</div>
     <button onclick="rmSet(${i})">✕</button></div>`).join("");
   el("setRows").querySelectorAll("input").forEach(inp=>inp.oninput=e=>{
@@ -3714,7 +3649,7 @@ fillExList(); drawSets();
 function nowHHMM(){const d=new Date();return p2(d.getHours())+":"+p2(d.getMinutes());}
 function mealOf(t){const h=+String(t||"12:00").split(":")[0];
   return h<10.5?"เช้า":h<15?"กลางวัน":h<21?"เย็น":"ดึก";}
-function mealIcon(m){return ic({"เช้า":"sunrise","กลางวัน":"sun","เย็น":"sleep","ดึก":"night","ว่าง":"cookie"}[m]||"food",15);}
+function mealIcon(m){return {"เช้า":"🌅","กลางวัน":"☀️","เย็น":"🌙","ดึก":"🌌","ว่าง":"🍪"}[m]||"🍽️";}
 function setTime(t){S.time=t; el("fTime").value=t; S.meal=mealOf(t);
   el("fTimeTag").innerHTML=`${mealIcon(S.meal)} ระบบจัดให้เป็นมื้อ <b>${esc(S.meal)}</b> อัตโนมัติ (แก้เวลาได้ตามจริง)`;}
 el("fTime").onchange=e=>setTime(e.target.value);
@@ -4227,7 +4162,9 @@ setInterval(()=>{
   if(c.d&&now===c.d&&!d.fd.some(x=>x.meal==="เย็น")) fire("d","🍽️ บันทึกมื้อเย็น",`วันนี้กินไป ${d.kIn} kcal จากเป้า ${S.user.target}`);
   if(c.s&&now===c.s) fire("s","😴 ใกล้เวลานอนแล้ว","เข้านอนตอนนี้จะได้ครบ 7–9 ชม. พรุ่งนี้อย่าลืมบันทึกการนอน");
   if(c.w>0){ const h=+now.split(":")[0], m=+now.split(":")[1];
-    if(m===0 && h>=8 && h<=21 && (h-8)%c.w===0){
+    /* ช่วงเตือนน้ำต้องเป็นจำนวนเต็มชั่วโมง — ผู้ใช้พิมพ์ทศนิยมมาก็ปัดให้ ไม่ให้เงื่อนไขพัง */
+    const wStep=Math.max(1,Math.round(+c.w||0));
+    if(m===0 && h>=8 && h<=21 && (h-8)%wStep===0){
       const g=S.water[tday]||0;
       if(g<waterGoal()) fire("w"+h,"💧 ดื่มน้ำหน่อย",`วันนี้ดื่มไป ${g.toLocaleString()} มล. จากเป้า ${waterGoal().toLocaleString()} มล.`);
     }}
@@ -4424,8 +4361,8 @@ function sCalc(){
 ["sBed","sWake"].forEach(id=>el(id).oninput=sCalc);
 el("stageInputs").innerHTML=STAGES.map(([k,name,c])=>`<div class="f" style="border-left:3px solid ${c}">
   <b>${name}</b><div>
-  <input type="number" inputmode="numeric" placeholder="0" id="st_${k}_h"><span>ชม.</span>
-  <input type="number" inputmode="numeric" placeholder="0" id="st_${k}_m"><span>นาที</span></div></div>`).join("");
+  <input type="number" step="any" inputmode="decimal" placeholder="0" id="st_${k}_h"><span>ชม.</span>
+  <input type="number" step="any" inputmode="decimal" placeholder="0" id="st_${k}_m"><span>นาที</span></div></div>`).join("");
 STAGES.forEach(([k])=>["h","m"].forEach(u=>el("st_"+k+"_"+u).oninput=stPreview));
 el("sWakeN").oninput=stPreview;
 function stObj(){const o={};STAGES.forEach(([k])=>{o[k]=(+el("st_"+k+"_h").value||0)*60+(+el("st_"+k+"_m").value||0);});
@@ -4585,7 +4522,7 @@ const LTA=[["😌","พูดสบาย",""],["😮‍💨","เริ่ม�
 function ltDraw(){
   el("ltRows").innerHTML=`<div class="lth"><u></u><span>HR (bpm)</span><span>ตอนพูด 30 วินาที รู้สึกยังไง</span></div>`+
     ltRows.map((r,i)=>`<div class="ltr"><u>${i+1}</u>
-      <input type="number" inputmode="numeric" placeholder="–" value="${r.hr}" data-i="${i}">
+      <input type="number" step="any" inputmode="decimal" placeholder="–" value="${r.hr}" data-i="${i}">
       <div class="sw">${LTA.map((a,k)=>`<button data-i="${i}" data-a="${k+1}"
         class="${r.a===k+1?"on "+a[2]:""}">${a[0]}<br>${a[1]}</button>`).join("")}</div></div>`).join("");
   el("ltRows").querySelectorAll("input").forEach(x=>x.oninput=e=>{ltRows[+e.target.dataset.i].hr=e.target.value;});
@@ -5338,12 +5275,16 @@ function foldAuto(d,open){ d.open=open; }
 function fitTimeInputs(){
   document.querySelectorAll("input[type=time],input[type=date]").forEach(inp=>{
     const p=inp.parentElement; if(!p||!inp.offsetParent) return;
+    const row=inp.closest(".rowtime");
     inp.style.fontSize=""; inp.style.padding="";
-    let fs=16, guard=0;
-    while(inp.offsetWidth > p.clientWidth && guard++<10){
-      if(fs>10){ fs-=1; inp.style.fontSize=fs+"px"; }
-      else { inp.style.padding="11px 4px"; break; }      /* บีบขอบในเป็นทางสุดท้าย */
-    }
+    if(row) row.classList.remove("tight");
+    const over=()=>inp.offsetWidth > p.clientWidth + 0.5;
+    if(!over()) return;                       /* ปกติพอดีอยู่แล้ว ไม่ต้องทำอะไรเลย */
+    /* ลำดับการแก้: ถ่างที่ว่างก่อน → ค่อยย่อตัวอักษร และไม่ให้เล็กกว่า 13.5px เพราะอ่านไม่ออก */
+    if(row){ row.classList.add("tight"); if(!over()) return; }
+    let fs=16.5, guard=0;
+    while(over() && fs>13.5 && guard++<10){ fs-=0.5; inp.style.fontSize=fs+"px"; }
+    if(over()) inp.style.padding="11px 4px";
   });
 }
 let _fitT=null;
@@ -5426,13 +5367,13 @@ function nutList(d,u,g,ratio,gkg,unsat){
   const wkAlc=period(S.date,7).reduce((a,b)=>a+b.alc,0);
   const dl=S.user.sex==="m"?20:10;
   const L=[
-   {k:"pr", ic:ic("egg",17), n:"โปรตีน",      ab:"P",  v:d.pr,  goal:u.pGoal,  un:"ก.", low:false, color:"var(--move)",
+   {k:"pr", ic:"🍗", n:"โปรตีน",      ab:"P",  v:d.pr,  goal:u.pGoal,  un:"ก.", low:false, color:"var(--move)",
     note:u.w?` · <b>${gkg}</b> ก./กก.`:"",
     tip:`${u.w?`วันนี้ได้ <b>${gkg}</b> ก. ต่อน้ำหนักตัว 1 กก. — เป้าที่ตั้งไว้คือ ${u.pkg} ก./กก. ตามเป้าหมาย${(+u.goal<=-250)?"ลดน้ำหนัก (ต้องการมากขึ้นเพื่อรักษากล้ามเนื้อ)":(+u.goal>0)?"เพิ่มกล้ามเนื้อ":"รักษาน้ำหนัก"}<br><br>`:""}อ้างอิง ISSN 2017 / Helms 2014: ช่วงลดน้ำหนัก 1.8–2.7 ก./กก. · รักษา 1.4–1.8 ก./กก.`},
-   {k:"cb", ic:ic("rice",17), n:"คาร์โบไฮเดรต", ab:"C",  v:d.cb,  goal:u.cGoal,  un:"ก.", low:false, color:"var(--food)",
+   {k:"cb", ic:"🍚", n:"คาร์โบไฮเดรต", ab:"C",  v:d.cb,  goal:u.cGoal,  un:"ก.", low:false, color:"var(--food)",
     tip:`ตั้งไว้ที่ 45% ของพลังงานทั้งวัน — เป็นตัวเลขกลาง ๆ ปรับได้ตามชนิดการฝึก ถ้าซ้อมหนักหรือวิ่งไกลจะต้องการมากกว่านี้`},
-   {k:"ft", ic:ic("avo",17), n:"ไขมันรวม",    ab:"F",  v:d.ft,  goal:u.fGoal,  un:"ก.", low:false, color:"var(--sleep)",
-    extraTile:`<div class="nt"><div class="h"><em>${ic("scale",16)}</em>สัดส่วนไขมัน</div>
+   {k:"ft", ic:"🥑", n:"ไขมันรวม",    ab:"F",  v:d.ft,  goal:u.fGoal,  un:"ก.", low:false, color:"var(--sleep)",
+    extraTile:`<div class="nt"><div class="h"><em>⚖️</em>สัดส่วนไขมัน</div>
       <b style="font-size:15px">${d.ft?`อิ่มตัว ${fatSplit(d,u).pct}%`:"–"}</b>
       <span class="st" style="color:${fatSplit(d,u).ok===null?"var(--dim)":fatSplit(d,u).ok?"var(--move)":"var(--food)"}">
         ${fatSplit(d,u).msg}</span></div>`,
@@ -5442,26 +5383,26 @@ function nutList(d,u,g,ratio,gkg,unsat){
     tip:d.ft?`แถบแดง = ไขมันอิ่มตัว ${n1(d.sat)} ก. · แถบเขียว = ไขมันไม่อิ่มตัว ${unsat} ก.<br>
       สัดส่วนอิ่มตัว <b>${fatSplit(d,u).pct}%</b> ของไขมันทั้งหมด — ${fatSplit(d,u).msg}`
       :`ยังไม่มีข้อมูลไขมันวันนี้`},
-   {k:"sat",ic:ic("butter",17), n:"ไขมันอิ่มตัว", ab:"อิ่มตัว", v:d.sat, goal:u.satGoal, un:"ก.", low:true, color:"var(--bad)",
+   {k:"sat",ic:"🧈", n:"ไขมันอิ่มตัว", ab:"อิ่มตัว", v:d.sat, goal:u.satGoal, un:"ก.", low:true, color:"var(--bad)",
     tip:`WHO แนะนำไม่เกิน 10% ของพลังงานทั้งวัน (= ${u.satGoal} ก. สำหรับเป้า ${u.target.toLocaleString()} kcal)<br><br>ตัวการหลักในอาหารไทย: กะทิ ของทอด หมูสามชั้น เนย ชีส ครีมเทียม`},
-   {k:"sug",ic:ic("candy",17), n:"น้ำตาล",      ab:"น้ำตาล", v:d.sug, goal:u.sugGoal, un:"ก.", low:true, color:"var(--bad)",
+   {k:"sug",ic:"🍬", n:"น้ำตาล",      ab:"น้ำตาล", v:d.sug, goal:u.sugGoal, un:"ก.", low:true, color:"var(--bad)",
     tip:`นับเฉพาะ <b>น้ำตาลอิสระ</b> ตามนิยาม WHO — น้ำตาลที่เติมเข้าไป บวกน้ำผึ้ง ไซรัป และน้ำผลไม้คั้น<br>
       น้ำตาลในผลไม้ทั้งลูก ผัก และนมจืด <b>ไม่นับ</b><br><br>
       เพดาน 10% ของพลังงาน = ${u.sugGoal} ก. · ระดับที่ดีที่สุด 5% = ${u.sugIdeal} ก.`},
-   {k:"fb", ic:ic("leaf",17), n:"ไฟเบอร์",     ab:"ใย", v:d.fb,  goal:u.fibGoal, un:"ก.", low:false, color:"#22c55e",
+   {k:"fb", ic:"🥦", n:"ไฟเบอร์",     ab:"ใย", v:d.fb,  goal:u.fibGoal, un:"ก.", low:false, color:"#22c55e",
     tip:d.fb<u.fibGoal?`ขาดอีก ${n1(u.fibGoal-d.fb)} ก. ≈ ผักลวก ${Math.ceil((u.fibGoal-d.fb)/2.4)} ถ้วย หรือผลไม้ ${Math.ceil((u.fibGoal-d.fb)/2.5)} ผล<br><br>เกณฑ์ 14 ก. ต่อพลังงาน 1,000 kcal`:`ครบแล้ว — เกณฑ์คือ 14 ก. ต่อพลังงาน 1,000 kcal`},
-   {k:"na", ic:ic("salt",17), n:"โซเดียม",     ab:"Na", v:d.na,  goal:NA_LIMIT,  un:"มก.", low:true, color:"var(--bad)",
+   {k:"na", ic:"🧂", n:"โซเดียม",     ab:"Na", v:d.na,  goal:NA_LIMIT,  un:"มก.", low:true, color:"var(--bad)",
     note:ratio!==null?` · Na:K <b style="color:${ratio<=1?"var(--move)":ratio<=2?"var(--food)":"var(--bad)"}">${ratio}</b>`:"",
     tip:`เพดาน WHO 2,000 มก./วัน (≈ เกลือ 5 ก.)<br><br>ตัวการหลัก: น้ำซุปก๋วยเตี๋ยว น้ำปลา ซีอิ๊ว น้ำจิ้ม ผงปรุงรส ซุปก้อน ของหมักดอง อาหารสำเร็จรูป
       ${ratio!==null?`<br><br>อัตราส่วน <b>Na : K = ${ratio}</b> — ความดันขึ้นกับอัตราส่วนนี้มากกว่าโซเดียมเดี่ยว ๆ (INTERSALT, DASH) เป้าคือไม่เกิน 1`:""}`},
-   {k:"pot",ic:ic("banana",17), n:"โพแทสเซียม",   ab:"K",  v:d.pot, goal:K_GOAL,    un:"มก.", low:false, color:"#22c55e",
+   {k:"pot",ic:"🍌", n:"โพแทสเซียม",   ab:"K",  v:d.pot, goal:K_GOAL,    un:"มก.", low:false, color:"#22c55e",
     tip:`WHO แนะนำอย่างน้อย ${K_GOAL.toLocaleString()} มก./วัน — โพแทสเซียมช่วยหักล้างผลของโซเดียมต่อความดัน<br><br>
       หาง่าย: ผักใบเขียว ฟักทอง มันเทศ กล้วย มะละกอ ส้ม ถั่ว ปลา น้ำมะพร้าว (ราว 400 มก. ต่อ 1 ถ้วย/1 ผล)
       ${d.fd.length?`<br><br><span style="opacity:.75">วันนี้ ${d.potLab}/${d.fd.length} เมนูใช้ค่าจากห้องแล็บ ที่เหลือเป็นค่าประมาณจากชนิดอาหาร</span>`:""}`},
-   {k:"wa", ic:ic("drop",17), n:"น้ำดื่ม",      ab:"น้ำ", v:g,     goal:waterGoal(), un:"มล.", low:false, color:"var(--acc)",
+   {k:"wa", ic:"💧", n:"น้ำดื่ม",      ab:"น้ำ", v:g,     goal:waterGoal(), un:"มล.", low:false, color:"var(--acc)",
     tip:`เป้าคำนวณจากน้ำหนักตัวและปริมาณการออกกำลังกายวันนี้`},
   ];
-  if(d.alc||wkAlc) L.push({k:"alc", ic:ic("beer",17), n:"แอลกอฮอล์", ab:"เหล้า", v:d.alc, goal:dl, un:"ก.", low:true, color:"var(--bad)",
+  if(d.alc||wkAlc) L.push({k:"alc", ic:"🍺", n:"แอลกอฮอล์", ab:"เหล้า", v:d.alc, goal:dl, un:"ก.", low:true, color:"var(--bad)",
     note:` · ≈ <b>${n1(d.alc/10)}</b> ดื่ม`,
     tip:`วันนี้ ${n1(d.alc)} ก. ≈ ${n1(d.alc/10)} ดื่มมาตรฐาน · เพดานต่อวัน ${dl} ก. (${S.user.sex==="m"?"ชาย 2":"หญิง 1"} ดื่ม)<br><br>
       สัปดาห์นี้รวม ${n1(wkAlc)} ก. ≈ ${n1(wkAlc/10)} ดื่ม ${wkAlc>100?"— เกินคำแนะนำสัปดาห์ละ 10 ดื่ม":""}`});
@@ -5503,16 +5444,16 @@ function nutSummary(d,u,g,ratio,gkg,unsat){
   }).join("");
   const fs0=fatSplit(d,u), fsc=fs0.ok?"var(--move)":"var(--food)";
   const fatRow = d.ft? `<div class="fbar nut">
-      <span class="nl"><b>${ic("scale",17)} สัดส่วนไขมัน</b><small>${fs0.msg}</small></span>
+      <span class="nl"><b>⚖️ สัดส่วนไขมัน</b><small>${fs0.msg}</small></span>
       <span class="fb2 wide"><i style="width:${Math.min(100,fs0.pct)}%;background:${fsc}"></i></span>
       <span class="nv"><b style="color:${fsc}">${fs0.pct}%</b><i>อิ่มตัว</i></span></div>` : "";
   const docs=L.map(x=>`<div class="nudoc"><b style="color:${x.c}">${x.ic} ${x.n}</b>
       <span>${kShort(x.v)} / ${kShort(x.goal)} ${x.un} · ${x.msg}</span><div>${x.tip}</div></div>`).join("");
   const body=`<div class="nutrows">${rows}${fatRow}</div>
-    <details class="fold sub" data-fold="nutDoc"><summary>${ic("book",17)} เกณฑ์และคำแนะนำของแต่ละตัว</summary>
+    <details class="fold sub" data-fold="nutDoc"><summary>📖 เกณฑ์และคำแนะนำของแต่ละตัว</summary>
       <div class="foldc">${docs}</div></details>`;
   return `<div class="offchips">${chips}</div>
-    ${subFold("nutTiles",`${ic("chart",17)} สารอาหาร <span class="fn">เข้าเกณฑ์ ${okN}/${L.length}${over.length?` · เกินเพดาน ${over.length}`:""}</span>`, body)}`;
+    ${subFold("nutTiles",`📊 สารอาหาร <span class="fn">เข้าเกณฑ์ ${okN}/${L.length}${over.length?` · เกินเพดาน ${over.length}`:""}</span>`, body)}`;
 }
 /* หัวข้อย่อยแบบ "เห็นสรุปเสมอ กดแล้วค่อยคลี่รายละเอียด"
    หัวข้อ (head) มีป้ายสถานะอยู่แล้ว จึงยังอ่านรู้เรื่องแม้ตอนพับ */
@@ -5675,11 +5616,11 @@ function render(){
    el("scoreArc").style.stroke=A.score>=75?"var(--move)":A.score>=50?"var(--food)":"var(--bad)";}
   el("dScore").style.color=A.score>=75?"var(--move)":A.score>=50?"var(--food)":"var(--bad)";
   el("dBars").innerHTML=[
-    [ic("food",17),"อาหาร",A.sFood,d.kIn>u.target?`เกิน ${(d.kIn-u.target).toLocaleString()} kcal`:`เหลือ ${(u.target-d.kIn).toLocaleString()} kcal`,"var(--food)"],
-    [ic("run",17),"ออกกำลัง",A.sMove,d.load>=60?"ครบเป้าแล้ว ✓":`ขาด ${Math.max(0,Math.round(60-d.load))} โหลด`,"var(--move)"],
+    ["🍽️","อาหาร",A.sFood,d.kIn>u.target?`เกิน ${(d.kIn-u.target).toLocaleString()} kcal`:`เหลือ ${(u.target-d.kIn).toLocaleString()} kcal`,"var(--food)"],
+    ["🏃","ออกกำลัง",A.sMove,d.load>=60?"ครบเป้าแล้ว ✓":`ขาด ${Math.max(0,Math.round(60-d.load))} โหลด`,"var(--move)"],
     /* เกณฑ์การนอนดูที่ "คะแนนคุณภาพ" ไม่ใช่จำนวนชั่วโมง — นอน 8 ชม. แต่ตื่น 5 ครั้งไม่ใช่การนอนที่ดี
        ชั่วโมงยังบอกไว้ข้าง ๆ เพราะเป็นตัวเลขที่คนคุ้นเคย */
-    [ic("sleep",17),"นอน",A.sSleep,d.sl?`${A.sSleep}/100 · ${d.hours} ชม.${ev?"":" (ยังไม่ได้ใส่ระยะการนอน)"}`:"ยังไม่บันทึก","var(--sleep)"]
+    ["😴","นอน",A.sSleep,d.sl?`${A.sSleep}/100 · ${d.hours} ชม.${ev?"":" (ยังไม่ได้ใส่ระยะการนอน)"}`:"ยังไม่บันทึก","var(--sleep)"]
   ].map(b=>`<div class="hb"><div class="l"><span>${b[0]} ${b[1]}</span><b style="color:${b[2]>=70?"var(--move)":b[2]>=40?"var(--food)":"var(--dim)"}">${b[3]}</b></div>
     <div class="bar"><i style="background:${b[4]};width:${Math.min(100,b[2])}%"></i></div></div>`).join("");
   const miss=[!d.fd.length&&"อาหาร",!d.min&&"ออกกำลังกาย",!d.sl&&"การนอน"].filter(Boolean);
@@ -5701,7 +5642,7 @@ function render(){
 
     ${nutSummary(d,u,g,ratio,gkg,unsat)}
 
-    ${d.fd.length? subFold("homeMeals",`${ic("food",17)} ที่กินวันนี้ <span class="pill ok">${d.fd.length} รายการ</span>`, sortByTime(d.fd).map(x=>
+    ${d.fd.length? subFold("homeMeals",`🍽️ ที่กินวันนี้ <span class="pill ok">${d.fd.length} รายการ</span>`, sortByTime(d.fd).map(x=>
       `<div class="meal"><div>${x.time?`<b style="color:var(--food)">${x.time}</b> `:""}${mealIcon(x.meal)} ${esc(x.name)}
         <small style="display:block;color:var(--dim);font-size:11px">${x.qty} × ${esc(x.unit)} · P${n1(x.protein)} C${n1(x.carb)} F${n1(x.fat)}${x.sodium>=700?` · <span style="color:var(--bad)">🧂 ${x.sodium}</span>`:x.sodium?` · 🧂 ${x.sodium}`:""}</small></div>
       <b style="color:var(--food);white-space:nowrap">${x.kcal} kcal</b></div>`).join(""), d.fd.length<=4) : ""}
@@ -5725,7 +5666,7 @@ function render(){
       :`ขาดอีก <b style="color:var(--food)">${Math.round(60-d.load)}</b> โหลด ≈ เดินเร็ว ${Math.ceil((60-d.load)/2)} นาที หรือวิ่ง ${Math.ceil((60-d.load)/4)} นาที`}</div>
     <div class="mini" style="margin-top:6px">คาร์ดิโอ ${Math.round(cLoad)} + เวท ${wLoad} · โหลด = เวลา × ความหนัก</div>
 
-    ${subFold("mvCardio",`${ic("run",17)} คาร์ดิโอ ${cMin?`<span class="pill ${pctAvg>=85?"bad":pctAvg>=70?"warn":"ok"}">${cMin} นาที · ${pctAvg}% HRmax</span>`:`<span class="pill warn">ยังไม่ได้ทำ</span>`}`,`
+    ${subFold("mvCardio",`🏃 คาร์ดิโอ ${cMin?`<span class="pill ${pctAvg>=85?"bad":pctAvg>=70?"warn":"ok"}">${cMin} นาที · ${pctAvg}% HRmax</span>`:`<span class="pill warn">ยังไม่ได้ทำ</span>`}`,`
       ${cMin? `<div class="stat">
         <div class="s"><span>เวลา</span><b style="color:var(--move)">${cMin}</b><span>นาที · ${cKcal} kcal</span></div>
         <div class="s"><span>HR เฉลี่ย</span><b style="color:var(--acc)">${hrAvg||"–"}</b><span>bpm${mainZ?` · ส่วนใหญ่ ${mainZ[1]}`:""}</span></div>
@@ -5735,9 +5676,9 @@ function render(){
       ${d.ex.map(x=>`<div class="meal"><div>${esc(x.type)}<small style="display:block;color:var(--dim);font-size:11px">${x.min} นาที${x.km?" · "+x.km+" กม.":""}${x.hr?" · HR ~"+x.hr:""}${x.fat?" · ไขมัน "+x.fat+"%":""}</small></div><b style="color:var(--move)">${x.kcal} kcal</b></div>`).join("")}`
       : `<div class="mini">วันนี้ยังไม่มีคาร์ดิโอ</div>`}`, !!cMin)}
 
-    ${subFold("mvPolar",`${ic("heart",17)} Zone 2 &amp; 80/20 <span class="pill ${P7.pGoal>=100?"ok":"warn"}">7 วัน · ${P7.pGoal>=100?"ครบโดส":"ยังไม่ครบ"}</span>`, polarMini(P7))}
+    ${subFold("mvPolar",`🫀 Zone 2 &amp; 80/20 <span class="pill ${P7.pGoal>=100?"ok":"warn"}">7 วัน · ${P7.pGoal>=100?"ครบโดส":"ยังไม่ครบ"}</span>`, polarMini(P7))}
 
-    ${subFold("mvWo",`${ic("dumb",17)} เวทเทรนนิ่ง ${d.wo.length?`<span class="pill ok">${d.wo.length} ท่า · ${wSets} เซ็ต</span>`:`<span class="pill warn">ยังไม่ได้ทำ</span>`}`,`
+    ${subFold("mvWo",`🏋️ เวทเทรนนิ่ง ${d.wo.length?`<span class="pill ok">${d.wo.length} ท่า · ${wSets} เซ็ต</span>`:`<span class="pill warn">ยังไม่ได้ทำ</span>`}`,`
       ${d.wo.length? `<div class="stat">
         <div class="s"><span>ปริมาณรวม</span><b style="color:var(--move)">${Math.round(d.vol).toLocaleString()}</b><span>กก.·ครั้ง</span></div>
         <div class="s"><span>กลุ่มที่เล่น</span><b style="font-size:15px">${esc([...new Set(d.wo.map(x=>x.group))].join(" · "))}</b><span>&nbsp;</span></div>
@@ -5765,7 +5706,7 @@ function render(){
         <div class="s"><span>ชั่วโมงที่หลับจริง</span><b style="color:${d.hours>=7&&d.hours<=9?"var(--move)":"var(--food)"}">${d.hours}</b><span>ชม. (เกณฑ์ 7–9)</span></div>
         <div class="s"><span>ประสิทธิภาพ</span><b style="color:${effCol(ev.eff)}">${ev.eff}</b><span>% (เกณฑ์ ≥85)</span></div>
       </div>${sleepHead(ev)}
-      ${subFold("slStages",`${ic("sleep",17)} ระยะการนอนแต่ละช่วง <span class="pill ${ev.grades.filter(x=>x.st!=="ok").length?"warn":"ok"}">${ev.grades.filter(x=>x.st==="ok").length}/${ev.grades.length} อยู่ในเกณฑ์</span>`,
+      ${subFold("slStages",`🌙 ระยะการนอนแต่ละช่วง <span class="pill ${ev.grades.filter(x=>x.st!=="ok").length?"warn":"ok"}">${ev.grades.filter(x=>x.st==="ok").length}/${ev.grades.length} อยู่ในเกณฑ์</span>`,
         stageBar(ev)+stageGrades(ev)+`<div class="mini" style="margin-top:9px">${ev.msg}</div>`)}`
       : `<div class="mini" style="margin-top:10px">ยังไม่ได้ใส่ระยะการนอน — ใส่ที่แท็บ 😴 นอน แล้วระบบจะให้คะแนนคุณภาพอัตโนมัติ</div>`}`
     : `<div class="empty">ยังไม่ได้บันทึกการนอน</div>`);
@@ -5851,18 +5792,18 @@ function render(){
       `${x.time?`<b style="color:var(--food)">${x.time}</b> `:""}${esc(x.name)} <span class="tag">${mealIcon(x.meal)} ${esc(x.meal||"")}</span>`,
       `${x.qty} × ${esc(x.unit)} · P${n1(x.protein)} C${n1(x.carb)} F${n1(x.fat)}
        <span class="nchs">${
-         chip(ic("leaf",14),"ใย",`${e("fiber")}${n1(nr.fiber)} ก.`)+
-         `<span class="nch"${sodiumHot?' style="color:var(--bad)"':''}>${ic("salt",14)} ${e("sodium")}${Math.round(nr.sodium).toLocaleString()} มก.</span>`+
-         chip(ic("butter",14),"อิ่มตัว",`${e("sat")}${n1(nr.sat)} ก.`)+
-         chip(ic("candy",14),"",`${e("sugar")}${n1(nr.sugar)} ก.`)+
-         chip(ic("banana",14),"",`${nr.potLab?"":"~"}${nr.pot.toLocaleString()} มก.`)+
-         (nr.alc?chip(ic("beer",14),"",`${n1(nr.alc)} ก.`):"")+
-         (nr.broth<1?`<span class="nch" style="color:var(--move)">${ic("bowl",14)} ${nr.broth<=0.5?"ไม่ซดน้ำ":"ซดน้ำบ้าง"}</span>`:"")}</span>`,
+         chip("🥦","ใย",`${e("fiber")}${n1(nr.fiber)} ก.`)+
+         `<span class="nch"${sodiumHot?' style="color:var(--bad)"':''}>🧂 ${e("sodium")}${Math.round(nr.sodium).toLocaleString()} มก.</span>`+
+         chip("🧈","อิ่มตัว",`${e("sat")}${n1(nr.sat)} ก.`)+
+         chip("🍬","",`${e("sugar")}${n1(nr.sugar)} ก.`)+
+         chip("🍌","",`${nr.potLab?"":"~"}${nr.pot.toLocaleString()} มก.`)+
+         (nr.alc?chip("🍺","",`${n1(nr.alc)} ก.`):"")+
+         (nr.broth<1?`<span class="nch" style="color:var(--move)">🥣 ${nr.broth<=0.5?"ไม่ซดน้ำ":"ซดน้ำบ้าง"}</span>`:"")}</span>`,
       `<span style="color:var(--food)">${x.kcal}</span>`,"food",x.ts);
   }).join(""):`<div class="empty">ยังไม่มีบันทึก</div>`;
   el("fListNote").innerHTML = (d.fd.length&&anyEst)
     ? `<div class="mini">~ = ค่าประมาณจากชนิดอาหาร (เมนูนั้นยังไม่มีค่าจริงในฐานข้อมูล) · ตัวเลขที่ไม่มี ~ คือค่าจริง</div>` : "";
-  setTimeout(()=>{ try{ foldify(); fitTimeInputs(); paintIcons(); }catch(e){} },0);   /* การ์ดที่วาดใหม่ต้องผูกกล่องพับ วัดช่องเวลา และเติมไอคอนด้วย */
+  setTimeout(()=>{ try{ foldify(); fitTimeInputs(); }catch(e){} },0);   /* การ์ดที่วาดใหม่ต้องผูกกล่องพับและวัดช่องเวลาด้วย */
   foldCount("fList",d.fd.length,"รายการ");
   foldCount("sList",d.sl?1:0,"รายการ");
   el("sList").innerHTML=d.sl?row(`${d.sl.bed} → ${d.sl.wake}`,
@@ -6152,15 +6093,15 @@ function drawCharts(){
   /* แถบคุณภาพ — สิ่งที่โดนัทสัดส่วนพลังงานบอกไม่ได้: ใยอาหาร โซเดียม น้ำตาลอิสระ ไขมันอิ่มตัว โพแทสเซียม */
   {const rr=A.avgNa&&A.avgPot? n1(A.avgNa/A.avgPot) : null;
    const QL=[
-    {ic:ic("egg",17),n:"โปรตีน",     v:A.avgPr, goal:u.pGoal,  un:"ก.",  low:false,col:"var(--move)"},
-    {ic:ic("leaf",17),n:"ใยอาหาร",    v:A.avgFb, goal:u.fibGoal,un:"ก.",  low:false,col:"#22c55e"},
-    {ic:ic("banana",17),n:"โพแทสเซียม",  v:A.avgPot,goal:K_GOAL,   un:"มก.", low:false,col:"#22c55e"},
-    {ic:ic("salt",17),n:"โซเดียม",    v:A.avgNa, goal:NA_LIMIT, un:"มก.", low:true, col:"var(--bad)",
+    {ic:"🍗",n:"โปรตีน",     v:A.avgPr, goal:u.pGoal,  un:"ก.",  low:false,col:"var(--move)"},
+    {ic:"🥦",n:"ใยอาหาร",    v:A.avgFb, goal:u.fibGoal,un:"ก.",  low:false,col:"#22c55e"},
+    {ic:"🍌",n:"โพแทสเซียม",  v:A.avgPot,goal:K_GOAL,   un:"มก.", low:false,col:"#22c55e"},
+    {ic:"🧂",n:"โซเดียม",    v:A.avgNa, goal:NA_LIMIT, un:"มก.", low:true, col:"var(--bad)",
       note:rr!==null?` · Na:K <b style="color:${rr<=1?"var(--move)":rr<=2?"var(--food)":"var(--bad)"}">${rr}</b>`:""},
-    {ic:ic("candy",17),n:"น้ำตาลอิสระ", v:A.avgSug,goal:u.sugGoal,un:"ก.",  low:true, col:"var(--bad)"},
-    {ic:ic("butter",17),n:"ไขมันอิ่มตัว", v:A.avgSat,goal:u.satGoal,un:"ก.",  low:true, col:"var(--bad)"},
+    {ic:"🍬",n:"น้ำตาลอิสระ", v:A.avgSug,goal:u.sugGoal,un:"ก.",  low:true, col:"var(--bad)"},
+    {ic:"🧈",n:"ไขมันอิ่มตัว", v:A.avgSat,goal:u.satGoal,un:"ก.",  low:true, col:"var(--bad)"},
    ];
-   if(A.avgAlc>0) QL.push({ic:ic("beer",17),n:"แอลกอฮอล์",v:A.avgAlc,goal:S.user.sex==="m"?20:10,un:"ก.",low:true,col:"var(--bad)"});
+   if(A.avgAlc>0) QL.push({ic:"🍺",n:"แอลกอฮอล์",v:A.avgAlc,goal:S.user.sex==="m"?20:10,un:"ก.",low:true,col:"var(--bad)"});
    el("statNut").innerHTML = A.fdDays? `<div class="nutrows" style="margin-top:6px">${QL.map(x=>{
       const st = x.low ? (x.v<=x.goal*0.75?"ok":x.v<=x.goal?"warn":"bad")
                        : (x.v>=x.goal?"ok":x.v>=x.goal*0.6?"warn":"bad");
@@ -6431,7 +6372,7 @@ function showOnboard(){
     <div class="step"><h3><i>1</i> คัดลอกไฟล์ต้นแบบ</h3>
       <div class="hint">กดปุ่มนี้ → หน้า Google จะถามว่า "ทำสำเนา" → กดยืนยัน<br>
       คุณจะได้ไฟล์ Google Sheets ของตัวเอง <b>พร้อมระบบครบทุกอย่างในไฟล์เดียว</b> ไม่ต้องก็อปโค้ดเอง</div>
-      <button class="btn" onclick="window.open('${T}','_blank')"><i data-ic="book" data-sz="16"></i> เปิดไฟล์ต้นแบบ &amp; ทำสำเนา</button></div>
+      <button class="btn" onclick="window.open('${T}','_blank')">📄 เปิดไฟล์ต้นแบบ &amp; ทำสำเนา</button></div>
 
     <div class="step"><h3><i>2</i> กดเมนู "ตั้งค่าครั้งแรก"</h3>
       <div class="hint">ในไฟล์ที่เพิ่งทำสำเนา ดูแถบเมนูด้านบน จะมีเมนูชื่อ <b>💪 แอปสุขภาพ</b><br>
@@ -6474,7 +6415,7 @@ function showOnboard(){
       <li>ลบโค้ดเดิมทั้งหมด แล้ววางโค้ดที่คัดลอกจากปุ่มนี้</li>
       <li>กดบันทึก (Ctrl+S) แล้วกลับมารีเฟรชหน้า Sheets</li>
       <li>จะเห็นเมนูใหม่ <b>💪 แอปสุขภาพ</b> → กด <b>1️⃣ ตั้งค่าครั้งแรก</b></li></ol>
-      <button class="btn ghost" onclick="copyCode(this)"><i data-ic="list" data-sz="16"></i> คัดลอกโค้ด Apps Script</button></div>
+      <button class="btn ghost" onclick="copyCode(this)">📋 คัดลอกโค้ด Apps Script</button></div>
 
     <div class="step"><h3><i>3</i> Deploy เป็น Web App</h3>
       <ol><li>กด <b>Deploy → New deployment</b></li>
