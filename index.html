@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#f5f7f5" id="metaTheme">
 <link rel="manifest" href="manifest.json">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%AA%3C/text%3E%3C/svg%3E">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20512%20512%22%3E%3Crect%20width%3D%22512%22%20height%3D%22512%22%20rx%3D%22114%22%20fill%3D%22%230e1a18%22%2F%3E%3Cg%20transform%3D%22rotate%28-90%20256%20256%29%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-width%3D%2234%22%3E%3Ccircle%20cx%3D%22256%22%20cy%3D%22256%22%20r%3D%22176%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%22256%22%20cy%3D%22256%22%20r%3D%22128%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%22256%22%20cy%3D%22256%22%20r%3D%2280%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%22256%22%20cy%3D%22256%22%20r%3D%22176%22%20stroke%3D%22%2334d399%22%20stroke-dasharray%3D%22862%20244%22%20pathLength%3D%221106%22%2F%3E%3Ccircle%20cx%3D%22256%22%20cy%3D%22256%22%20r%3D%22128%22%20stroke%3D%22%23f59e0b%22%20stroke-dasharray%3D%22499%20305%22%20pathLength%3D%22804%22%2F%3E%3Ccircle%20cx%3D%22256%22%20cy%3D%22256%22%20r%3D%2280%22%20stroke%3D%22%23818cf8%22%20stroke-dasharray%3D%22226%20277%22%20pathLength%3D%22503%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="สุขภาพ">
@@ -34,6 +35,9 @@
 body{margin:0;background:var(--bg);transition:background .2s;color:var(--txt);font-family:'Noto Sans Thai UI','Noto Sans Thai','Sarabun','Prompt',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;padding-bottom:78px;font-size:16.5px}
 header{position:sticky;top:0;z-index:20;background:var(--headbg);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:10px 14px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
 header h1{font-size:18px;margin:0;flex:1 1 auto;min-width:0;font-weight:700}
+header h1{display:flex;align-items:center;gap:8px}
+svg.brand{width:26px;height:26px;flex:none;color:var(--txt)}
+svg.brand.big{width:30px;height:30px;vertical-align:-6px;margin-right:4px}
 #dateSel{background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:7px 9px;font-family:inherit;font-size:14px;width:auto;flex:0 1 auto;min-width:0;max-width:180px}
 #themeBtn{background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:9px;width:34px;height:32px;font-size:15px;cursor:pointer;flex:none}
 /* ข้อความสถานะยาวได้ (เช่น "ซิงก์ล่าสุด 12 นาทีที่แล้ว") — ให้ตัดบรรทัดลงมาแทนที่จะดันจอให้เลื่อนซ้ายขวา */
@@ -240,6 +244,9 @@ details.fold.sub .subh{margin:9px 0 5px}
 .exi{width:26px;height:26px;flex:none;opacity:.85}
 .exi svg{width:100%;height:100%}
 .ntiles{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:13px}
+.ntiles.one{grid-template-columns:1fr;margin-top:9px}
+.ntiles.one .nt{background:var(--card)}
+.ntiles.one .nt .bar{height:9px;margin-top:9px}
 .nt{background:var(--card2);border-radius:13px;padding:11px}
 .nt .h{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--dim);margin-bottom:5px}
 .nt .h em{font-style:normal;font-size:14px}
@@ -348,7 +355,7 @@ details.fold.sub .subh{margin:9px 0 5px}
 <body>
 
 <header>
-  <h1>💪 สุขภาพ</h1>
+  <h1><svg class="brand" viewBox="0 0 512 512" aria-hidden="true"><g transform="rotate(-90 256 256)" fill="none" stroke-linecap="round" stroke-width="62"><circle cx="256" cy="256" r="170" stroke="currentColor" stroke-opacity=".15"/><circle cx="256" cy="256" r="170" stroke="var(--move)" stroke-dasharray="833 235" pathLength="1068"/></g><circle cx="256" cy="256" r="44" fill="var(--food)"/></svg>สุขภาพ</h1>
   <input type="date" id="dateSel">
   <button id="themeBtn" title="สลับธีม">🌙</button>
   <span id="status">เก็บในเครื่อง</span>
@@ -1519,7 +1526,7 @@ function loadLocal(){
 }
 
 const APP_NAME="สุขภาพ Tracker";
-const APP_VER="4.4";
+const APP_VER="4.6";
 const GS_CODE=`/*************************************************************
  *  สุขภาพ Tracker — Google Apps Script Backend
  *  วางโค้ดนี้ใน Extensions > Apps Script ของ Google Sheets
@@ -4461,6 +4468,11 @@ function fillUser(){
 }
 function calcTdee(){
   const u=S.user;
+  /* ข้อมูลพัง (เช่นถูกเขียนทับจากชีต/ไฟล์สำรองที่เสีย) → ใช้ค่ากลางแทน
+     ดีกว่าปล่อยให้เป้าแคลอรี่กลายเป็น 7 kcal แล้วทั้งหน้าสรุปเพี้ยนตาม */
+  const fix=(k,def)=>{const [lo,hi]=PROF[k]; const x=+u[k]; if(!isFinite(x)||x<lo||x>hi) u[k]=def;};
+  fix("age",35); fix("w",70); fix("h",170);
+  if(!(+u.act>=1&&+u.act<=2.5)) u.act=1.375;
   const bmr = u.sex==="m" ? 10*u.w+6.25*u.h-5*u.age+5 : 10*u.w+6.25*u.h-5*u.age-161;
   u.bmr=Math.round(bmr); u.tdee=Math.round(bmr*u.act);
   u.tdeeUse = (+u.tdeeReal>0) ? Math.round(+u.tdeeReal) : u.tdee;   // ใช้ค่าจริงถ้ามี
@@ -4500,9 +4512,22 @@ el("uZsave").onclick=async()=>{
   await api({action:"user",user:userPayload()});
   alert("บันทึกแล้ว ✅ โซนหัวใจคำนวณใหม่เรียบร้อย");
 };
+/* ช่วงที่เป็นไปได้จริงของมนุษย์ — กันกรอกว่าง/พิมพ์ผิด แล้วเป้าแคลอรี่กลายเป็นเลขไร้สาระ */
+const PROF={age:[10,100,"อายุ","ปี"], w:[25,300,"น้ำหนัก","กก."], h:[100,250,"ส่วนสูง","ซม."]};
+function profErr(v){
+  for(const k of ["age","w","h"]){
+    const [lo,hi,name,unit]=PROF[k];
+    const x=+v[k];
+    if(!isFinite(x)||x<lo||x>hi) return `${name}ต้องอยู่ระหว่าง ${lo}–${hi} ${unit} (ใส่มา ${v[k]===""||!isFinite(x)?"ว่าง":v[k]})`;
+  }
+  return "";
+}
 el("uSave").onclick=async()=>{
-  S.user.sex=el("uSex").value;S.user.age=+el("uAge").value;S.user.w=+el("uW").value;
-  S.user.h=+el("uH").value;S.user.act=+el("uAct").value;S.user.goal=+el("uGoal").value;
+  const nv={sex:el("uSex").value,age:+el("uAge").value,w:+el("uW").value,
+            h:+el("uH").value,act:+el("uAct").value,goal:+el("uGoal").value};
+  const err=profErr(nv);
+  if(err){ alert("บันทึกไม่ได้ ❌\n\n"+err+"\n\nค่าเดิมยังอยู่เหมือนเดิม ไม่ได้ถูกแก้"); return; }
+  Object.assign(S.user,nv);
   calcTdee();drawZones();exCalc();render();
   await api({action:"user",user:userPayload()});
   alert("บันทึกแล้ว ✅");
@@ -5071,40 +5096,61 @@ function foldCount(id,n,unit){
    ทุกสารอาหารถูกปฏิบัติเหมือนกันหมด ไม่มีตัวไหนถูกเน้นเป็นพิเศษ
    สีบอกสถานะ: เขียว = เข้าเกณฑ์ · ส้ม = เฉียด · แดง = หลุด */
 function kShort(v){ return v>=10000? Math.round(v/1000)+"k" : v>=1000? n1(v/1000)+"k" : n1(v); }
+/* การ์ดสารอาหารพร้อมกราฟแท่ง — หน้าตาเดิม แค่ย้ายไปอยู่ในกล่องพับ */
+function ntile(icon,name,val,goal,unit,color,lowerBetter,extra,note){
+  const pctv=Math.min(100,goal?val/goal*100:0);
+  const diff=n1(Math.abs(goal-val));
+  const st = lowerBetter ? (val<=goal*0.75?"ok":val<=goal?"warn":"bad")
+                         : (val>=goal?"ok":val>=goal*0.6?"warn":"bad");
+  const c = st==="ok"?"var(--move)":st==="warn"?"var(--food)":"var(--bad)";
+  return `<div class="nt"><div class="h"><em>${icon}</em>${name}</div>
+    <b>${n1(val).toLocaleString()} <span>/ ${goal.toLocaleString()} ${unit}</span></b>
+    ${extra||`<div class="bar"><i style="background:${lowerBetter?c:color};width:${pctv}%"></i></div>`}
+    <span class="st" style="color:${c}">${lowerBetter
+      ? (val<=goal?`เหลืออีก ${diff.toLocaleString()} ${unit}`:`เกินมา ${diff.toLocaleString()} ${unit}`)
+      : (val>=goal?`ครบแล้ว ✓`:`ขาดอีก ${diff.toLocaleString()} ${unit}`)}${note||""}</span></div>`;
+}
 function nutList(d,u,g,ratio,gkg,unsat){
   const wkAlc=period(S.date,7).reduce((a,b)=>a+b.alc,0);
   const dl=S.user.sex==="m"?20:10;
   const L=[
-   {k:"pr", ic:"🍗", n:"โปรตีน",      ab:"P",  v:d.pr,  goal:u.pGoal,  un:"ก.", low:false,
+   {k:"pr", ic:"🍗", n:"โปรตีน",      ab:"P",  v:d.pr,  goal:u.pGoal,  un:"ก.", low:false, color:"var(--move)",
+    note:u.w?` · <b>${gkg}</b> ก./กก.`:"",
     tip:`${u.w?`วันนี้ได้ <b>${gkg}</b> ก. ต่อน้ำหนักตัว 1 กก. — เป้าที่ตั้งไว้คือ ${u.pkg} ก./กก. ตามเป้าหมาย${(+u.goal<=-250)?"ลดน้ำหนัก (ต้องการมากขึ้นเพื่อรักษากล้ามเนื้อ)":(+u.goal>0)?"เพิ่มกล้ามเนื้อ":"รักษาน้ำหนัก"}<br><br>`:""}อ้างอิง ISSN 2017 / Helms 2014: ช่วงลดน้ำหนัก 1.8–2.7 ก./กก. · รักษา 1.4–1.8 ก./กก.`},
-   {k:"cb", ic:"🍚", n:"คาร์โบไฮเดรต", ab:"C",  v:d.cb,  goal:u.cGoal,  un:"ก.", low:false,
+   {k:"cb", ic:"🍚", n:"คาร์โบไฮเดรต", ab:"C",  v:d.cb,  goal:u.cGoal,  un:"ก.", low:false, color:"var(--food)",
     tip:`ตั้งไว้ที่ 45% ของพลังงานทั้งวัน — เป็นตัวเลขกลาง ๆ ปรับได้ตามชนิดการฝึก ถ้าซ้อมหนักหรือวิ่งไกลจะต้องการมากกว่านี้`},
-   {k:"ft", ic:"🥑", n:"ไขมันรวม",    ab:"F",  v:d.ft,  goal:u.fGoal,  un:"ก.", low:false,
+   {k:"ft", ic:"🥑", n:"ไขมันรวม",    ab:"F",  v:d.ft,  goal:u.fGoal,  un:"ก.", low:false, color:"var(--sleep)",
+    extraTile:`<div class="nt"><div class="h"><em>⚖️</em>สัดส่วนไขมัน</div>
+      <b style="font-size:15px">${d.ft?`อิ่มตัว ${Math.round(d.sat/d.ft*100)}%`:"–"}</b>
+      <span class="st" style="color:${!d.ft?"var(--dim)":d.sat/d.ft<=0.35?"var(--move)":"var(--food)"}">
+        ${!d.ft?"ยังไม่มีข้อมูล":d.sat/d.ft<=0.35?"สัดส่วนดี เน้นไขมันดีอยู่":"ไขมันอิ่มตัวเยอะไป ลองเลี่ยงของทอด/กะทิ"}</span></div>`,
     extra:`<div class="fatsplit" title="อิ่มตัว/ไม่อิ่มตัว">
       <i style="background:var(--bad);width:${Math.min(100,d.ft?d.sat/u.fGoal*100:0)}%"></i>
       <i style="background:var(--move);width:${Math.min(100-Math.min(100,d.ft?d.sat/u.fGoal*100:0),unsat/u.fGoal*100)}%"></i></div>`,
     tip:d.ft?`แถบแดง = ไขมันอิ่มตัว ${n1(d.sat)} ก. · แถบเขียว = ไขมันไม่อิ่มตัว ${unsat} ก.<br>
       สัดส่วนอิ่มตัว <b>${Math.round(d.sat/d.ft*100)}%</b> ของไขมันทั้งหมด — ${d.sat/d.ft<=0.35?"อยู่ในระดับดี เน้นไขมันดีอยู่":"เยอะไป ลองเลี่ยงของทอด/กะทิ/เนย"}`
       :`ยังไม่มีข้อมูลไขมันวันนี้`},
-   {k:"sat",ic:"🧈", n:"ไขมันอิ่มตัว", ab:"อิ่มตัว", v:d.sat, goal:u.satGoal, un:"ก.", low:true,
+   {k:"sat",ic:"🧈", n:"ไขมันอิ่มตัว", ab:"อิ่มตัว", v:d.sat, goal:u.satGoal, un:"ก.", low:true, color:"var(--bad)",
     tip:`WHO แนะนำไม่เกิน 10% ของพลังงานทั้งวัน (= ${u.satGoal} ก. สำหรับเป้า ${u.target.toLocaleString()} kcal)<br><br>ตัวการหลักในอาหารไทย: กะทิ ของทอด หมูสามชั้น เนย ชีส ครีมเทียม`},
-   {k:"sug",ic:"🍬", n:"น้ำตาล",      ab:"น้ำตาล", v:d.sug, goal:u.sugGoal, un:"ก.", low:true,
+   {k:"sug",ic:"🍬", n:"น้ำตาล",      ab:"น้ำตาล", v:d.sug, goal:u.sugGoal, un:"ก.", low:true, color:"var(--bad)",
     tip:`นับเฉพาะ <b>น้ำตาลอิสระ</b> ตามนิยาม WHO — น้ำตาลที่เติมเข้าไป บวกน้ำผึ้ง ไซรัป และน้ำผลไม้คั้น<br>
       น้ำตาลในผลไม้ทั้งลูก ผัก และนมจืด <b>ไม่นับ</b><br><br>
       เพดาน 10% ของพลังงาน = ${u.sugGoal} ก. · ระดับที่ดีที่สุด 5% = ${u.sugIdeal} ก.`},
-   {k:"fb", ic:"🥦", n:"ไฟเบอร์",     ab:"ใย", v:d.fb,  goal:u.fibGoal, un:"ก.", low:false,
+   {k:"fb", ic:"🥦", n:"ไฟเบอร์",     ab:"ใย", v:d.fb,  goal:u.fibGoal, un:"ก.", low:false, color:"#22c55e",
     tip:d.fb<u.fibGoal?`ขาดอีก ${n1(u.fibGoal-d.fb)} ก. ≈ ผักลวก ${Math.ceil((u.fibGoal-d.fb)/2.4)} ถ้วย หรือผลไม้ ${Math.ceil((u.fibGoal-d.fb)/2.5)} ผล<br><br>เกณฑ์ 14 ก. ต่อพลังงาน 1,000 kcal`:`ครบแล้ว — เกณฑ์คือ 14 ก. ต่อพลังงาน 1,000 kcal`},
-   {k:"na", ic:"🧂", n:"โซเดียม",     ab:"Na", v:d.na,  goal:NA_LIMIT,  un:"มก.", low:true,
+   {k:"na", ic:"🧂", n:"โซเดียม",     ab:"Na", v:d.na,  goal:NA_LIMIT,  un:"มก.", low:true, color:"var(--bad)",
+    note:ratio!==null?` · Na:K <b style="color:${ratio<=1?"var(--move)":ratio<=2?"var(--food)":"var(--bad)"}">${ratio}</b>`:"",
     tip:`เพดาน WHO 2,000 มก./วัน (≈ เกลือ 5 ก.)<br><br>ตัวการหลัก: น้ำซุปก๋วยเตี๋ยว น้ำปลา ซีอิ๊ว น้ำจิ้ม ผงปรุงรส ซุปก้อน ของหมักดอง อาหารสำเร็จรูป
       ${ratio!==null?`<br><br>อัตราส่วน <b>Na : K = ${ratio}</b> — ความดันขึ้นกับอัตราส่วนนี้มากกว่าโซเดียมเดี่ยว ๆ (INTERSALT, DASH) เป้าคือไม่เกิน 1`:""}`},
-   {k:"pot",ic:"🍌", n:"โพแทสเซียม",   ab:"K",  v:d.pot, goal:K_GOAL,    un:"มก.", low:false,
+   {k:"pot",ic:"🍌", n:"โพแทสเซียม",   ab:"K",  v:d.pot, goal:K_GOAL,    un:"มก.", low:false, color:"#22c55e",
     tip:`WHO แนะนำอย่างน้อย ${K_GOAL.toLocaleString()} มก./วัน — โพแทสเซียมช่วยหักล้างผลของโซเดียมต่อความดัน<br><br>
       หาง่าย: ผักใบเขียว ฟักทอง มันเทศ กล้วย มะละกอ ส้ม ถั่ว ปลา น้ำมะพร้าว (ราว 400 มก. ต่อ 1 ถ้วย/1 ผล)
       ${d.fd.length?`<br><br><span style="opacity:.75">วันนี้ ${d.potLab}/${d.fd.length} เมนูใช้ค่าจากห้องแล็บ ที่เหลือเป็นค่าประมาณจากชนิดอาหาร</span>`:""}`},
-   {k:"wa", ic:"💧", n:"น้ำดื่ม",      ab:"น้ำ", v:g,     goal:waterGoal(), un:"มล.", low:false,
+   {k:"wa", ic:"💧", n:"น้ำดื่ม",      ab:"น้ำ", v:g,     goal:waterGoal(), un:"มล.", low:false, color:"var(--acc)",
     tip:`เป้าคำนวณจากน้ำหนักตัวและปริมาณการออกกำลังกายวันนี้`},
   ];
-  if(d.alc||wkAlc) L.push({k:"alc", ic:"🍺", n:"แอลกอฮอล์", ab:"เหล้า", v:d.alc, goal:dl, un:"ก.", low:true,
+  if(d.alc||wkAlc) L.push({k:"alc", ic:"🍺", n:"แอลกอฮอล์", ab:"เหล้า", v:d.alc, goal:dl, un:"ก.", low:true, color:"var(--bad)",
+    note:` · ≈ <b>${n1(d.alc/10)}</b> ดื่ม`,
     tip:`วันนี้ ${n1(d.alc)} ก. ≈ ${n1(d.alc/10)} ดื่มมาตรฐาน · เพดานต่อวัน ${dl} ก. (${S.user.sex==="m"?"ชาย 2":"หญิง 1"} ดื่ม)<br><br>
       สัปดาห์นี้รวม ${n1(wkAlc)} ก. ≈ ${n1(wkAlc/10)} ดื่ม ${wkAlc>100?"— เกินคำแนะนำสัปดาห์ละ 10 ดื่ม":""}`});
   L.forEach(x=>{
@@ -5125,7 +5171,7 @@ function nutSummary(d,u,g,ratio,gkg,unsat){
   const rows=L.map(x=>`<details class="fold sub" data-fold="nut-${x.k}">
       <summary>${x.ic} ${x.n}<span class="fn" style="color:${x.c}">${kShort(x.v)} / ${kShort(x.goal)} ${x.un} · ${x.msg}</span></summary>
       <div class="foldc">
-        ${x.extra||`<div class="bar" style="height:8px"><i style="background:${x.c};width:${Math.min(100,x.goal?x.v/x.goal*100:0)}%"></i></div>`}
+        <div class="ntiles one">${ntile(x.ic,x.n,x.v,x.goal,x.un,x.color||x.c,x.low,x.extra,x.note)}${x.extraTile||""}</div>
         <div class="mini" style="margin-top:9px">${x.tip}</div>
       </div></details>`).join("");
   return `<div class="offchips">${chips}</div>
@@ -5304,10 +5350,10 @@ function render(){
   const left=u.target-d.kIn, unsat=n1(Math.max(0,d.ft-d.sat));
   /* โปรตีนต่อน้ำหนักตัว — ตัวเลขที่ใช้เทียบกับเกณฑ์สากลได้จริง */
   const gkg = u.w? n1(d.pr/u.w) : 0;
-  const prNote = u.w? ` · <b>${gkg}</b> ก./กก.` : "";
+
   /* อัตราส่วนโซเดียม:โพแทสเซียม — ตัวชี้วัดความดันที่ดีกว่าโซเดียมเดี่ยว ๆ */
   const ratio = naK(d.na,d.pot);
-  const naNote = ratio!==null? ` · Na:K <b style="color:${ratio<=1?"var(--move)":ratio<=2?"var(--food)":"var(--bad)"}">${ratio}</b>` : "";
+
   el("secFood").innerHTML=`
     <div class="big"><b style="color:var(--food)">${d.kIn.toLocaleString()}</b><span>/ ${u.target.toLocaleString()} kcal</span></div>
     <div class="bar" style="height:11px;margin-top:9px"><i style="background:${left<0?"var(--bad)":"var(--food)"};width:${Math.min(100,d.kIn/u.target*100)}%"></i></div>
@@ -5878,14 +5924,6 @@ GAS_URL = GAS_URL || LS.get("gas");
 PIN = PIN || LS.get("pin");
 updateQueueBadge(); flushQueue();
 el("gasUrl").value=GAS_URL; el("gasPin").value=PIN;
-(async()=>{
-  if(!GAS_URL && el("noUrlWarn")) el("noUrlWarn").style.display="block";
-  {const st=licState();
-   if(st.on && !st.ok){ licShow(st.why||""); return; }}
-  if(GAS_URL){ bootSync(); }
-  else if(!GAS_URL && !LS.get("skipSetup")){showOnboard();}
-  else setStatus("เก็บในเครื่อง");
-})();
 /* ================= คีย์เปิดใช้งาน (ออฟไลน์ทั้งหมด) =================
    คีย์ผูกกับ "ชื่อผู้ซื้อ" → 1 คน 1 คีย์ · คนที่ได้ไฟล์ต่อไปใช้ไม่ได้ถ้าไม่มีคีย์
    และถ้าเอาคีย์ไปแจกต่อ ชื่อผู้ซื้อจะโชว์อยู่ในแอปของคนที่รับไป (ตามรอยได้)  */
@@ -5951,6 +5989,19 @@ function gotoLt1(){
   const c=el("modeSeg").querySelector('[data-m="cardio"]'); if(c) c.click();   // ต้องอยู่โหมดคาร์ดิโอถึงจะเห็นการ์ด
   setTimeout(()=>el("lt1Card").scrollIntoView({behavior:"smooth"}),260);
 }
+/* ---------- เริ่มระบบ ----------
+   ต้องอยู่ "หลัง" บล็อกคีย์เปิดใช้งาน เพราะ licState() เรียกใช้ B32 ที่ประกาศด้วย const
+   ถ้าวางไว้ก่อน จะเจอ "Cannot access 'B32' before initialization" แล้ว IIFE ตายเงียบ ๆ
+   ผลคือ (1) ไฟล์ที่ขายไปจะไม่บล็อกคีย์หมดอายุ และ (2) การซิงก์ Google Sheets ไม่เริ่มทำงาน */
+(async()=>{
+  if(!GAS_URL && el("noUrlWarn")) el("noUrlWarn").style.display="block";
+  {let st; try{ st=licState(); }catch(e){ st={on:LICENSE_ON,ok:false,why:"ตรวจคีย์ไม่ได้"}; }
+   if(st.on && !st.ok){ licShow(st.why||""); return; }}
+  if(GAS_URL){ bootSync(); }
+  else if(!GAS_URL && !LS.get("skipSetup")){showOnboard();}
+  else setStatus("เก็บในเครื่อง");
+})();
+
 function licBadge(){
   const st=licState(), av=el("aboutVer");
   if(!av) return;
@@ -5965,7 +6016,7 @@ function showOnboard(){
   el("onb").style.display="block"; window.scrollTo(0,0);
   const T = TEMPLATE_URL;
   el("onbBody").innerHTML=`
-    <div class="logo"><b>💪 ${APP_NAME}</b><span>ติดตามการกิน ออกกำลังกาย การนอน และร่างกาย — ข้อมูลเป็นของคุณคนเดียว</span></div>
+    <div class="logo"><b><svg class="brand big" viewBox="0 0 512 512" aria-hidden="true"><g transform="rotate(-90 256 256)" fill="none" stroke-linecap="round" stroke-width="52"><circle cx="256" cy="256" r="176" stroke="currentColor" stroke-opacity=".16"/><circle cx="256" cy="256" r="106" stroke="currentColor" stroke-opacity=".16"/><circle cx="256" cy="256" r="176" stroke="var(--move)" stroke-dasharray="862 244" pathLength="1106"/><circle cx="256" cy="256" r="106" stroke="var(--food)" stroke-dasharray="416 250" pathLength="666"/></g></svg>${APP_NAME}</b><span>ติดตามการกิน ออกกำลังกาย การนอน และร่างกาย — ข้อมูลเป็นของคุณคนเดียว</span></div>
 
     <div class="step"><h3><i>✓</i> เริ่มใช้ได้เลย ไม่ต้องตั้งค่าก็ได้</h3>
       <div class="hint">แอปบันทึกข้อมูลลง<b>เครื่องนี้</b>ให้อัตโนมัติอยู่แล้ว กดปุ่มด้านล่างแล้วใช้ได้ทันที<br><br>
