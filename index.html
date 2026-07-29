@@ -32,12 +32,20 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;background:var(--bg);transition:background .2s;color:var(--txt);font-family:'Noto Sans Thai UI','Noto Sans Thai','Sarabun','Prompt',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;padding-bottom:78px;font-size:16.5px}
-header{position:sticky;top:0;z-index:20;background:var(--headbg);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:10px 14px;display:flex;align-items:center;gap:10px}
-header h1{font-size:18px;margin:0;flex:1;font-weight:700}
-#dateSel{background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:7px 9px;font-family:inherit;font-size:14px}
+header{position:sticky;top:0;z-index:20;background:var(--headbg);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:10px 14px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+header h1{font-size:18px;margin:0;flex:1 1 auto;min-width:0;font-weight:700}
+#dateSel{background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:7px 9px;font-family:inherit;font-size:14px;width:auto;flex:0 1 auto;min-width:0;max-width:180px}
 #themeBtn{background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:9px;width:34px;height:32px;font-size:15px;cursor:pointer;flex:none}
-#status{font-size:11px;padding:3px 8px;border-radius:20px;background:var(--card2);color:var(--dim);white-space:nowrap}
+/* ข้อความสถานะยาวได้ (เช่น "ซิงก์ล่าสุด 12 นาทีที่แล้ว") — ให้ตัดบรรทัดลงมาแทนที่จะดันจอให้เลื่อนซ้ายขวา */
+#status{font-size:11px;padding:3px 8px;border-radius:20px;background:var(--card2);color:var(--dim);
+  flex:0 1 auto;min-width:0;overflow-wrap:anywhere;text-align:right;line-height:1.4}
 #status.ok{color:var(--move)} #status.err{color:var(--bad)}
+/* จอแคบ: ยกข้อความสถานะลงมาเป็นบรรทัดบาง ๆ ใต้หัว แทนที่จะดันจนล้นหรือกินที่เป็นก้อน */
+@media (max-width:409px){
+  header{padding:8px 12px;gap:8px}
+  header h1{font-size:17px}
+  #status{flex:1 1 100%;order:9;font-size:10.5px;padding:0 2px;background:none;text-align:left;line-height:1.3}
+}
 main{padding:14px;max-width:640px;margin:0 auto}
 .page{display:none} .page.on{display:block;animation:f .25s}
 @keyframes f{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
@@ -155,12 +163,18 @@ nav button.on{color:var(--acc)}
 .hsin{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .hsin b{font-size:26px;line-height:1}
 .hsin span{font-size:9.5px;color:var(--dim)}
-.bud{display:flex;align-items:stretch;gap:6px;background:var(--card2);border-radius:14px;padding:12px 10px}
-.bud>div{flex:1;text-align:center}
-.bud b{display:block;font-size:19px;line-height:1.2}
-.bud span{font-size:11px;color:var(--dim)}
-.bud .op{flex:0 0 12px;color:var(--dim);font-size:15px;display:flex;align-items:center;justify-content:center}
+.bud{display:flex;align-items:stretch;gap:5px;background:var(--card2);border-radius:14px;padding:12px 8px;flex-wrap:wrap}
+.bud>div{flex:1 1 0;min-width:0;text-align:center}
+.bud b{display:block;font-size:19px;line-height:1.2;white-space:nowrap}
+.bud span{font-size:11px;color:var(--dim);white-space:nowrap}
+.bud .op{flex:0 0 10px;color:var(--dim);font-size:15px;display:flex;align-items:center;justify-content:center}
 .bud .res b{font-size:22px}
+/* จอแคบ (เช่น iPhone SE 320px) — ตัดบรรทัดให้ผลลัพธ์ลงมาอยู่แถวล่างเต็มความกว้าง */
+@media (max-width:359px){
+  .bud b{font-size:16px}.bud .res b{font-size:19px}.bud span{font-size:10px}
+  .bud>div.res{flex:1 0 100%;margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+  .bud>div.op:nth-of-type(6){display:none}
+}
 .more{background:none;border:1px dashed var(--line);color:var(--dim);border-radius:11px;padding:9px;width:100%;font-size:12.5px;margin-top:10px;cursor:pointer}
 .sec.t{border-left-color:#8b5cf6}
 .sec.r{border-left-color:var(--acc)}
@@ -740,8 +754,8 @@ details.fold.sub .subh{margin:9px 0 5px}
     </div>
     <div class="mini" id="fTimeTag"></div>
     <div id="favWrap" style="display:none">
-      <label>⭐ กินบ่อย — แตะเพื่อเลือก แล้วกดบันทึก</label>
-      <div class="chips" id="favChips"></div>
+      <details class="fold" data-fold="favBox"><summary>⭐ กินบ่อย <span class="fn" id="favN"></span></summary>
+        <div class="foldc"><div class="chips" id="favChips"></div></div></details>
     </div>
     <label>ค้นหาเมนู (พิมพ์ชื่ออาหาร)</label>
     <input type="text" id="fSearch" placeholder="เช่น กะเพรา, ก๋วยเตี๋ยว, กาแฟ" autocomplete="off">
@@ -827,9 +841,10 @@ details.fold.sub .subh{margin:9px 0 5px}
       <button class="btn ghost" id="mCancel">ยกเลิก</button>
     </div>
 
-    <div class="card" id="myFoodCard" style="background:var(--card2);margin-top:13px;display:none">
-      <h2>📒 เมนูของฉัน (<span id="myFoodN">0</span>)</h2>
-      <div id="myFoodList"></div>
+    <div class="card" id="myFoodCard" style="background:var(--card2);margin-top:13px;display:none;padding:0">
+      <details class="fold" data-fold="myFoodBox" style="margin:0;border:0;background:transparent">
+        <summary>📒 เมนูของฉัน <span class="fn"><span id="myFoodN">0</span> รายการ</span></summary>
+        <div class="foldc"><div id="myFoodList"></div></div></details>
     </div>
 
     <button class="btn ghost" id="copyYtd">📋 คัดลอกอาหารทั้งวันจากเมื่อวาน</button>
@@ -1504,7 +1519,7 @@ function loadLocal(){
 }
 
 const APP_NAME="สุขภาพ Tracker";
-const APP_VER="4.3";
+const APP_VER="4.4";
 const GS_CODE=`/*************************************************************
  *  สุขภาพ Tracker — Google Apps Script Backend
  *  วางโค้ดนี้ใน Extensions > Apps Script ของ Google Sheets
@@ -1995,8 +2010,7 @@ function setupSheets() { firstSetup(); }
 // ฐานข้อมูลอาหารไทย: [ชื่อ, กิโลแคลอรี่, โปรตีน(g), คาร์บ(g), ไขมัน(g), หน่วย/1 เสิร์ฟ, หมวด]
 const FOODS = [
 // ===== ข้าว/เส้น จานเดียว =====
-["ข้าวสวย",240,4,53,0.5,"1 ทัพพี (150 ก.)","จานเดียว"],
-["ข้าวเหนียว",280,5,62,0.6,"1 ห่อ (150 ก.)","จานเดียว"],
+["ข้าวเหนียว 1 ห่อ",280,5,62,0.6,"1 ห่อ (150 ก.)","จานเดียว"],
 ["ข้าวกล้อง",220,5,45,1.8,"1 ทัพพี (150 ก.)","จานเดียว"],
 ["ข้าวผัด",560,20,70,22,"1 จาน","จานเดียว"],
 ["ข้าวผัดกะเพราหมูสับไข่ดาว",680,28,72,32,"1 จาน","จานเดียว"],
@@ -2018,7 +2032,7 @@ const FOODS = [
 ["ข้าวผัดกุ้ง",580,24,72,22,"1 จาน","จานเดียว"],
 ["ข้าวราดแกงเขียวหวานไก่",600,24,70,24,"1 จาน","จานเดียว"],
 ["ข้าวราดผัดกระเพราทะเล",540,26,68,18,"1 จาน","จานเดียว"],
-["ข้าวผัดพริกแกงหมู",600,24,70,24,"1 จาน","จานเดียว"],
+["ข้าวผัดพริกแกงหมู",640,26,68,29,"1 จาน","จานเดียว"],
 ["ข้าวหน้าไก่เทอริยากิ",620,30,80,18,"1 จาน","จานเดียว"],
 ["ข้าวแกงกะหรี่ญี่ปุ่นหมูทอด",850,28,100,36,"1 จาน","จานเดียว"],
 ["ข้าวหน้าหมูทอด (ทงคัตสึ)",800,30,90,34,"1 จาน","จานเดียว"],
@@ -2067,7 +2081,6 @@ const FOODS = [
 ["ผัดผักรวม",130,5,12,8,"1 จาน","กับข้าว"],
 ["ผัดคะน้าหมูกรอบ",320,14,12,25,"1 จาน","กับข้าว"],
 ["ไข่เจียว",220,12,2,18,"1 ฟอง (จาน)","กับข้าว"],
-["ไข่ดาว",120,7,1,10,"1 ฟอง","กับข้าว"],
 ["ไข่ต้ม",78,6.3,0.6,5.3,"1 ฟอง","กับข้าว",0,62,1.6,0.6,0],   // ค่าละเอียดจาก USDA 173424
 ["ไข่ตุ๋น",130,10,3,8,"1 ถ้วย","กับข้าว"],
 ["หมูทอดกระเทียม",380,26,6,28,"1 จาน","กับข้าว"],
@@ -2088,10 +2101,9 @@ const FOODS = [
 ["ยำทะเล",220,26,14,6,"1 จาน","กับข้าว"],
 ["สลัดผัก (น้ำสลัดใส)",120,4,12,6,"1 จาน","กับข้าว"],
 ["สลัดอกไก่",280,30,12,12,"1 จาน","กับข้าว"],
-["อกไก่ย่าง 100 ก.",165,31,0,3.6,"100 กรัม","กับข้าว"],
 ["เต้าหู้ทอด",180,12,6,12,"1 จานเล็ก","กับข้าว"],
 ["ปอเปี๊ยะทอด",180,5,20,9,"2 ชิ้น","กับข้าว"],
-["หมูสามชั้นทอด",420,20,2,38,"100 กรัม","กับข้าว"],
+["หมูสามชั้นทอด",420,20,2,38,"100 กรัม","วัตถุดิบ"],
 ["กุ้งเผา",120,24,1,2,"4 ตัว","กับข้าว"],
 ["หมูกระทะ (ต่อมื้อ)",900,50,40,60,"1 มื้อ","กับข้าว"],
 ["ชาบู (ต่อมื้อ)",700,45,45,35,"1 มื้อ","กับข้าว"],
@@ -2112,14 +2124,12 @@ const FOODS = [
 ["ข้าวเหนียวไก่ทอด",520,22,62,20,"1 ชุด","ฟาสต์ฟู้ด"],
 
 // ===== ผลไม้ =====
-["กล้วยน้ำว้า",100,1.2,25,0.3,"1 ผล","ผลไม้"],
+["กล้วยน้ำว้า 1 ผล",100,1.2,25,0.3,"1 ผล","ผลไม้"],
 ["แอปเปิ้ล",80,0.4,21,0.3,"1 ผล","ผลไม้"],
 ["ส้ม",60,1,15,0.2,"1 ผล","ผลไม้"],
-["มะม่วงสุก",150,1,38,0.5,"1 ผล","ผลไม้"],
+["มะม่วงสุก 1 ผล",150,1,38,0.5,"1 ผล","ผลไม้"],
 ["แตงโม",50,1,12,0.2,"1 จานเล็ก","ผลไม้"],
 ["สับปะรด",60,0.6,15,0.1,"1 จานเล็ก","ผลไม้"],
-["มะละกอสุก",55,0.6,14,0.2,"1 จานเล็ก","ผลไม้"],
-["ฝรั่ง",70,2.6,14,1,"1 ผล","ผลไม้"],
 ["ทุเรียนหมอนทอง",180,2,33,5,"2 พู","ผลไม้"],
 ["ลำไย",70,1,18,0.1,"10 ผล","ผลไม้"],
 ["องุ่น",70,0.7,18,0.2,"15 ผล","ผลไม้"],
@@ -2167,9 +2177,6 @@ const FOODS = [
 ["ไวน์แดง",126,0.1,3.9,0.0,"1 แก้ว 150 มล.","เครื่องดื่ม",0.0,6,0.0,0.9,15.7,188],   // Alcoholic beverage, wine, table, red,
 ["น้ำหวาน/น้ำแดง",120,0,30,0,"1 แก้ว","เครื่องดื่ม"],
 // ===== วัตถุดิบเดี่ยว / อาหารคลีน (กินแยกจาน) =====
-["อกไก่ต้ม",165,31,0,3.6,"100 กรัม","วัตถุดิบ"],
-["อกไก่ย่างไม่ใส่น้ำมัน",170,32,0,4,"100 กรัม","วัตถุดิบ"],
-["สะโพกไก่ต้ม (ไม่มีหนัง)",185,25,0,9,"100 กรัม","วัตถุดิบ"],
 ["สะโพกไก่ย่าง (มีหนัง)",230,24,0,15,"100 กรัม","วัตถุดิบ"],
 ["น่องไก่ต้ม",170,24,0,8,"1 น่อง","วัตถุดิบ"],
 ["ปีกไก่ทอด",160,12,4,11,"1 ชิ้น","วัตถุดิบ"],
@@ -2188,8 +2195,6 @@ const FOODS = [
 ["ไข่ต้ม 2 ฟอง",156,12,1.2,10,"2 ฟอง","วัตถุดิบ"],
 ["ไข่คน (ใส่น้ำมันนิด)",180,12,1.5,14,"2 ฟอง","วัตถุดิบ"],
 ["เต้าหู้ขาวอ่อน",70,7,2,4,"1 หลอด","วัตถุดิบ"],
-["เต้าหู้แข็ง",145,16,3,9,"100 กรัม","วัตถุดิบ"],
-["ถั่วเหลืองต้ม",170,17,10,9,"100 กรัม","วัตถุดิบ"],
 ["ถั่วลันเตาลวก",80,5,14,0.4,"100 กรัม","วัตถุดิบ"],
 ["บล็อคโคลี่ลวก",35,2.8,7,0.4,"100 กรัม (1 ถ้วย)","วัตถุดิบ"],
 ["บล็อคโคลี่ผัดน้ำมัน",100,3,8,7,"1 จานเล็ก","วัตถุดิบ"],
@@ -2204,19 +2209,12 @@ const FOODS = [
 ["แตงกวา",15,0.7,3,0.1,"1 ลูก","วัตถุดิบ"],
 ["ฟักทองนึ่ง",50,1.2,12,0.1,"100 กรัม","วัตถุดิบ"],
 ["เห็ดลวก",25,3,4,0.3,"100 กรัม","วัตถุดิบ"],
-["ข้าวสวย ครึ่งทัพพี",120,2,26,0.3,"ครึ่งทัพพี","วัตถุดิบ"],
 ["ข้าวไรซ์เบอร์รี่",230,5,47,1.5,"1 ทัพพี","วัตถุดิบ"],
-["ข้าวโอ๊ต (ดิบ 40 ก.)",150,5,27,3,"40 กรัม","วัตถุดิบ"],
 ["มันหวานนึ่ง",90,1.6,21,0.1,"100 กรัม","วัตถุดิบ"],
-["มันฝรั่งต้ม",87,1.9,20,0.1,"100 กรัม","วัตถุดิบ"],
 ["ข้าวโพดต้ม",90,3,19,1.2,"1 ฝัก","วัตถุดิบ"],
 ["วุ้นเส้นลวก",80,0.1,20,0,"1 ถ้วย","วัตถุดิบ"],
-["ขนมปังโฮลวีท",70,3,12,1,"1 แผ่น","วัตถุดิบ"],
 ["เส้นก๋วยเตี๋ยวลวก",190,3,42,0.5,"1 ชาม","วัตถุดิบ"],
-["อะโวคาโด",160,2,9,15,"ครึ่งลูก","วัตถุดิบ"],
-["อัลมอนด์",170,6,6,15,"1 กำมือ (28 ก.)","วัตถุดิบ"],
 ["เนยถั่ว",95,4,3,8,"1 ช้อนโต๊ะ","วัตถุดิบ"],
-["น้ำมันมะกอก",120,0,0,14,"1 ช้อนโต๊ะ","วัตถุดิบ"],
 ["น้ำมันพืช (ผัด 1 ช้อน)",120,0,0,14,"1 ช้อนโต๊ะ","วัตถุดิบ"],
 ["กรีกโยเกิร์ตไม่หวาน",100,10,6,3,"1 ถ้วย (150 ก.)","วัตถุดิบ"],
 ["นมพร่องมันเนย",90,8,12,2,"1 กล่อง 200 มล.","วัตถุดิบ"],
@@ -2308,7 +2306,7 @@ const FOODS = [
 ["เผือกดิบ",112,1.5,26.5,0.2,"100 ก.","วัตถุดิบ",4.1,11,0.0,undefined,0,591],   // Taro, raw
 ["มันสำปะหลังดิบ",160,1.4,38.1,0.3,"100 ก.","วัตถุดิบ",1.8,14,0.1,undefined,0,271],   // Cassava, raw
 ["หัวถั่วพูดิบ",148,11.6,28.1,0.9,"100 ก.","วัตถุดิบ",undefined,35,0.2,undefined,0,586],   // Winged bean tuber, raw
-["ข้าวสวย (ข้าวขาวหุงสุก)",91,1.9,19.7,0.2,"1 ทัพพี 70 ก.","วัตถุดิบ",0.3,1,0.1,undefined,0,24],   // Rice, white, long-grain, regular, cooked, unenriched, with salt
+["ข้าวสวย 1 ทัพพี",91,1.9,19.7,0.2,"1 ทัพพี 70 ก.","วัตถุดิบ",0.3,1,0.1,undefined,0,24],   // Rice, white, long-grain, regular, cooked, unenriched, with salt
 ["ข้าวกล้องหุงสุก",86,1.9,17.9,0.7,"1 ทัพพี 70 ก.","วัตถุดิบ",1.1,3,0.2,undefined,0,60],   // Rice, brown, long-grain, cooked (Includes foods for USDA's Food Distri
 ["บะหมี่ไข่ลวกสุก",110,3.6,20.1,1.7,"1 ก้อน 80 ก.","วัตถุดิบ",1.0,6,0.3,undefined,0,30],   // Noodles, egg, cooked, enriched, with added salt
 ["พาสต้า/สปาเกตตีสุก",221,8.1,43.2,1.3,"1 จาน 140 ก.","วัตถุดิบ",2.5,1,0.2,undefined,0,62],   // Pasta, cooked, enriched, without added salt
@@ -2340,8 +2338,8 @@ const FOODS = [
 ["เมล็ดฟักทองอบ",157,8.5,3.0,13.7,"1 กำมือ 28 ก.","วัตถุดิบ",1.7,2,2.4,undefined,0,227],   // Seeds, pumpkin and squash seed kernels, dried
 ["เมล็ดทานตะวัน",164,5.8,5.6,14.4,"1 กำมือ 28 ก.","วัตถุดิบ",2.4,3,1.2,undefined,0,181],   // Seeds, sunflower seed kernels, dried
 ["งาขาว/งาดำ",52,1.6,2.1,4.5,"1 ช้อนโต๊ะ 9 ก.","วัตถุดิบ",1.1,1,0.6,undefined,0,42],   // Seeds, sesame seeds, whole, dried
-["อัลมอนด์ดิบ (USDA)",162,5.9,6.0,14.0,"1 กำมือ 28 ก.","วัตถุดิบ",3.5,0,1.1,undefined,0,205],   // Nuts, almonds
-["น้ำมันมะกอก (USDA)",119,0.0,0.0,13.5,"1 ช้อนโต๊ะ 13.5 ก.","วัตถุดิบ",0.0,0,1.9,0.0,0,0],   // Oil, olive, salad or cooking
+["อัลมอนด์ดิบ",162,5.9,6.0,14.0,"1 กำมือ 28 ก.","วัตถุดิบ",3.5,0,1.1,undefined,0,205],   // Nuts, almonds
+["น้ำมันมะกอก",119,0.0,0.0,13.5,"1 ช้อนโต๊ะ 13.5 ก.","วัตถุดิบ",0.0,0,1.9,0.0,0,0],   // Oil, olive, salad or cooking
 ["น้ำมันมะพร้าว",121,0.0,0.0,13.5,"1 ช้อนโต๊ะ 13.6 ก.","วัตถุดิบ",0.0,0,11.2,0.0,0,0],   // Oil, coconut
 ["น้ำมันงา",120,0.0,0.0,13.6,"1 ช้อนโต๊ะ 13.6 ก.","วัตถุดิบ",0.0,0,1.9,0.0,0,0],   // Oil, sesame, salad or cooking
 ["น้ำมันรำข้าว",120,0.0,0.0,13.6,"1 ช้อนโต๊ะ 13.6 ก.","วัตถุดิบ",0.0,0,2.7,0.0,0,0],   // Oil, rice bran
@@ -2359,17 +2357,17 @@ const FOODS = [
 ["กะทิสด",34,0.3,0.8,3.6,"1 ช้อนโต๊ะ 15 ก.","วัตถุดิบ",0.3,2,3.2,undefined,0,39],   // Nuts, coconut milk, raw (liquid expressed from grated meat and water)
 ["เนยถั่วบดหยาบ",94,3.8,3.5,8.0,"1 ช้อนโต๊ะ 16 ก.","วัตถุดิบ",1.3,78,1.2,undefined,0,119],   // Peanut butter, chunk style, with salt
 // --- ผลไม้ ---
-["กล้วยหอม",105,1.3,27.0,0.4,"1 ผล 118 ก.","ผลไม้",3.1,1,0.1,undefined,0,422],   // Bananas, raw
-["มะละกอสุก (USDA)",60,0.7,15.1,0.4,"1 จานเล็ก 140 ก.","ผลไม้",2.4,11,0.1,undefined,0,254],   // Papayas, raw
+["กล้วยหอม 1 ผล",105,1.3,27.0,0.4,"1 ผล 118 ก.","ผลไม้",3.1,1,0.1,undefined,0,422],   // Bananas, raw
+["มะละกอสุก",60,0.7,15.1,0.4,"1 จานเล็ก 140 ก.","ผลไม้",2.4,11,0.1,undefined,0,254],   // Papayas, raw
 ["ส้มโอ",72,1.4,18.3,0.1,"1 จานเล็ก 190 ก.","ผลไม้",1.9,2,undefined,undefined,0,409],   // Pummelo, raw
 ["ลิ้นจี่",66,0.8,16.5,0.4,"10 ผล 100 ก.","ผลไม้",1.3,1,0.1,undefined,0,171],   // Litchis, raw
-["ลำไยสด (USDA)",19,0.4,4.8,0.0,"10 ผล 32 ก.","ผลไม้",0.4,0,undefined,undefined,0,84],   // Longans, raw
-["ขนุน",142,2.6,34.9,1.0,"1 จานเล็ก 150 ก.","ผลไม้",2.2,3,0.3,undefined,0,670],   // Jackfruit, raw
+["ลำไย 10 ผล",19,0.4,4.8,0.0,"10 ผล 32 ก.","ผลไม้",0.4,0,undefined,undefined,0,84],   // Longans, raw
+["ขนุน 1 จานเล็ก",142,2.6,34.9,1.0,"1 จานเล็ก 150 ก.","ผลไม้",2.2,3,0.3,undefined,0,670],   // Jackfruit, raw
 ["มะขามสด",120,1.4,31.2,0.3,"50 ก.","ผลไม้",2.5,14,0.1,undefined,0,315],   // Tamarinds, raw
-["ฝรั่ง (USDA)",112,4.2,23.6,1.6,"1 ผล 165 ก.","ผลไม้",8.9,3,0.4,undefined,0,687],   // Guavas, common, raw
-["ทุเรียน (USDA)",176,1.8,32.5,6.4,"2 พู 120 ก.","ผลไม้",4.6,2,undefined,undefined,0,522],   // Durian, raw or frozen
+["ฝรั่ง 1 ผล",112,4.2,23.6,1.6,"1 ผล 165 ก.","ผลไม้",8.9,3,0.4,undefined,0,687],   // Guavas, common, raw
+["ทุเรียนหมอนทอง 2 พู",176,1.8,32.5,6.4,"2 พู 120 ก.","ผลไม้",4.6,2,undefined,undefined,0,522],   // Durian, raw or frozen
 ["ละมุด",141,0.7,33.9,1.9,"1 ผล 170 ก.","ผลไม้",9.0,20,0.3,undefined,0,328],   // Sapodilla, raw
-["น้อยหน่า",146,3.2,36.6,0.4,"1 ผล 155 ก.","ผลไม้",6.8,14,0.1,undefined,0,384],   // Sugar-apples, (sweetsop), raw
+["น้อยหน่า 1 ผล",146,3.2,36.6,0.4,"1 ผล 155 ก.","ผลไม้",6.8,14,0.1,undefined,0,384],   // Sugar-apples, (sweetsop), raw
 ["เสาวรส",17,0.4,4.2,0.1,"1 ผล 18 ก.","ผลไม้",1.9,5,0.0,undefined,0,61],   // Passion-fruit, (granadilla), purple, raw
 ["มะเฟือง",28,0.9,6.1,0.3,"1 ผล 91 ก.","ผลไม้",2.5,2,0.0,undefined,0,120],   // Carambola, (starfruit), raw
 ["มะพร้าวอ่อน (เนื้อ)",177,1.7,7.6,16.7,"50 ก.","ผลไม้",4.5,10,14.8,undefined,0,178],   // Nuts, coconut meat, raw
@@ -2384,7 +2382,7 @@ const FOODS = [
 ["กีวี",46,0.9,11.0,0.4,"1 ผล 75 ก.","ผลไม้",2.2,2,0.0,undefined,0,235],   // Kiwifruit, green, raw
 ["อินทผลัม",133,0.9,36.0,0.1,"2 ผล 48 ก.","ผลไม้",3.2,0,undefined,undefined,0,334],   // Dates, medjool
 ["ลูกพรุนแห้ง",101,0.9,26.8,0.2,"5 ผล 42 ก.","ผลไม้",3.0,1,0.0,undefined,0,308],   // Plums, dried (prunes), uncooked
-["อะโวคาโด (USDA)",160,2.0,8.5,14.7,"ครึ่งลูก 100 ก.","ผลไม้",6.7,7,2.1,undefined,0,485],   // Avocados, raw, all commercial varieties
+["อะโวคาโด",160,2.0,8.5,14.7,"ครึ่งลูก 100 ก.","ผลไม้",6.7,7,2.1,undefined,0,485],   // Avocados, raw, all commercial varieties
 ["แคนตาลูป",54,1.3,13.1,0.3,"1 จานเล็ก 160 ก.","ผลไม้",1.4,26,0.1,undefined,0,424],   // Melons, cantaloupe, raw
 ["เกรปฟรุต",41,0.8,10.3,0.1,"ครึ่งผล 123 ก.","ผลไม้",1.4,0,0.0,undefined,0,184],   // Grapefruit, raw, white, all areas
 ["พุทรา",79,1.2,20.2,0.2,"10 ผล 100 ก.","ผลไม้",undefined,3,undefined,undefined,0,250],   // Jujube, raw
@@ -2464,8 +2462,8 @@ const FOODS = [
 ["มันเทศเนื้อม่วง",102,0.8,25.5,0.2,"100 ก.","วัตถุดิบ",2.4,21,undefined,undefined,0,250],   // 02011 มันเทศ, เนื้อสีม่วงแดง, ดิบ
 ["หัวไชเท้า",22,0.8,5.5,0.0,"100 ก.","วัตถุดิบ",0.7,undefined,undefined,undefined,0],   // 02021 หัวผักกาด,หัวไซชเท้า, ดิบ
 // --- ผลไม้ ---
-["กล้วยน้ำว้าสุก (ชั่ง)",143,1.1,35.4,0.2,"100 ก.","ผลไม้",2.3,undefined,undefined,undefined,0],   // 05015 กล้วยน้าว้า, สุก
-["กล้วยหอมสุก (ชั่ง)",128,0.9,31.7,0.2,"100 ก.","ผลไม้",1.9,undefined,undefined,undefined,0],   // 05021 กล้วยหอม, สุก
+["กล้วยน้ำว้า 100 ก.",143,1.1,35.4,0.2,"100 ก.","ผลไม้",2.3,undefined,undefined,undefined,0],   // 05015 กล้วยน้าว้า, สุก
+["กล้วยหอม 100 ก.",128,0.9,31.7,0.2,"100 ก.","ผลไม้",1.9,undefined,undefined,undefined,0],   // 05021 กล้วยหอม, สุก
 ["กล้วยไข่สุก",108,1.2,26.2,0.2,"100 ก.","ผลไม้",1.9,undefined,undefined,undefined,0,269],   // 05001 กล้วยไข่, สุก
 ["กล้วยหักมุกสุก",109,0.8,28.5,0.2,"100 ก.","ผลไม้",5.1,undefined,undefined,undefined,0,359],   // 05026 กล้วยหักมุกนวล , สุก
 ["มังคุด",79,0.5,20.1,0.0,"100 ก.","ผลไม้",1.7,undefined,undefined,undefined,0],   // 05110 มังคุด
@@ -2473,12 +2471,12 @@ const FOODS = [
 ["ลางสาด",67,0.9,15.9,0.1,"100 ก.","ผลไม้",0.3,undefined,undefined,undefined,0],   // 05116 ลางสาด
 ["ลำไยกะโหลก",77,0.9,18.4,0.1,"100 ก.","ผลไม้",0.2,undefined,undefined,undefined,0],   // 05118 ลําใย, กะโหลก
 ["ชมพู่",26,0.5,6.6,0.0,"100 ก.","ผลไม้",1.1,undefined,undefined,undefined,0],   // 05044 ชมพู่,เมืองเพชร
-["น้อยหน่าสุก",92,1.4,22.6,0.2,"100 ก.","ผลไม้",2.7,undefined,undefined,undefined,0],   // 05065 น้อยหน่า
+["น้อยหน่า 100 ก.",92,1.4,22.6,0.2,"100 ก.","ผลไม้",2.7,undefined,undefined,undefined,0],   // 05065 น้อยหน่า
 ["พุทราไทย",89,1.7,19.7,0.8,"100 ก.","ผลไม้",1.0,undefined,undefined,undefined,0],   // 05073 พุทราไทย
 ["ระกำ",50,0.6,12.2,0.2,"100 ก.","ผลไม้",0.7,undefined,undefined,undefined,0],   // 05111 ระกํา
 ["มะไฟ",48,0.7,11.4,0.3,"100 ก.","ผลไม้",0.9,undefined,undefined,undefined,0],   // 05085 มะไฟ
 ["ลูกหว้า",52,0.9,13.6,0.1,"100 ก.","ผลไม้",3.3,undefined,undefined,undefined,0,199],   // 05129 ลูกหว้า
-["ขนุนสุก",118,2.2,27.4,0.4,"100 ก.","ผลไม้",2.2,undefined,undefined,undefined,0,355],   // 05031 ขนุน, จําปา
+["ขนุน 100 ก.",118,2.2,27.4,0.4,"100 ก.","ผลไม้",2.2,undefined,undefined,undefined,0,355],   // 05031 ขนุน, จําปา
 ["แก้วมังกรเนื้อชมพู",59,1.3,12.9,1.0,"100 ก.","ผลไม้",3.4,undefined,undefined,undefined,0,287],   // 05028 แก้วมังกร, เนื้อชมพู
 ["แก้วมังกรเนื้อขาว",59,1.3,11.9,0.7,"100 ก.","ผลไม้",0.0,undefined,undefined,undefined,0],   // 05029 แก้วมังกร,เนื้อสีขาว
 ["แตงไทยสุก",13,0.2,3.4,0.0,"100 ก.","ผลไม้",0.3,undefined,undefined,undefined,0],   // 05050 แตงไทย,สุก
@@ -2496,9 +2494,9 @@ const FOODS = [
 ["แอปเปิ้ลแดงฟูจิ",47,0.2,11.8,0.2,"100 ก.","ผลไม้",1.5,undefined,undefined,undefined,0,106],   // 05160 แอปเปิ้ลแดงลาย,ฟูจิ
 // --- วัตถุดิบ ---
 ["ข้าวเหนียวนึ่ง",138,2.5,31.4,0.4,"1 ทัพพี 60 ก.","วัตถุดิบ",0.3,undefined,undefined,undefined,0],   // 01039 ข้าวเหนียว,นึ่ง
-["ข้าวกล้องหอมมะลิ (สาร)",357,7.7,75.2,3.5,"100 ก.","วัตถุดิบ",3.3,20,undefined,undefined,0],   // 01011 ข้าวกล้อง, หอมมะลิ, ดิบ
-["ข้าวสังข์หยด (สาร)",359,9.0,73.1,4.2,"100 ก.","วัตถุดิบ",3.8,undefined,undefined,undefined,0],   // 01023 ข้าวเจ้า, สังข์หยด, ดิบ
-["ข้าวเหนียวดำ (สาร)",354,8.2,76.1,3.0,"100 ก.","วัตถุดิบ",4.9,undefined,undefined,undefined,0],   // 01037 ข้าวเหนียวดํา, ดิบ
+["ข้าวกล้องหอมมะลิ (ข้าวสาร)",357,7.7,75.2,3.5,"100 ก.","วัตถุดิบ",3.3,20,undefined,undefined,0],   // 01011 ข้าวกล้อง, หอมมะลิ, ดิบ
+["ข้าวสังข์หยด (ข้าวสาร)",359,9.0,73.1,4.2,"100 ก.","วัตถุดิบ",3.8,undefined,undefined,undefined,0],   // 01023 ข้าวเจ้า, สังข์หยด, ดิบ
+["ข้าวเหนียวดำ (ข้าวสาร)",354,8.2,76.1,3.0,"100 ก.","วัตถุดิบ",4.9,undefined,undefined,undefined,0],   // 01037 ข้าวเหนียวดํา, ดิบ
 ["ก๋วยเตี๋ยวเส้นเล็กสด",220,4.4,49.4,0.6,"1 ก้อน 100 ก.","วัตถุดิบ",0.2,undefined,undefined,undefined,0],   // 01002 ก๋วยเตี๋ยว, เส้นเล็ก, เส้นสด
 ["ก๋วยเตี๋ยวเส้นใหญ่สด",135,2.5,29.6,0.8,"1 ก้อน 100 ก.","วัตถุดิบ",0.1,undefined,undefined,undefined,0],   // 01003 ก๋วยเตี๋ยว, เส้นใหญ่, เส้นสด
 ["ขนมจีนแป้งสด",54,0.8,12.7,0.0,"1 จับ 60 ก.","วัตถุดิบ",0.1,undefined,undefined,undefined,0],   // 01004 ขนมจีน, แป้งสด
@@ -2610,10 +2608,10 @@ const FOODS = [
 ["สเต๊กปลาแซลมอน 1 จาน",630,42.0,35.0,34.0,"1 จาน","จานเดียว",3.5,750,8.0,4.0,0],
 
 // ===== เมนูเนื้อไทย/ตุ๋น (คำนวณจากส่วนผสม — ค่าประมาณ) =====
-["เนื้อแดดเดียวทอด 100 ก.",350,37.6,3.0,20.8,"100 ก.","กับข้าว",0,1100,9.0,3.0,0],
+["เนื้อแดดเดียวทอด 100 ก.",350,37.6,3.0,20.8,"100 ก.","วัตถุดิบ",0,1100,9.0,3.0,0],
 ["เนื้อแดดเดียวทอด 1 จาน",245,26.3,2.1,14.6,"1 จาน ~70 ก.","กับข้าว",0,770,6.3,2.1,0],
-["หมูแดดเดียวทอด 100 ก.",360,37.5,3.0,22.0,"100 ก.","กับข้าว",0,1100,8.5,3.0,0],
-["เนื้อสวรรค์",370,35.0,10.0,20.0,"100 ก.","กับข้าว",0,900,8.0,9.0,0],
+["หมูแดดเดียวทอด 100 ก.",360,37.5,3.0,22.0,"100 ก.","วัตถุดิบ",0,1100,8.5,3.0,0],
+["เนื้อสวรรค์",370,35.0,10.0,20.0,"100 ก.","วัตถุดิบ",0,900,8.0,9.0,0],
 ["ต้มเนื้อเปื่อย 1 ถ้วย",210,27.3,2.0,9.2,"1 ถ้วย 250 ก.","กับข้าว",0.4,700,3.3,1.0,0],
 ["ต้มแซ่บเนื้อเปื่อย 1 ถ้วย",200,25.0,4.0,9.0,"1 ถ้วย 250 ก.","กับข้าว",0.8,900,3.3,1.0,0],
 ["ก๋วยเตี๋ยวเนื้อตุ๋น 1 ชาม",380,27.5,34.0,11.6,"1 ชาม","ก๋วยเตี๋ยว",1.8,1600,4.5,3.0,0],
@@ -2637,7 +2635,6 @@ const FOODS = [
 // ===== เครื่องปรุง/ซอส/น้ำจิ้ม =====
 ["ซีอิ๊วดำ",25,0.5,5.5,0,"1 ช้อนโต๊ะ 18 ก.","วัตถุดิบ",0,1200,0,4,0],
 ["ซอสปรุงรส (ฝาเขียว)",10,1.3,1.0,0,"1 ช้อนโต๊ะ 16 ก.","วัตถุดิบ",0,1100,0,0.3,0],
-["ซีอิ๊วญี่ปุ่น (โชยุ)",8,1.3,0.8,0.1,"1 ช้อนโต๊ะ 16 ก.","วัตถุดิบ",0.1,879,0,0.1,0,66],   // USDA 174277
 ["เต้าเจี้ยว",20,1.5,2.5,0.5,"1 ช้อนโต๊ะ 18 ก.","วัตถุดิบ",0.3,1300,0.1,0.5,0],
 ["กะปิ",8,1.2,0.5,0.1,"1 ช้อนชา 6 ก.","วัตถุดิบ",0,900,0,0,0],
 ["พริกน้ำปลา",7,0.9,0.7,0,"1 ช้อนโต๊ะ 18 ก.","วัตถุดิบ",0.1,1300,0,0.2,0],
@@ -3888,6 +3885,7 @@ function renderMyFood(){
     <small>${esc(m.unit)} · P${m.protein} C${m.carb} F${m.fat}</small></div>
     <div style="white-space:nowrap"><b style="color:var(--food)">${m.kcal}</b> kcal
     <button class="del" onclick="delMyFood(${m.ts})">✕</button></div></div>`).join("");
+  const md=document.querySelector('details[data-fold="myFoodBox"]'); if(md) foldBind(md);
 }
 async function delMyFood(ts){
   if(!confirm("ลบเมนูนี้ออกจากเมนูของฉัน? (ประวัติที่บันทึกไว้แล้วไม่หาย)"))return;
@@ -3901,7 +3899,9 @@ function renderFav(){
   S.food.forEach(f=>{ if(findFood(f.name)) cnt[f.name]=(cnt[f.name]||0)+1; });
   const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,8).map(x=>x[0]);
   el("favWrap").style.display=top.length?"block":"none";
+  if(el("favN")) el("favN").textContent=top.length+" เมนู";
   el("favChips").innerHTML=top.map(n=>`<div class="chip y" data-n="${esc(n)}">${esc(n)}</div>`).join("");
+  const fd=document.querySelector('details[data-fold="favBox"]'); if(fd) foldBind(fd);
 }
 el("favChips").onclick=e=>{
   const c=e.target.closest(".chip"); if(!c)return;
@@ -5033,14 +5033,12 @@ function foldBind(d){
   if(st[k]!==undefined) d.open=!!st[k];
   /* บันทึกเฉพาะตอนที่ "ผู้ใช้" กดเอง — ถ้าโค้ดตั้งค่าเริ่มต้นให้ ห้ามจำว่าเป็นความตั้งใจของผู้ใช้
      ไม่งั้นค่าเริ่มต้นอัตโนมัติจะกลายเป็นการเลือกถาวร แล้วรายการที่มีน้อยจะไม่กางอีกเลย
-     หมายเหตุ: event "toggle" ยิงทีหลัง (ไม่ใช่ทันที) จึงต้องคงเครื่องหมายไว้จนกว่าจะยิงจริง */
-  d.addEventListener("toggle",()=>{
-    if(_foldAuto.has(d)){ _foldAuto.delete(d); return; }
-    foldSet(k,d.open);
-  });
+     ผูกกับการ "คลิกที่หัวข้อ" ตรง ๆ แทน event toggle (ซึ่งยิงทีหลังและแยกไม่ออกว่าใครสั่ง) */
+  const sm=d.querySelector("summary");
+  if(sm) sm.addEventListener("click",()=>{ foldSet(k, !d.open); });
 }
-const _foldAuto=new WeakSet();
-function foldAuto(d,open){ if(d.open===open) return; _foldAuto.add(d); d.open=open; }
+/* ตั้งค่าเริ่มต้นโดยโปรแกรม — ไม่ถูกจำเป็นความตั้งใจของผู้ใช้ */
+function foldAuto(d,open){ d.open=open; }
 /* คำอธิบายยาวเกิน 160 ตัวอักษร ที่ไม่ได้อยู่ในกล่องพับอยู่แล้ว → ห่อให้อัตโนมัติ
    เรียกซ้ำได้ปลอดภัย (ของที่ห่อแล้วจะถูกข้าม) จึงเรียกหลังวาดหน้าจอใหม่ได้ทุกครั้ง */
 let _foldN=0;
@@ -5068,6 +5066,70 @@ function foldCount(id,n,unit){
   foldBind(d);
   const k="lst-"+id;
   if(foldState()[k]===undefined) foldAuto(d, n>0 && n<=4);   /* ค่าเริ่มต้น: น้อยก็กาง เยอะก็พับ */
+}
+/* ---------- สรุปสารอาหาร: เห็นตัวย่อครบทุกตัว กดคลี่ดูทีละตัว ----------
+   ทุกสารอาหารถูกปฏิบัติเหมือนกันหมด ไม่มีตัวไหนถูกเน้นเป็นพิเศษ
+   สีบอกสถานะ: เขียว = เข้าเกณฑ์ · ส้ม = เฉียด · แดง = หลุด */
+function kShort(v){ return v>=10000? Math.round(v/1000)+"k" : v>=1000? n1(v/1000)+"k" : n1(v); }
+function nutList(d,u,g,ratio,gkg,unsat){
+  const wkAlc=period(S.date,7).reduce((a,b)=>a+b.alc,0);
+  const dl=S.user.sex==="m"?20:10;
+  const L=[
+   {k:"pr", ic:"🍗", n:"โปรตีน",      ab:"P",  v:d.pr,  goal:u.pGoal,  un:"ก.", low:false,
+    tip:`${u.w?`วันนี้ได้ <b>${gkg}</b> ก. ต่อน้ำหนักตัว 1 กก. — เป้าที่ตั้งไว้คือ ${u.pkg} ก./กก. ตามเป้าหมาย${(+u.goal<=-250)?"ลดน้ำหนัก (ต้องการมากขึ้นเพื่อรักษากล้ามเนื้อ)":(+u.goal>0)?"เพิ่มกล้ามเนื้อ":"รักษาน้ำหนัก"}<br><br>`:""}อ้างอิง ISSN 2017 / Helms 2014: ช่วงลดน้ำหนัก 1.8–2.7 ก./กก. · รักษา 1.4–1.8 ก./กก.`},
+   {k:"cb", ic:"🍚", n:"คาร์โบไฮเดรต", ab:"C",  v:d.cb,  goal:u.cGoal,  un:"ก.", low:false,
+    tip:`ตั้งไว้ที่ 45% ของพลังงานทั้งวัน — เป็นตัวเลขกลาง ๆ ปรับได้ตามชนิดการฝึก ถ้าซ้อมหนักหรือวิ่งไกลจะต้องการมากกว่านี้`},
+   {k:"ft", ic:"🥑", n:"ไขมันรวม",    ab:"F",  v:d.ft,  goal:u.fGoal,  un:"ก.", low:false,
+    extra:`<div class="fatsplit" title="อิ่มตัว/ไม่อิ่มตัว">
+      <i style="background:var(--bad);width:${Math.min(100,d.ft?d.sat/u.fGoal*100:0)}%"></i>
+      <i style="background:var(--move);width:${Math.min(100-Math.min(100,d.ft?d.sat/u.fGoal*100:0),unsat/u.fGoal*100)}%"></i></div>`,
+    tip:d.ft?`แถบแดง = ไขมันอิ่มตัว ${n1(d.sat)} ก. · แถบเขียว = ไขมันไม่อิ่มตัว ${unsat} ก.<br>
+      สัดส่วนอิ่มตัว <b>${Math.round(d.sat/d.ft*100)}%</b> ของไขมันทั้งหมด — ${d.sat/d.ft<=0.35?"อยู่ในระดับดี เน้นไขมันดีอยู่":"เยอะไป ลองเลี่ยงของทอด/กะทิ/เนย"}`
+      :`ยังไม่มีข้อมูลไขมันวันนี้`},
+   {k:"sat",ic:"🧈", n:"ไขมันอิ่มตัว", ab:"อิ่มตัว", v:d.sat, goal:u.satGoal, un:"ก.", low:true,
+    tip:`WHO แนะนำไม่เกิน 10% ของพลังงานทั้งวัน (= ${u.satGoal} ก. สำหรับเป้า ${u.target.toLocaleString()} kcal)<br><br>ตัวการหลักในอาหารไทย: กะทิ ของทอด หมูสามชั้น เนย ชีส ครีมเทียม`},
+   {k:"sug",ic:"🍬", n:"น้ำตาล",      ab:"น้ำตาล", v:d.sug, goal:u.sugGoal, un:"ก.", low:true,
+    tip:`นับเฉพาะ <b>น้ำตาลอิสระ</b> ตามนิยาม WHO — น้ำตาลที่เติมเข้าไป บวกน้ำผึ้ง ไซรัป และน้ำผลไม้คั้น<br>
+      น้ำตาลในผลไม้ทั้งลูก ผัก และนมจืด <b>ไม่นับ</b><br><br>
+      เพดาน 10% ของพลังงาน = ${u.sugGoal} ก. · ระดับที่ดีที่สุด 5% = ${u.sugIdeal} ก.`},
+   {k:"fb", ic:"🥦", n:"ไฟเบอร์",     ab:"ใย", v:d.fb,  goal:u.fibGoal, un:"ก.", low:false,
+    tip:d.fb<u.fibGoal?`ขาดอีก ${n1(u.fibGoal-d.fb)} ก. ≈ ผักลวก ${Math.ceil((u.fibGoal-d.fb)/2.4)} ถ้วย หรือผลไม้ ${Math.ceil((u.fibGoal-d.fb)/2.5)} ผล<br><br>เกณฑ์ 14 ก. ต่อพลังงาน 1,000 kcal`:`ครบแล้ว — เกณฑ์คือ 14 ก. ต่อพลังงาน 1,000 kcal`},
+   {k:"na", ic:"🧂", n:"โซเดียม",     ab:"Na", v:d.na,  goal:NA_LIMIT,  un:"มก.", low:true,
+    tip:`เพดาน WHO 2,000 มก./วัน (≈ เกลือ 5 ก.)<br><br>ตัวการหลัก: น้ำซุปก๋วยเตี๋ยว น้ำปลา ซีอิ๊ว น้ำจิ้ม ผงปรุงรส ซุปก้อน ของหมักดอง อาหารสำเร็จรูป
+      ${ratio!==null?`<br><br>อัตราส่วน <b>Na : K = ${ratio}</b> — ความดันขึ้นกับอัตราส่วนนี้มากกว่าโซเดียมเดี่ยว ๆ (INTERSALT, DASH) เป้าคือไม่เกิน 1`:""}`},
+   {k:"pot",ic:"🍌", n:"โพแทสเซียม",   ab:"K",  v:d.pot, goal:K_GOAL,    un:"มก.", low:false,
+    tip:`WHO แนะนำอย่างน้อย ${K_GOAL.toLocaleString()} มก./วัน — โพแทสเซียมช่วยหักล้างผลของโซเดียมต่อความดัน<br><br>
+      หาง่าย: ผักใบเขียว ฟักทอง มันเทศ กล้วย มะละกอ ส้ม ถั่ว ปลา น้ำมะพร้าว (ราว 400 มก. ต่อ 1 ถ้วย/1 ผล)
+      ${d.fd.length?`<br><br><span style="opacity:.75">วันนี้ ${d.potLab}/${d.fd.length} เมนูใช้ค่าจากห้องแล็บ ที่เหลือเป็นค่าประมาณจากชนิดอาหาร</span>`:""}`},
+   {k:"wa", ic:"💧", n:"น้ำดื่ม",      ab:"น้ำ", v:g,     goal:waterGoal(), un:"มล.", low:false,
+    tip:`เป้าคำนวณจากน้ำหนักตัวและปริมาณการออกกำลังกายวันนี้`},
+  ];
+  if(d.alc||wkAlc) L.push({k:"alc", ic:"🍺", n:"แอลกอฮอล์", ab:"เหล้า", v:d.alc, goal:dl, un:"ก.", low:true,
+    tip:`วันนี้ ${n1(d.alc)} ก. ≈ ${n1(d.alc/10)} ดื่มมาตรฐาน · เพดานต่อวัน ${dl} ก. (${S.user.sex==="m"?"ชาย 2":"หญิง 1"} ดื่ม)<br><br>
+      สัปดาห์นี้รวม ${n1(wkAlc)} ก. ≈ ${n1(wkAlc/10)} ดื่ม ${wkAlc>100?"— เกินคำแนะนำสัปดาห์ละ 10 ดื่ม":""}`});
+  L.forEach(x=>{
+    x.st = x.low ? (x.v<=x.goal*0.75?"ok":x.v<=x.goal?"warn":"bad")
+                 : (x.v>=x.goal?"ok":x.v>=x.goal*0.6?"warn":"bad");
+    x.c  = x.st==="ok"?"var(--move)":x.st==="warn"?"var(--food)":"var(--bad)";
+    x.diff = n1(Math.abs(x.goal-x.v));
+    x.msg = x.low ? (x.v<=x.goal?`เหลืออีก ${kShort(x.goal-x.v)}`:`เกินมา ${kShort(x.v-x.goal)}`)
+                  : (x.v>=x.goal?`ครบแล้ว ✓`:`ขาดอีก ${kShort(x.goal-x.v)}`);
+  });
+  return L;
+}
+function nutSummary(d,u,g,ratio,gkg,unsat){
+  if(!d.fd.length && !g) return "";
+  const L=nutList(d,u,g,ratio,gkg,unsat);
+  const chips=L.map(x=>`<span style="color:${x.c};border-color:${x.c}55">${x.ab} <b>${kShort(x.v)}</b>/${kShort(x.goal)}</span>`).join("");
+  const bad=L.filter(x=>x.st==="bad").length, okN=L.filter(x=>x.st==="ok").length;
+  const rows=L.map(x=>`<details class="fold sub" data-fold="nut-${x.k}">
+      <summary>${x.ic} ${x.n}<span class="fn" style="color:${x.c}">${kShort(x.v)} / ${kShort(x.goal)} ${x.un} · ${x.msg}</span></summary>
+      <div class="foldc">
+        ${x.extra||`<div class="bar" style="height:8px"><i style="background:${x.c};width:${Math.min(100,x.goal?x.v/x.goal*100:0)}%"></i></div>`}
+        <div class="mini" style="margin-top:9px">${x.tip}</div>
+      </div></details>`).join("");
+  return `<div class="offchips">${chips}</div>
+    ${subFold("nutTiles",`📊 สารอาหาร <span class="fn">เข้าเกณฑ์ ${okN}/${L.length}${bad?` · หลุด ${bad}`:""} — กดดูทีละตัว</span>`, rows)}`;
 }
 /* หัวข้อย่อยแบบ "เห็นสรุปเสมอ กดแล้วค่อยคลี่รายละเอียด"
    หัวข้อ (head) มีป้ายสถานะอยู่แล้ว จึงยังอ่านรู้เรื่องแม้ตอนพับ */
@@ -5240,20 +5302,6 @@ function render(){
 
   /* ---------- อาหาร ---------- */
   const left=u.target-d.kIn, unsat=n1(Math.max(0,d.ft-d.sat));
-  function ntile(icon,name,val,goal,unit,color,lowerBetter,extra,note){
-    const pctv=Math.min(100,goal?val/goal*100:0);
-    const over=lowerBetter? val>goal : val>goal;
-    const diff=n1(Math.abs(goal-val));
-    const st = lowerBetter ? (val<=goal*0.75?"ok":val<=goal?"warn":"bad")
-                           : (val>=goal?"ok":val>=goal*0.6?"warn":"bad");
-    const c = st==="ok"?"var(--move)":st==="warn"?"var(--food)":"var(--bad)";
-    return `<div class="nt"><div class="h"><em>${icon}</em>${name}</div>
-      <b>${n1(val).toLocaleString()} <span>/ ${goal.toLocaleString()} ${unit}</span></b>
-      ${extra||`<div class="bar"><i style="background:${lowerBetter?c:color};width:${pctv}%"></i></div>`}
-      <span class="st" style="color:${c}">${lowerBetter
-        ? (val<=goal?`เหลืออีก ${diff.toLocaleString()} ${unit}`:`เกินมา ${diff.toLocaleString()} ${unit}`)
-        : (val>=goal?`ครบแล้ว ✓`:`ขาดอีก ${diff.toLocaleString()} ${unit}`)}${note||""}</span></div>`;
-  }
   /* โปรตีนต่อน้ำหนักตัว — ตัวเลขที่ใช้เทียบกับเกณฑ์สากลได้จริง */
   const gkg = u.w? n1(d.pr/u.w) : 0;
   const prNote = u.w? ` · <b>${gkg}</b> ก./กก.` : "";
@@ -5266,67 +5314,7 @@ function render(){
     <div class="remain">${left>=0?`เหลือกินได้อีก <b style="color:var(--move)">${left.toLocaleString()}</b> kcal`
       :`<b style="color:var(--bad)">เกินเป้ามา ${(-left).toLocaleString()}</b> kcal ≈ ต้องเดินเร็วเพิ่ม ${Math.round(-left/4)} นาที`}</div>
 
-    ${(()=>{
-      /* สรุปหนึ่งบรรทัด: บอกเฉพาะตัวที่ยังไม่เข้าเกณฑ์ จะได้ไม่ต้องกวาดตาอ่านทั้งตาราง */
-      if(!d.fd.length) return "";
-      const off=[];
-      if(d.pr<u.pGoal)   off.push([`โปรตีนขาด ${n1(u.pGoal-d.pr)} ก.`,"var(--food)"]);
-      if(d.fb<u.fibGoal) off.push([`ไฟเบอร์ขาด ${n1(u.fibGoal-d.fb)} ก.`,"var(--food)"]);
-      if(d.sug>u.sugGoal)off.push([`น้ำตาลเกิน ${n1(d.sug-u.sugGoal)} ก.`,"var(--bad)"]);
-      if(d.na>NA_LIMIT)  off.push([`โซเดียมเกิน ${Math.round(d.na-NA_LIMIT).toLocaleString()} มก.`,"var(--bad)"]);
-      if(d.sat>u.satGoal)off.push([`ไขมันอิ่มตัวเกิน ${n1(d.sat-u.satGoal)} ก.`,"var(--bad)"]);
-      if(ratio!==null&&ratio>2) off.push([`Na:K ${ratio} สูงไป`,"var(--bad)"]);
-      if(g<waterGoal())  off.push([`น้ำขาด ${(waterGoal()-g).toLocaleString()} มล.`,"var(--acc)"]);
-      return off.length
-        ? `<div class="offchips">${off.map(o=>`<span style="color:${o[1]};border-color:${o[1]}55">${o[0]}</span>`).join("")}</div>`
-        : `<div class="offchips"><span style="color:var(--move);border-color:var(--move)55">สารอาหารเข้าเกณฑ์ครบทุกตัว ✓</span></div>`;
-    })()}
-
-    ${subFold("nutTiles","📊 สารอาหารครบทุกตัว",`
-    <div class="ntiles">
-      ${ntile("🍗","โปรตีน",d.pr,u.pGoal,"ก.","var(--move)",false,null,prNote)}
-      ${ntile("🍚","คาร์บ",d.cb,u.cGoal,"ก.","var(--food)",false)}
-      ${ntile("🥑","ไขมันรวม",d.ft,u.fGoal,"ก.","var(--sleep)",false,
-        `<div class="fatsplit" title="อิ่มตัว/ไม่อิ่มตัว">
-           <i style="background:var(--bad);width:${Math.min(100,d.ft?d.sat/u.fGoal*100:0)}%"></i>
-           <i style="background:var(--move);width:${Math.min(100-Math.min(100,d.ft?d.sat/u.fGoal*100:0),unsat/u.fGoal*100)}%"></i></div>`)}
-      ${ntile("🍬","น้ำตาล",d.sug,u.sugGoal,"ก.","var(--bad)",true)}
-      ${S.showAll?ntile("🧈","ไขมันอิ่มตัว",d.sat,u.satGoal,"ก.","var(--bad)",true):""}
-      ${ntile("🥦","ไฟเบอร์",d.fb,u.fibGoal,"ก.","#22c55e",false)}
-      ${ntile("🧂","โซเดียม",d.na,NA_LIMIT,"มก.","var(--bad)",true,null,naNote)}
-      ${S.showAll?ntile("🍌","โพแทสเซียม",d.pot,K_GOAL,"มก.","#22c55e",false):""}
-      ${ntile("💧","น้ำดื่ม",g,waterGoal(),"มล.","var(--acc)",false)}
-      ${(()=>{const wk=period(S.date,7).reduce((a,b)=>a+b.alc,0);
-        if(!d.alc && !wk) return "";
-        const dl=S.user.sex==="m"?20:10;
-        return `<div class="nt wide"><div class="h"><em>🍺</em>แอลกอฮอล์</div>
-          <b>${n1(d.alc)} <span>ก. วันนี้ (≈ ${n1(d.alc/10)} ดื่มมาตรฐาน)</span></b>
-          <div class="bar"><i style="background:${d.alc<=dl?"var(--food)":"var(--bad)"};width:${Math.min(100,d.alc/dl*100)}%"></i></div>
-          <span class="st" style="color:${d.alc<=dl?"var(--dim)":"var(--bad)"}">
-            เพดานต่อวัน ${dl} ก. (${S.user.sex==="m"?"ชาย 2":"หญิง 1"} ดื่ม) · สัปดาห์นี้รวม ${n1(wk)} ก. ≈ ${n1(wk/10)} ดื่ม
-            ${wk>100?" — เกินคำแนะนำสัปดาห์ละ 10 ดื่ม":""}</span></div>`;})()}
-      <div class="nt"${S.showAll?"":' style="display:none"'}><div class="h"><em>⚖️</em>สัดส่วนไขมัน</div>
-        <b style="font-size:15px">${d.ft?`อิ่มตัว ${Math.round(d.sat/d.ft*100)}%`:"–"}</b>
-        <span class="st" style="color:${!d.ft?"var(--dim)":d.sat/d.ft<=0.35?"var(--move)":"var(--food)"}">
-          ${!d.ft?"ยังไม่มีข้อมูล":d.sat/d.ft<=0.35?"สัดส่วนดี เน้นไขมันดีอยู่":"ไขมันอิ่มตัวเยอะไป ลองเลี่ยงของทอด/กะทิ"}</span></div>
-    </div>
-
-    <button class="more" onclick="S.showAll=!S.showAll;render()">${S.showAll?"▲ ย่อรายละเอียด":"▼ ดูไขมันอิ่มตัว / โพแทสเซียม"}</button>`, false)}
-    ${ratio!==null?`<details class="fold" data-fold="nak"><summary>🧂 โซเดียม : โพแทสเซียม = ${ratio} ${ratio<=1?"— อยู่ในเกณฑ์ดี ✓":ratio<=2?"— พอใช้ ควรกินผัก/ผลไม้เพิ่ม":"— สูงไป ความดันเสี่ยงขึ้น"}</summary><div class="foldc"><div class="hint" data-nofold>
-      ความดันโลหิตขึ้นกับ <b>อัตราส่วน</b>ของโซเดียมต่อโพแทสเซียม มากกว่าโซเดียมเดี่ยว ๆ — งานวิจัย INTERSALT และ DASH ชี้ตรงกันว่าคนที่กินโพแทสเซียมสูงทนโซเดียมได้ดีกว่า<br><br>
-      วันนี้ โซเดียม <b>${d.na.toLocaleString()}</b> มก. · โพแทสเซียม <b>${d.pot.toLocaleString()}</b> มก. (เป้า ≥ ${K_GOAL.toLocaleString()})<br>
-      เป้าที่ดีคือ <b>ไม่เกิน 1 : 1</b> ตอนนี้ ${ratio<=1?"ทำได้แล้ว":`ต้องเพิ่มโพแทสเซียมอีก ${Math.max(0,Math.round(d.na-d.pot)).toLocaleString()} มก. หรือลดโซเดียมลง`}<br><br>
-      แหล่งโพแทสเซียมที่หาง่าย: ผักใบเขียว ฟักทอง มันเทศ กล้วย มะละกอ ส้ม ถั่ว ปลา น้ำมะพร้าว<br>
-      <span style="opacity:.75">วันนี้มี ${d.potLab}/${d.fd.length} เมนูที่ใช้ค่าโพแทสเซียมจากห้องแล็บ ที่เหลือเป็นค่าประมาณจากชนิดอาหาร</span>
-    </div></div></details>`:""}
-    <div class="mini" style="margin-top:11px">
-      ${d.na>NA_LIMIT?"🧂 เค็มเกินเกณฑ์วันนี้ — น้ำซุป/น้ำจิ้มคือตัวการหลัก<br>":""}
-      ${(d.fd.length&&d.pot<K_GOAL*0.7)?`🍌 โพแทสเซียมยังน้อย (${d.pot.toLocaleString()} จาก ${K_GOAL.toLocaleString()} มก.) — ผักลวก 1 ถ้วยหรือกล้วย 1 ลูกช่วยได้ราว 400 มก.<br>`:""}
-      ${d.fb<u.fibGoal?`🥦 ไฟเบอร์ขาด ${n1(u.fibGoal-d.fb)} ก. ≈ ผักลวก ${Math.ceil((u.fibGoal-d.fb)/2.4)} ถ้วย หรือผลไม้ ${Math.ceil((u.fibGoal-d.fb)/2.5)} ผล<br>`:""}
-      ${d.sug>u.sugGoal?`🍬 น้ำตาลเกินเกณฑ์ ${n1(d.sug-u.sugGoal)} ก. — WHO แนะนำไม่เกิน 10% ของพลังงาน (ยิ่งดีถ้าต่ำกว่า ${u.sugIdeal} ก.)<br>`
-        :d.sug>u.sugIdeal?`🍬 น้ำตาล ${n1(d.sug)} ก. เกินระดับที่ดีที่สุด (${u.sugIdeal} ก.) แต่ยังไม่เกินเพดาน<br>`:""}
-      ${d.sat>u.satGoal?`🧈 ไขมันอิ่มตัวเกิน ${n1(d.sat-u.satGoal)} ก. — ตัวการมักเป็นกะทิ ของทอด เนย ชีส`:""}
-    </div>
+    ${nutSummary(d,u,g,ratio,gkg,unsat)}
 
     ${d.fd.length? subFold("homeMeals",`🍽️ ที่กินวันนี้ <span class="pill ok">${d.fd.length} รายการ</span>`, sortByTime(d.fd).map(x=>
       `<div class="meal"><div>${x.time?`<b style="color:var(--food)">${x.time}</b> `:""}${mealIcon(x.meal)} ${esc(x.name)}
