@@ -65,6 +65,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--acc)}
 /* ช่องเลือกเวลาของ iOS ย่อลงต่ำกว่า ~185px ไม่ได้ สองช่องต่อแถวจึงล้นการ์ดบนจอทั่วไป
    แถวไหนมีช่องเวลาให้เรียงลงมาเป็นบรรทัดแทน จอกว้างพอ (≥460px) ค่อยวางคู่กัน */
 @media (max-width:459px){ .row.rowtime>*{flex:1 1 100%} }
+/* ช่องเวลา/วันที่ของ iOS ย่อตาม width ไม่ได้ ความกว้างขั้นต่ำผูกกับขนาดตัวอักษร
+   (ยิ่งผู้ใช้ตั้งตัวอักษรใหญ่ยิ่งกว้าง) จึงตั้งฐานให้เล็กลงหน่อย แล้วมีตัววัดจริงตอนรันคอยย่อซ้ำอีกที */
+input[type=time],input[type=date]{font-size:16px;padding-left:10px;padding-right:10px}
 /* จอแคบหรือช่องกรอกที่ย่อไม่ได้ (เช่น input[type=time] บน iOS) → ตกลงมาเป็นบรรทัดใหม่ ไม่ล้นการ์ด */
 /* ลูกของ flex/grid ย่อไม่ได้ถ้าไม่ตั้ง min-width:0 — ช่องเวลา/ตัวเลขบน iOS กว้างขั้นต่ำเยอะ แล้วดันจนล้นกล่อง */
 .stgin>*,.ntiles>*,.stat>*,.z2g>*,.bud>*{min-width:0}
@@ -96,7 +99,13 @@ input:focus,select:focus,textarea:focus{border-color:var(--acc)}
 .empty{color:var(--dim);font-size:14px;text-align:center;padding:16px 0}
 nav{position:fixed;bottom:0;left:0;right:0;background:var(--navbg);border-top:1px solid var(--line);display:flex;z-index:30;padding-bottom:env(safe-area-inset-bottom)}
 nav button{flex:1;background:none;border:0;color:var(--dim);padding:9px 2px 10px;font-size:11.5px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
-nav button i{font-style:normal;font-size:21px;line-height:1}
+nav button i{font-style:normal;font-size:21px;line-height:0;display:block}
+/* ไอคอนของแอป — เป็น SVG เส้น ใช้สีตามข้อความรอบตัว จึงเข้ากับธีมสว่าง/มืดเองทั้งชุด */
+i[data-ic]{font-style:normal;display:inline-flex;align-items:center;flex:none}
+svg.ic{display:block;flex:none}
+h2 i[data-ic]{color:var(--acc)}
+.card.sec.f h2 i[data-ic]{color:var(--food)} .card.sec.m h2 i[data-ic]{color:var(--move)}
+.card.sec.sl h2 i[data-ic]{color:var(--sleep)}
 nav button.on{color:var(--acc)}
 .hint{font-size:13.5px;color:var(--dim);line-height:1.6}
 .pick{max-height:230px;overflow-y:auto;border:1px solid var(--line);border-radius:12px;margin-top:7px;display:none}
@@ -105,7 +114,7 @@ nav button.on{color:var(--acc)}
 .pick div:last-child{border:0}
 .pick div small{color:var(--dim);font-size:11.5px}
 .pick div.more{cursor:default;color:var(--dim);font-size:11.5px;text-align:center;background:var(--card2)}
-.tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:20px;background:var(--card2);color:var(--dim);margin-left:6px}
+.tag{display:inline-flex;align-items:center;gap:5px;vertical-align:-4px;font-size:12px;padding:2px 8px;border-radius:20px;background:var(--card2);color:var(--dim);margin-left:6px}
 .warn{background:var(--warn-bg);border:1px solid var(--warn-bd);color:var(--warn-tx);border-radius:12px;padding:11px;font-size:12.5px;line-height:1.6;margin-bottom:13px}
 .onb{position:fixed;inset:0;z-index:100;background:var(--bg);overflow-y:auto;padding:18px 14px 40px}
 .onbx{max-width:640px;margin:0 auto}
@@ -194,6 +203,8 @@ nav button.on{color:var(--acc)}
 .sec.r{border-left-color:var(--acc)}
 .fbar{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:7px 0;border-bottom:1px solid var(--line)}
 .fbar:last-child{border:0}
+details.fold>summary svg.ic{opacity:.9}
+.hb .l span{display:inline-flex;align-items:center;gap:6px}
 .fbar .fb2{width:96px;height:7px;background:var(--track);border-radius:6px;overflow:hidden;flex:none;margin:0 10px}
 .fbar .fb2 i{display:block;height:100%}
 .hscore{flex:none}
@@ -235,9 +246,10 @@ details.fold.sub .subh{margin:9px 0 5px}
 /* รายละเอียดสารอาหารของแต่ละมื้อ — แยกเป็นชิปเล็ก ๆ ไม่ใช่ประโยคยาวคั่นด้วยจุด
    เพราะเวลาตัดบรรทัดบนมือถือ ตัวคั่นจะไปขึ้นต้นบรรทัดใหม่แล้วอ่านยาก */
 .nchs{display:flex;flex-wrap:wrap;gap:3px 10px;margin-top:3px}
-.nch{white-space:nowrap}
+.nch{white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+.nch svg.ic{opacity:.85}
 .offchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.offchips span{font-size:11.5px;padding:4px 9px;border-radius:20px;background:var(--card2);border:1px solid var(--line)}
+.offchips span{font-size:12px;padding:5px 11px;border-radius:20px;background:var(--card2);border:1px solid var(--line);line-height:1.45}
 .card>details.fold:first-child{margin-top:0}
 .rdrow{display:flex;gap:6px;margin-top:6px}
 .rdrow button{flex:1;background:var(--card2);border:1px solid var(--line);border-radius:11px;
@@ -272,7 +284,7 @@ details.fold.sub .subh{margin:9px 0 5px}
 .nutrows{margin-top:4px}
 .fbar.nut{align-items:center;padding:9px 0}
 .fbar.nut .nl{flex:1;min-width:0}
-.fbar.nut .nl>b{font-size:13.5px;display:block}
+.fbar.nut .nl>b{font-size:13.5px;display:flex;align-items:center;gap:6px}
 .fbar.nut .nl small b{display:inline;font-size:inherit}
 .fbar.nut .nl small{display:block;color:var(--dim);font-size:11.5px;line-height:1.5;margin-top:2px}
 .fbar.nut .fb2.wide{width:72px;margin:0 9px}
@@ -407,20 +419,20 @@ details.fold.sub .subh{margin:9px 0 5px}
   <div id="noUrlWarn" class="warn" style="display:none">
     💾 ข้อมูลเก็บใน<b>เครื่องนี้</b>ที่เดียว — ล้างข้อมูลเบราว์เซอร์หรือเปลี่ยนเครื่องแล้วจะหาย
     <details class="fold" data-fold="bkupHow"><summary>วิธีสำรองข้อมูล</summary><div class="foldc">
-      <button class="btn" style="margin-top:4px" onclick="showOnboard()">📖 เชื่อม Google Sheets — มีคู่มือพาทำทีละขั้น</button>
+      <button class="btn" style="margin-top:4px" onclick="showOnboard()"><i data-ic="book" data-sz="16"></i> เชื่อม Google Sheets — มีคู่มือพาทำทีละขั้น</button>
       <button class="btn ghost" style="margin-top:7px" onclick="el('expJson').click()">หรือกดสำรองเป็นไฟล์ไว้ก่อน</button>
     </div></details>
   </div>
 
   <div class="seg a" id="viewSeg">
-    <button class="on" data-v="day">📅 รายวัน</button>
-    <button data-v="stat">📊 ย้อนหลัง &amp; สถิติ</button>
+    <button class="on" data-v="day"><i data-ic="cal" data-sz="17"></i> รายวัน</button>
+    <button data-v="stat"><i data-ic="chart" data-sz="17"></i> ย้อนหลัง &amp; สถิติ</button>
   </div>
 
   <div id="viewDay">
 
   <div class="card">
-    <h2>📅 <span id="homeDate"></span></h2>
+    <h2><i data-ic="cal" data-sz="19"></i><span id="homeDate"></span></h2>
     <div id="budget"></div>
     <div class="hero" style="margin-top:14px">
       <div class="hscore">
@@ -433,16 +445,16 @@ details.fold.sub .subh{margin:9px 0 5px}
   </div>
 
   <div class="card sec r" id="readyCard">
-    <h2>🔋 ความพร้อมวันนี้</h2><div id="secReady"></div>
-    <button class="btn g" id="rdToggle" style="margin-top:13px">📝 เช็คความรู้สึกวันนี้</button>
+    <h2><i data-ic="target" data-sz="19"></i>ความพร้อมวันนี้</h2><div id="secReady"></div>
+    <button class="btn g" id="rdToggle" style="margin-top:13px"><i data-ic="note" data-sz="16"></i> เช็คความรู้สึกวันนี้</button>
     <div id="rdForm" style="display:none;margin-top:12px">
       <div class="mini">ตอบตามความรู้สึกจริงตอนนี้ ข้อไหนไม่อยากตอบข้ามได้ · กดซ้ำที่ตัวเลือกเดิมเพื่อล้าง</div>
       <div id="rdQs"></div>
       <div class="row" style="margin-top:12px">
         <div><label>ชีพจรตอนตื่น (bpm)</label>
-          <input type="number" inputmode="numeric" id="rdRhr" min="20" max="200" placeholder="ไม่มีก็เว้นว่าง"></div>
+          <input type="number" step="any" inputmode="decimal" id="rdRhr" min="20" max="200" placeholder="ไม่มีก็เว้นว่าง"></div>
         <div><label>HRV ตอนตื่น (ms)</label>
-          <input type="number" inputmode="numeric" id="rdHrv" min="1" max="400" placeholder="ไม่มีก็เว้นว่าง"></div>
+          <input type="number" step="any" inputmode="decimal" id="rdHrv" min="1" max="400" placeholder="ไม่มีก็เว้นว่าง"></div>
       </div>
       <div class="mini" style="margin-top:5px">วัดตอนเพิ่งตื่น ยังไม่ลุกจากเตียง จะเทียบกับค่าฐานของคุณเอง ไม่ใช่ค่ามาตรฐานคนอื่น</div>
       <button class="btn p" id="rdSave">บันทึกความรู้สึก</button>
@@ -450,19 +462,19 @@ details.fold.sub .subh{margin:9px 0 5px}
   </div>
 
   <div class="card sec t" id="tdeeCard" style="display:none">
-    <h2>🔬 TDEE จริงของคุณ</h2><div id="secTdee"></div>
+    <h2><i data-ic="flask" data-sz="19"></i>TDEE จริงของคุณ</h2><div id="secTdee"></div>
   </div>
 
-  <div class="card sec f"><h2>🍽️ อาหาร</h2><div id="secFood"></div></div>
-  <div class="card sec m"><h2>🏃 ออกกำลังกาย</h2><div id="secMove"></div></div>
-  <div class="card sec sl"><h2>😴 การนอน</h2><div id="secSleep"></div></div>
-  <div class="card sec b"><h2>⚖️ ร่างกาย</h2><div id="secBody"></div></div>
+  <div class="card sec f"><h2><i data-ic="food" data-sz="19"></i>อาหาร</h2><div id="secFood"></div></div>
+  <div class="card sec m"><h2><i data-ic="run" data-sz="19"></i>ออกกำลังกาย</h2><div id="secMove"></div></div>
+  <div class="card sec sl"><h2><i data-ic="sleep" data-sz="19"></i>การนอน</h2><div id="secSleep"></div></div>
+  <div class="card sec b"><h2><i data-ic="body" data-sz="19"></i>ร่างกาย</h2><div id="secBody"></div></div>
 
   </div>
 
   <div id="viewStat" style="display:none">
   <div class="card">
-    <h2>📊 ภาพรวมสุขภาพ</h2>
+    <h2><i data-ic="chart" data-sz="19"></i>ภาพรวมสุขภาพ</h2>
     <div class="chips" id="rangeChips">
       <div class="chip on" data-d="7">1 สัปดาห์</div>
       <div class="chip" data-d="14">2 สัปดาห์</div>
@@ -493,50 +505,52 @@ details.fold.sub .subh{margin:9px 0 5px}
     <div class="hint" id="scoreTxt" style="margin-top:10px"></div>
   </div>
 
-  <!-- ลำดับ: สิ่งที่ต้องตัดสินใจก่อน → ภาพรวม → กราฟรายวัน → เรื่องเฉพาะทาง → ร่างกาย/รูป (ดูนาน ๆ ครั้ง) -->
-  <div class="card"><h2>💡 ข้อสังเกต</h2><div id="insight"></div></div>
-  <div class="card"><h2>📈 สรุปช่วงนี้</h2><div id="summary"></div></div>
+  <!-- ลำดับ: ภาพรวม → ตัวเลข → กราฟ → ข้อสังเกตเจาะลึก → เรื่องเฉพาะทาง → ร่างกาย/รูป (ดูนาน ๆ ครั้ง) -->
+  <div class="card"><h2><i data-ic="up" data-sz="19"></i>สรุปช่วงนี้</h2><div id="summary"></div></div>
 
   <!-- สถิติเทียบช่วงก่อน -->
   <div class="card">
-    <h2>📌 ตัวเลขสำคัญ <span class="tag" id="cmpLbl"></span></h2>
+    <h2><i data-ic="pin" data-sz="19"></i>ตัวเลขสำคัญ <span class="tag" id="cmpLbl"></span></h2>
     <div class="kpi" id="kpiGrid"></div>
   </div>
 
   <div class="card">
-    <h2>📅 <span id="wkTitle">7 วันล่าสุด</span> <span class="tag" id="wkTag"></span></h2>
-    <button class="btn ghost" id="stripBtn" style="margin:0 0 4px;padding:8px;font-size:13px">⚙️ เลือกตัวชี้วัดที่จะดู</button>
+    <h2><i data-ic="cal" data-sz="19"></i><span id="wkTitle">7 วันล่าสุด</span> <span class="tag" id="wkTag"></span></h2>
+    <button class="btn ghost" id="stripBtn" style="margin:0 0 4px;padding:8px;font-size:13px"><i data-ic="gear" data-sz="16"></i> เลือกตัวชี้วัดที่จะดู</button>
     <div class="chips" id="stripChips" style="margin-bottom:11px;display:none"></div>
     <div id="secWeek"></div>
   </div>
 
-  <div class="card"><h2>🥗 คุณภาพอาหารเฉลี่ย</h2>
+  <div class="card"><h2><i data-ic="bowl" data-sz="19"></i>คุณภาพอาหารเฉลี่ย</h2>
     <div class="mini">โดนัทบอกได้แค่ "พลังงานมาจากไหน" — ตัวที่บอกว่ากินดีหรือเปล่าคือแถบข้างล่าง</div>
     <div class="chart" id="c4"></div>
     <div id="statNut"></div></div>
 
-  <div class="card"><h2>🔥 แคลอรี่ เข้า vs เผา</h2><div class="chart" id="c1"></div></div>
-  <div class="card"><h2>😴 ชั่วโมงนอน</h2><div class="chart" id="c3"></div></div>
-  <div class="card"><h2>🏃 นาทีออกกำลังกาย</h2><div class="chart" id="c2"></div></div>
-  <div class="card"><h2>⚖️ 3 ด้านรวมในกราฟเดียว</h2><div class="chart" id="c5"></div>
+  <div class="card"><h2><i data-ic="flame" data-sz="19"></i>แคลอรี่ เข้า vs เผา</h2><div class="chart" id="c1"></div></div>
+  <div class="card"><h2><i data-ic="sleep" data-sz="19"></i>ชั่วโมงนอน</h2><div class="chart" id="c3"></div></div>
+  <div class="card"><h2><i data-ic="run" data-sz="19"></i>นาทีออกกำลังกาย</h2><div class="chart" id="c2"></div></div>
+  <div class="card"><h2><i data-ic="body" data-sz="19"></i>3 ด้านรวมในกราฟเดียว</h2><div class="chart" id="c5"></div>
     <div class="hint" style="margin-top:8px">เทียบเป็น % ของเป้าหมายแต่ละด้าน (100% = ทำได้ตามเป้า)</div></div>
+
+  <!-- อ่านภาพรวมกับกราฟจบแล้ว ค่อยลงรายละเอียดเจาะลึก -->
+  <div class="card"><h2><i data-ic="bulb" data-sz="19"></i>ข้อสังเกต</h2><div id="insight"></div></div>
 
   <!-- สตรีค -->
   <div class="card">
-    <h2>🔥 ความต่อเนื่อง</h2>
+    <h2><i data-ic="flame" data-sz="19"></i>ความต่อเนื่อง</h2>
     <div class="stat" id="streaks"></div>
   </div>
 
   <!-- ปฏิทินความสม่ำเสมอ -->
   <div class="card">
-    <h2>🗓️ บันทึกครบไหม</h2>
+    <h2><i data-ic="cal" data-sz="19"></i>บันทึกครบไหม</h2>
     <div class="hmap" id="heat"></div>
     <div class="hlg"><span><i style="background:var(--move)"></i>ออกกำลัง</span><span><i style="background:var(--food)"></i>กิน</span><span><i style="background:var(--sleep)"></i>นอน</span></div>
   </div>
 
   <!-- แอลกอฮอล์ -->
   <div class="card">
-    <h2>🍺 แอลกอฮอล์ <span class="tag" id="alcTag"></span></h2>
+    <h2><i data-ic="beer" data-sz="19"></i>แอลกอฮอล์ <span class="tag" id="alcTag"></span></h2>
     <div id="secAlc"></div>
     <div class="chart" id="c10" style="margin-top:13px"></div>
     <div class="hint" style="margin-top:8px">แท่ง = จำนวนฝารวมในแต่ละช่วงเวลา (1 ฝา = 30 มล. ของเหล้า 35 ดีกรี)</div>
@@ -544,7 +558,7 @@ details.fold.sub .subh{margin:9px 0 5px}
 
   <!-- ต่อจากนี้เป็นเรื่องที่ดูนาน ๆ ครั้ง — Zone 2 และร่างกาย -->
   <div class="card">
-    <h2>🫀 Zone 2 &amp; 80/20 <span class="tag" id="polTag"></span></h2>
+    <h2><i data-ic="heart" data-sz="19"></i>Zone 2 &amp; 80/20 <span class="tag" id="polTag"></span></h2>
     <div id="secPolar"></div>
     <div class="chart" id="c9" style="margin-top:14px"></div>
     <div class="hint" style="margin-top:8px">แท่งเขียว = นาทีใน Zone 2 · แท่งแดง = นาทีหนัก (Z4–Z5) · ถ้าแท่งแดงสูงใกล้เขียวบ่อยๆ แปลว่าซ้อมหนักเกินสัดส่วน</div>
@@ -552,14 +566,14 @@ details.fold.sub .subh{margin:9px 0 5px}
 
   <!-- ร่างกาย -->
   <div class="card">
-    <h2>⚖️ น้ำหนัก &amp; รอบตัว</h2>
+    <h2><i data-ic="body" data-sz="19"></i>น้ำหนัก &amp; รอบตัว</h2>
     <div class="stat" id="bStat"></div>
     <div id="bWaistBox"></div>
   </div>
-  <div class="card"><h2>📉 น้ำหนัก + เส้นเฉลี่ย 7 วัน</h2><div class="chart" id="c7"></div>
+  <div class="card"><h2><i data-ic="chart" data-sz="19"></i>น้ำหนัก + เส้นเฉลี่ย 7 วัน</h2><div class="chart" id="c7"></div>
     <div class="hint" style="margin-top:8px">จุดจาง = ที่ชั่งจริงรายวัน (แกว่งจากน้ำในตัว) · เส้นทึบ = เฉลี่ย 7 วัน ให้ดูเส้นนี้เป็นหลัก</div></div>
-  <div class="card"><h2>📏 รอบตัว</h2><div class="chart" id="c8"></div></div>
-  <div class="card"><h2>📸 เทียบรูป Progress</h2><div id="phCompare"></div></div>
+  <div class="card"><h2><i data-ic="ruler" data-sz="19"></i>รอบตัว</h2><div class="chart" id="c8"></div></div>
+  <div class="card"><h2><i data-ic="cam" data-sz="19"></i>เทียบรูป Progress</h2><div id="phCompare"></div></div>
   </div>
 </section>
 
@@ -567,14 +581,14 @@ details.fold.sub .subh{margin:9px 0 5px}
 <section class="page" id="p-move">
 
   <div class="seg" id="modeSeg">
-    <button class="on" data-m="cardio">🏃 คาร์ดิโอ</button>
-    <button data-m="weight">🏋️ เวท</button>
+    <button class="on" data-m="cardio"><i data-ic="run" data-sz="16"></i> คาร์ดิโอ</button>
+    <button data-m="weight"><i data-ic="dumb" data-sz="16"></i> เวท</button>
   </div>
 
   <!-- ---------- เวทเทรนนิ่ง ---------- -->
   <div id="weightForm" style="display:none">
     <div class="card">
-      <h2>🏋️ บันทึกเวท</h2>
+      <h2><i data-ic="dumb" data-sz="19"></i>บันทึกเวท</h2>
       <label>กลุ่มกล้ามเนื้อ</label>
       <div class="chips" id="grpChips"></div>
       <label>ท่า</label>
@@ -606,12 +620,12 @@ details.fold.sub .subh{margin:9px 0 5px}
     </div>
 
     <div class="card">
-      <details class="fold" data-fold="lst-woToday" open><summary>📋 วันนี้เล่นอะไรบ้าง <span class="fn" id="n-woToday"></span></summary>
+      <details class="fold" data-fold="lst-woToday" open><summary><i data-ic="list" data-sz="17"></i> วันนี้เล่นอะไรบ้าง <span class="fn" id="n-woToday"></span></summary>
       <div class="foldc"><div id="woToday"></div></div></details>
     </div>
 
     <div class="card">
-      <details class="fold" data-fold="wprog"><summary>📈 พัฒนาการรายท่า</summary>
+      <details class="fold" data-fold="wprog"><summary><i data-ic="up" data-sz="17"></i> พัฒนาการรายท่า</summary>
       <div class="foldc">
         <select id="progEx"></select>
         <div class="chart" id="c6"></div>
@@ -620,7 +634,7 @@ details.fold.sub .subh{margin:9px 0 5px}
     </div>
 
     <div class="card">
-      <details class="fold" data-fold="wpr"><summary>🏆 สถิติส่วนตัว (PR)</summary>
+      <details class="fold" data-fold="wpr"><summary><i data-ic="star" data-sz="17"></i> สถิติส่วนตัว (PR)</summary>
       <div class="foldc"><div id="prList"></div></div></details>
     </div>
   </div>
@@ -628,12 +642,12 @@ details.fold.sub .subh{margin:9px 0 5px}
   <!-- ---------- คาร์ดิโอ ---------- -->
   <div id="cardioForm">
   <div class="card">
-    <h2>🏃 บันทึกคาร์ดิโอ</h2>
+    <h2><i data-ic="run" data-sz="19"></i>บันทึกคาร์ดิโอ</h2>
     <label>ประเภท</label>
     <select id="exType"></select>
     <div class="row">
-      <div><label>เวลารวม (นาที)</label><input type="number" id="exMin" value="30" min="1" inputmode="numeric"></div>
-      <div><label>ระยะทาง (กม.)</label><input type="number" id="exKm" step="0.1" placeholder="ถ้ามี" inputmode="decimal"></div>
+      <div><label>เวลารวม (นาที)</label><input type="number" step="any" id="exMin" value="30" min="1" inputmode="decimal"></div>
+      <div><label>ระยะทาง (กม.)</label><input type="number" id="exKm" step="any" placeholder="ถ้ามี" inputmode="decimal"></div>
     </div>
     <details class="fold" data-fold="exZones"><summary>❤️ แยกเวลาตามโซนหัวใจ <span class="fn">ถ้านาฬิกาบอกได้ — แม่นขึ้นมาก</span></summary><div class="foldc">
       <div class="lastbox" data-nofold>กรอกเป็นนาที ระบบจะคิดความหนักและผลที่ได้ให้เอง<br><span id="hrmaxTxt"></span></div>
@@ -645,19 +659,19 @@ details.fold.sub .subh{margin:9px 0 5px}
     <input type="text" id="exNote" placeholder="เช่น วิ่งรอบสวน / ลู่ไฟฟ้า">
     <button class="btn g" id="exAdd">+ บันทึกคาร์ดิโอ</button>
   </div>
-  <div class="card"><details class="fold" data-fold="lst-exList" open><summary>🏃 คาร์ดิโอวันนี้ <span class="fn" id="n-exList"></span></summary>
+  <div class="card"><details class="fold" data-fold="lst-exList" open><summary><i data-ic="run" data-sz="17"></i> คาร์ดิโอวันนี้ <span class="fn" id="n-exList"></span></summary>
     <div class="foldc"><div id="exList"></div></div></details></div>
 
   <div class="card">
-    <h2>🫀 Zone 2 &amp; 80/20 <span class="tag">7 วันล่าสุด</span></h2>
+    <h2><i data-ic="heart" data-sz="19"></i>Zone 2 &amp; 80/20 <span class="tag">7 วันล่าสุด</span></h2>
     <div id="mvPolar"></div>
   </div>
 
   <div class="card" id="lt1Card">
-    <h2>🎯 หา Zone 2 จากความฟิตจริงของคุณ</h2>
+    <h2><i data-ic="target" data-sz="19"></i>หา Zone 2 จากความฟิตจริงของคุณ</h2>
     <div id="lt1State"></div>
 
-    <details class="fold" data-fold="lt1test"><summary>🧪 เริ่มทดสอบ <span class="fn">ใช้เวลา 25–60 นาที ทำครั้งเดียวใช้ได้ 2–3 เดือน</span></summary><div class="foldc">
+    <details class="fold" data-fold="lt1test"><summary><i data-ic="flask" data-sz="17"></i> เริ่มทดสอบ <span class="fn">ใช้เวลา 25–60 นาที ทำครั้งเดียวใช้ได้ 2–3 เดือน</span></summary><div class="foldc">
     <div class="hint" data-nofold>
       สูตรอายุกับ %HRmax เป็นค่า<b>เฉลี่ยของคนหมู่มาก</b> ไม่ใช่ของคุณ — งานวิจัยพบว่าจุด LT1 (เพดาน Zone 2)
       ของแต่ละคนไม่ได้อยู่ที่ % เดียวกันเลย แม้จะฟิตเท่ากันก็ตาม<br>
@@ -665,8 +679,8 @@ details.fold.sub .subh{margin:9px 0 5px}
     </div>
 
     <div class="tabs2" style="margin-top:13px">
-      <button class="tb on" data-lt="talk">🗣️ ทดสอบพูด</button>
-      <button class="tb" data-lt="drift">📉 ทดสอบ HR ดริฟต์</button>
+      <button class="tb on" data-lt="talk"><i data-ic="note" data-sz="16"></i> ทดสอบพูด</button>
+      <button class="tb" data-lt="drift"><i data-ic="chart" data-sz="16"></i> ทดสอบ HR ดริฟต์</button>
       <button class="tb" data-lt="man">✍️ กรอกค่าเอง</button>
     </div>
 
@@ -699,12 +713,12 @@ details.fold.sub .subh{margin:9px 0 5px}
         แต่ถ้า<b>เกิน</b> LT1 หัวใจจะไต่ขึ้นเรื่อยๆ ทั้งที่ความเร็วเท่าเดิม
       </div>
       <div class="row" style="margin-top:11px">
-        <div><label>ครึ่งแรก — HR เฉลี่ย</label><input type="number" id="dfH1" placeholder="เช่น 138" inputmode="numeric"></div>
-        <div><label>ครึ่งแรก — ระยะทาง (กม.)</label><input type="number" id="dfK1" step="0.01" placeholder="เช่น 4.20" inputmode="decimal"></div>
+        <div><label>ครึ่งแรก — HR เฉลี่ย</label><input type="number" step="any" id="dfH1" placeholder="เช่น 138" inputmode="decimal"></div>
+        <div><label>ครึ่งแรก — ระยะทาง (กม.)</label><input type="number" id="dfK1" step="any" placeholder="เช่น 4.20" inputmode="decimal"></div>
       </div>
       <div class="row">
-        <div><label>ครึ่งหลัง — HR เฉลี่ย</label><input type="number" id="dfH2" placeholder="เช่น 145" inputmode="numeric"></div>
-        <div><label>ครึ่งหลัง — ระยะทาง (กม.)</label><input type="number" id="dfK2" step="0.01" placeholder="เช่น 4.15" inputmode="decimal"></div>
+        <div><label>ครึ่งหลัง — HR เฉลี่ย</label><input type="number" step="any" id="dfH2" placeholder="เช่น 145" inputmode="decimal"></div>
+        <div><label>ครึ่งหลัง — ระยะทาง (กม.)</label><input type="number" id="dfK2" step="any" placeholder="เช่น 4.15" inputmode="decimal"></div>
       </div>
       <div class="mini">ทั้งสองครึ่งต้องใช้เวลาเท่ากัน (เช่นครึ่งละ 25 นาที) ถ้าใช้จักรยานวัดพลังงานได้ จะใส่ค่าวัตต์เฉลี่ยแทนระยะทางก็ได้</div>
       <div id="ltDriftOut"></div>
@@ -718,7 +732,7 @@ details.fold.sub .subh{margin:9px 0 5px}
         อันนี้แม่นที่สุดเท่าที่จะเป็นไปได้
       </div>
       <label>เพดาน Zone 2 / LT1 (bpm)</label>
-      <input type="number" id="ltManHr" placeholder="เช่น 142" inputmode="numeric">
+      <input type="number" step="any" id="ltManHr" placeholder="เช่น 142" inputmode="decimal">
       <label>ที่มาของค่านี้</label>
       <select id="ltManSrc">
         <option value="3">วัดจากแล็บ / แลคเตต / VO2max test</option>
@@ -739,7 +753,7 @@ details.fold.sub .subh{margin:9px 0 5px}
   </div>
 
   <div class="card">
-    <h2>🫀 Zone 2 กับหลัก 80/20 คืออะไร</h2>
+    <h2><i data-ic="heart" data-sz="19"></i>Zone 2 กับหลัก 80/20 คืออะไร</h2>
     <details class="fold" data-fold="z2doc"><summary>อ่านคำอธิบายฉบับเต็ม <span class="fn">ทฤษฎี · วิธีเช็กเอง · ปริมาณที่ควรได้</span></summary>
     <div class="foldc">
     <div class="hint">
@@ -796,7 +810,7 @@ details.fold.sub .subh{margin:9px 0 5px}
 <!-- ============ อาหาร ============ -->
 <section class="page" id="p-food">
   <div class="card">
-    <h2>🍽️ บันทึกอาหาร</h2>
+    <h2><i data-ic="food" data-sz="19"></i>บันทึกอาหาร</h2>
     <label>เวลาที่กิน</label>
     <div class="row">
       <input type="time" id="fTime">
@@ -804,7 +818,7 @@ details.fold.sub .subh{margin:9px 0 5px}
     </div>
     <div class="mini" id="fTimeTag"></div>
     <div id="favWrap" style="display:none">
-      <details class="fold" data-fold="favBox"><summary>⭐ กินบ่อย <span class="fn" id="favN"></span></summary>
+      <details class="fold" data-fold="favBox"><summary><i data-ic="star" data-sz="17"></i> กินบ่อย <span class="fn" id="favN"></span></summary>
         <div class="foldc"><div class="chips" id="favChips"></div></div></details>
     </div>
     <label>ค้นหาเมนู (พิมพ์ชื่ออาหาร)</label>
@@ -815,6 +829,7 @@ details.fold.sub .subh{margin:9px 0 5px}
     <div id="fChosen" style="display:none">
       <div class="card" style="background:var(--card2);margin:13px 0 0">
         <b id="fName"></b><div class="mini" id="fUnit"></div>
+        <div id="fOwnBox" style="display:none;margin-top:6px"></div>
         <label>ปริมาณคร่าวๆ</label>
         <div class="chips" id="qtyChips">
           <div class="chip y" data-q="0.25">¼</div>
@@ -824,8 +839,24 @@ details.fold.sub .subh{margin:9px 0 5px}
           <div class="chip y" data-q="2">2 เท่า</div>
           <div class="chip y" data-q="3">3 เท่า</div>
         </div>
-        <input type="text" id="fQty" inputmode="decimal" placeholder="หรือพิมพ์เอง เช่น 1.25  ·  150 ก.  ·  250 มล." style="margin-top:9px">
+        <div class="row" style="margin-top:9px;gap:7px">
+          <input type="number" id="fQty" step="any" inputmode="decimal" placeholder="หรือพิมพ์ตัวเลขเอง เช่น 1.25" style="flex:2 1 150px">
+          <div class="seg a" id="fUnitSeg" style="margin:0;flex:1 1 150px">
+            <button class="on" data-u="x">เท่า</button>
+            <button data-u="g">กรัม</button>
+            <button data-u="ml">มล.</button>
+          </div>
+        </div>
         <div class="mini" id="fQtyNote"></div>
+        <div id="brothBox" style="display:none;margin-top:11px">
+          <label style="margin-top:0">น้ำซุปกินแค่ไหน <span class="tag">โซเดียมส่วนใหญ่อยู่ในน้ำ</span></label>
+          <div class="seg a" id="brothSeg" style="margin:0">
+            <button data-b="1">ซดหมด</button>
+            <button class="on" data-b="0.68">ซดบ้าง</button>
+            <button data-b="0.4">ไม่ซดน้ำ</button>
+          </div>
+          <div class="mini" id="brothNote"></div>
+        </div>
         <div style="text-align:center;margin-top:13px">
           <b style="color:var(--food);font-size:26px" id="fKcal">0</b> kcal
           <div class="mini" id="fMac"></div>
@@ -841,7 +872,7 @@ details.fold.sub .subh{margin:9px 0 5px}
       <label>ปริมาณ / หน่วย</label><input type="text" id="mUnit" placeholder="เช่น 1 จาน, 150 กรัม, 1 กล่อง">
 
       <div class="seg a" id="mModeSeg" style="margin-top:13px">
-        <button class="on" data-m="est">📏 ให้ระบบประมาณ</button>
+        <button class="on" data-m="est"><i data-ic="ruler" data-sz="16"></i> ให้ระบบประมาณ</button>
         <button data-m="exact">✍️ กรอกเอง</button>
       </div>
 
@@ -867,18 +898,18 @@ details.fold.sub .subh{margin:9px 0 5px}
 
       <div id="mExact" style="display:none">
         <label>แคลอรี่ (kcal) — เว้นว่างได้ ระบบจะคิดจากสารอาหารให้</label>
-        <input type="number" id="mKcal" inputmode="numeric" placeholder="เช่น 420">
+        <input type="number" step="any" id="mKcal" inputmode="decimal" placeholder="เช่น 420">
         <div class="row">
-          <div><label>โปรตีน (ก.)</label><input type="number" id="mP" step="0.1" inputmode="decimal"></div>
-          <div><label>คาร์บ (ก.)</label><input type="number" id="mC" step="0.1" inputmode="decimal"></div>
-          <div><label>ไขมัน (ก.)</label><input type="number" id="mF" step="0.1" inputmode="decimal"></div>
+          <div><label>โปรตีน (ก.)</label><input type="number" id="mP" step="any" inputmode="decimal"></div>
+          <div><label>คาร์บ (ก.)</label><input type="number" id="mC" step="any" inputmode="decimal"></div>
+          <div><label>ไขมัน (ก.)</label><input type="number" id="mF" step="any" inputmode="decimal"></div>
         </div>
         <div class="row">
-          <div><label>ไฟเบอร์ (ก.)</label><input type="number" id="mFib" step="0.1" inputmode="decimal" placeholder="ถ้ามี"></div>
-          <div><label>โซเดียม (มก.)</label><input type="number" id="mNa" inputmode="numeric" placeholder="ถ้ามี"></div>
-          <div><label>ไขมันอิ่มตัว (ก.)</label><input type="number" id="mSat" step="0.1" inputmode="decimal" placeholder="ถ้ามี"></div>
-          <div><label>น้ำตาล (ก.)</label><input type="number" id="mSug" step="0.1" inputmode="decimal" placeholder="ถ้ามี"></div>
-          <div><label>แอลกอฮอล์ (ก.)</label><input type="number" id="mAlc" step="0.1" inputmode="decimal" placeholder="ถ้ามี"></div>
+          <div><label>ไฟเบอร์ (ก.)</label><input type="number" id="mFib" step="any" inputmode="decimal" placeholder="ถ้ามี"></div>
+          <div><label>โซเดียม (มก.)</label><input type="number" step="any" id="mNa" inputmode="decimal" placeholder="ถ้ามี"></div>
+          <div><label>ไขมันอิ่มตัว (ก.)</label><input type="number" id="mSat" step="any" inputmode="decimal" placeholder="ถ้ามี"></div>
+          <div><label>น้ำตาล (ก.)</label><input type="number" id="mSug" step="any" inputmode="decimal" placeholder="ถ้ามี"></div>
+          <div><label>แอลกอฮอล์ (ก.)</label><input type="number" id="mAlc" step="any" inputmode="decimal" placeholder="ถ้ามี"></div>
         </div>
       </div>
 
@@ -891,18 +922,13 @@ details.fold.sub .subh{margin:9px 0 5px}
       <button class="btn ghost" id="mCancel">ยกเลิก</button>
     </div>
 
-    <div class="card" id="myFoodCard" style="background:var(--card2);margin-top:13px;display:none;padding:0">
-      <details class="fold" data-fold="myFoodBox" style="margin:0;border:0;background:transparent">
-        <summary>📒 เมนูของฉัน <span class="fn"><span id="myFoodN">0</span> รายการ</span></summary>
-        <div class="foldc"><div id="myFoodList"></div></div></details>
-    </div>
-
-    <button class="btn ghost" id="copyYtd">📋 คัดลอกอาหารทั้งวันจากเมื่อวาน</button>
+    <!-- เมนูที่ผู้ใช้เพิ่มเองไม่มีกล่องแยกแล้ว — อยู่รวมในช่องค้นหาเดียวกัน และขึ้นก่อนเสมอ -->
+    <button class="btn ghost" id="copyYtd"><i data-ic="list" data-sz="16"></i> คัดลอกอาหารทั้งวันจากเมื่อวาน</button>
     <div class="hint" style="margin-top:12px">💧 ไม่รู้โปรตีน/คาร์บก็ไม่เป็นไร ระบบประมาณให้จากเมนูที่เลือก</div>
   </div>
 
   <div class="card">
-    <h2>💧 น้ำดื่มวันนี้</h2>
+    <h2><i data-ic="drop" data-sz="19"></i>น้ำดื่มวันนี้</h2>
     <div style="text-align:center"><b style="font-size:30px;color:var(--acc)" id="wMl">0</b> <span class="mini">มล. / เป้า <span id="wGoal">2000</span> มล.</span></div>
     <div class="bar" style="height:10px;margin:10px 0"><i id="wBar" style="background:var(--acc);width:0"></i></div>
     <div class="mini" id="wLeft" style="text-align:center;margin-bottom:11px"></div>
@@ -915,7 +941,7 @@ details.fold.sub .subh{margin:9px 0 5px}
       <div class="chip" data-a="1000">+1000 <small>1 ลิตร</small></div>
     </div>
     <label>หรือพิมพ์ยอดรวมทั้งวัน (มล.)</label>
-    <input type="number" id="wInput" inputmode="numeric" placeholder="เช่น 1800">
+    <input type="number" step="any" id="wInput" inputmode="decimal" placeholder="เช่น 1800">
     <div class="row" style="margin-top:9px">
       <button class="btn ghost" id="wMinus" style="margin:0">− 250</button>
       <button class="btn ghost" id="wReset" style="margin:0">ล้างเป็น 0</button>
@@ -924,14 +950,14 @@ details.fold.sub .subh{margin:9px 0 5px}
     <div class="mini" id="wDirty"></div>
   </div>
 
-  <div class="card"><details class="fold" data-fold="lst-fList" open><summary>🍽️ รายการอาหารวันนี้ <span class="fn" id="n-fList"></span></summary>
+  <div class="card"><details class="fold" data-fold="lst-fList" open><summary><i data-ic="food" data-sz="17"></i> รายการอาหารวันนี้ <span class="fn" id="n-fList"></span></summary>
     <div class="foldc"><div id="fList"></div><div id="fListNote"></div></div></details></div>
 </section>
 
 <!-- ============ นอน ============ -->
 <section class="page" id="p-sleep">
   <div class="card">
-    <h2>😴 บันทึกการนอน</h2>
+    <h2><i data-ic="sleep" data-sz="19"></i>บันทึกการนอน</h2>
     <div class="row rowtime">
       <div><label>เข้านอน</label><input type="time" id="sBed" value="23:00"></div>
       <div><label>ตื่นนอน</label><input type="time" id="sWake" value="06:30"></div>
@@ -954,27 +980,27 @@ details.fold.sub .subh{margin:9px 0 5px}
     <button class="btn p" id="sAdd">+ บันทึกการนอน</button>
     <div class="hint" style="margin-top:10px">📌 บันทึกไว้ที่ "วันที่ตื่น" — นอนคืนวันศุกร์ ตื่นเช้าวันเสาร์ ให้เลือกวันเสาร์</div>
   </div>
-  <div class="card"><details class="fold" data-fold="lst-sList" open><summary>😴 บันทึกการนอนวันนี้ <span class="fn" id="n-sList"></span></summary>
+  <div class="card"><details class="fold" data-fold="lst-sList" open><summary><i data-ic="sleep" data-sz="17"></i> บันทึกการนอนวันนี้ <span class="fn" id="n-sList"></span></summary>
     <div class="foldc"><div id="sList"></div></div></details></div>
 </section>
 
 <!-- ============ ร่างกาย ============ -->
 <section class="page" id="p-body">
   <div class="card">
-    <h2>⚖️ บันทึกตัวเลขร่างกาย</h2>
+    <h2><i data-ic="body" data-sz="19"></i>บันทึกตัวเลขร่างกาย</h2>
     <div class="row">
-      <div><label>น้ำหนัก (กก.)</label><input type="number" id="bW" step="0.1" inputmode="decimal" placeholder="เช่น 70.5"></div>
-      <div><label>ไขมัน (%) — ถ้ามี</label><input type="number" id="bFat" step="0.1" inputmode="decimal" placeholder="เว้นว่างได้"></div>
+      <div><label>น้ำหนัก (กก.)</label><input type="number" id="bW" step="any" inputmode="decimal" placeholder="เช่น 70.5"></div>
+      <div><label>ไขมัน (%) — ถ้ามี</label><input type="number" id="bFat" step="any" inputmode="decimal" placeholder="เว้นว่างได้"></div>
     </div>
     <label>รอบเอว (ซม.) <span class="tag">ตัวชี้วัดสำคัญสุด</span></label>
-    <input type="number" id="bWaist" step="0.5" inputmode="decimal" placeholder="วัดตรงระดับสะดือ">
+    <input type="number" id="bWaist" step="any" inputmode="decimal" placeholder="วัดตรงระดับสะดือ">
     <div class="row">
-      <div><label>รอบอก</label><input type="number" id="bChest" step="0.5" inputmode="decimal"></div>
-      <div><label>รอบแขน</label><input type="number" id="bArm" step="0.5" inputmode="decimal"></div>
+      <div><label>รอบอก</label><input type="number" id="bChest" step="any" inputmode="decimal"></div>
+      <div><label>รอบแขน</label><input type="number" id="bArm" step="any" inputmode="decimal"></div>
     </div>
     <div class="row">
-      <div><label>รอบสะโพก</label><input type="number" id="bHip" step="0.5" inputmode="decimal"></div>
-      <div><label>รอบต้นขา</label><input type="number" id="bThigh" step="0.5" inputmode="decimal"></div>
+      <div><label>รอบสะโพก</label><input type="number" id="bHip" step="any" inputmode="decimal"></div>
+      <div><label>รอบต้นขา</label><input type="number" id="bThigh" step="any" inputmode="decimal"></div>
     </div>
     <label>โน้ต</label><input type="text" id="bNote" placeholder="เช่น ชั่งตอนเช้าก่อนกินข้าว">
     <button class="btn" id="bAdd">+ บันทึก</button>
@@ -982,7 +1008,7 @@ details.fold.sub .subh{margin:9px 0 5px}
   </div>
 
   <div class="card">
-    <h2>📸 รูป Progress</h2>
+    <h2><i data-ic="cam" data-sz="19"></i>รูป Progress</h2>
     <input type="file" id="phFile" accept="image/*" style="display:none">
     <button class="btn ghost" id="phBtn" style="margin-top:0">+ เพิ่มรูปวันนี้</button>
     <div class="hint" style="margin-top:8px">รูปถูกย่อก่อนเก็บลง Google Sheets ของคุณเอง · ถ่ายมุมเดิม แสงเดิม ทุก 2 สัปดาห์จะเห็นความต่างชัดสุด</div>
@@ -993,9 +1019,9 @@ details.fold.sub .subh{margin:9px 0 5px}
 <!-- ============ ตั้งค่า ============ -->
 <section class="page" id="p-set">
   <div class="card">
-    <h2>🔗 เชื่อม Google Sheets <span class="tag">ทางเลือกเสริม</span></h2>
+    <h2><i data-ic="cloud" data-sz="19"></i>เชื่อม Google Sheets <span class="tag">ทางเลือกเสริม</span></h2>
     <div class="hint">ทำแล้วข้อมูลจะไม่หายตอนเปลี่ยนเครื่อง และมีระบบสำรองอัตโนมัติทุกคืน — ใช้เวลา ~5 นาที</div>
-    <button class="btn" onclick="showOnboard()" style="margin-top:11px">📖 เปิดคู่มือพาทำทีละขั้น</button>
+    <button class="btn" onclick="showOnboard()" style="margin-top:11px"><i data-ic="book" data-sz="16"></i> เปิดคู่มือพาทำทีละขั้น</button>
     <div class="mini" style="margin-top:11px">หรือถ้ามีลิงก์กับ PIN อยู่แล้ว กรอกตรงนี้ได้เลย</div>
     <label>ลิงก์ Web App (.../exec)</label>
     <input type="text" id="gasUrl" placeholder="https://script.google.com/macros/s/.../exec">
@@ -1007,21 +1033,21 @@ details.fold.sub .subh{margin:9px 0 5px}
       <div class="lastbox" style="margin-top:13px">📲 <b>ย้ายไปเครื่องอื่นแบบไม่ต้องพิมพ์</b><br>
       ตั้งค่าบนคอมเสร็จแล้ว กดปุ่มนี้เพื่อคัดลอก "ลิงก์ตั้งค่าอย่างเร็ว" แล้วส่งเข้า LINE ตัวเอง →
       เปิดลิงก์บนมือถือ แอปจะเชื่อมต่อให้อัตโนมัติ ไม่ต้องพิมพ์ลิงก์หรือ PIN เลย</div>
-      <button class="btn ghost" id="quickCopy">📋 คัดลอกลิงก์ตั้งค่าอย่างเร็ว</button>
+      <button class="btn ghost" id="quickCopy"><i data-ic="list" data-sz="16"></i> คัดลอกลิงก์ตั้งค่าอย่างเร็ว</button>
       <div class="mini" id="quickMsg"></div>
     </div>
     <div class="hint" style="margin-top:11px">🔒 ลิงก์และ PIN ถูกเก็บไว้<b>ในเครื่องนี้เท่านั้น</b> ไม่ได้อยู่ในไฟล์ที่อัปขึ้น GitHub — วางครั้งเดียว เปิดครั้งต่อไปไม่ต้องวางอีก</div>
   </div>
 
   <div class="card">
-    <h2>👤 ข้อมูลส่วนตัว</h2>
+    <h2><i data-ic="body" data-sz="19"></i>ข้อมูลส่วนตัว</h2>
     <div class="row">
       <div><label>เพศ</label><select id="uSex"><option value="m">ชาย</option><option value="f">หญิง</option></select></div>
-      <div><label>อายุ</label><input type="number" id="uAge" value="35" inputmode="numeric"></div>
+      <div><label>อายุ</label><input type="number" step="any" id="uAge" value="35" inputmode="decimal"></div>
     </div>
     <div class="row">
-      <div><label>น้ำหนัก (กก.)</label><input type="number" id="uW" value="70" step="0.1" inputmode="decimal"></div>
-      <div><label>ส่วนสูง (ซม.)</label><input type="number" id="uH" value="170" inputmode="numeric"></div>
+      <div><label>น้ำหนัก (กก.)</label><input type="number" id="uW" value="70" step="any" inputmode="decimal"></div>
+      <div><label>ส่วนสูง (ซม.)</label><input type="number" step="any" id="uH" value="170" inputmode="decimal"></div>
     </div>
     <label>ระดับกิจกรรมประจำวัน</label>
     <select id="uAct">
@@ -1044,7 +1070,7 @@ details.fold.sub .subh{margin:9px 0 5px}
   </div>
 
   <div class="card">
-    <h2>❤️ โซนหัวใจ</h2>
+    <h2><i data-ic="heart" data-sz="19"></i>โซนหัวใจ</h2>
     <label>วิธีคำนวณโซน</label>
     <select id="uZm">
       <option value="fit">🎯 ความฟิตจริงของคุณ (LT1 ที่ทดสอบเอง) — แม่นที่สุด</option>
@@ -1054,11 +1080,11 @@ details.fold.sub .subh{margin:9px 0 5px}
     </select>
     <div id="zTrust" class="hint" style="margin-top:9px"></div>
     <div class="row">
-      <div><label>ชีพจรขณะพัก (bpm)</label><input type="number" id="uRhr" placeholder="เช่น 58" inputmode="numeric"></div>
-      <div><label>HRmax ที่วัดจริง</label><input type="number" id="uHrmax" placeholder="ไม่มีก็เว้นว่าง" inputmode="numeric"></div>
+      <div><label>ชีพจรขณะพัก (bpm)</label><input type="number" step="any" id="uRhr" placeholder="เช่น 58" inputmode="decimal"></div>
+      <div><label>HRmax ที่วัดจริง</label><input type="number" step="any" id="uHrmax" placeholder="ไม่มีก็เว้นว่าง" inputmode="decimal"></div>
     </div>
     <label>LTHR (ชีพจรที่จุดล้า) — ถ้าเคยทดสอบ</label>
-    <input type="number" id="uLthr" placeholder="ไม่มีก็เว้นว่าง" inputmode="numeric">
+    <input type="number" step="any" id="uLthr" placeholder="ไม่มีก็เว้นว่าง" inputmode="decimal">
     <label>🫀 เป้าหมาย Zone 2 ต่อสัปดาห์ (นาที)</label>
     <select id="uZ2">
       <option value="150">150 นาที (2.5 ชม.) — เกณฑ์สุขภาพพื้นฐาน WHO</option>
@@ -1079,14 +1105,14 @@ details.fold.sub .subh{margin:9px 0 5px}
   </div>
 
   <div class="card" style="border-color:var(--acc)">
-    <h2>🎯 อยากให้ Zone 2 แม่นกว่านี้?</h2>
+    <h2><i data-ic="target" data-sz="19"></i>อยากให้ Zone 2 แม่นกว่านี้?</h2>
     <div class="hint">เครื่องมือทดสอบหาเพดาน Zone 2 ของตัวเอง (ทดสอบพูด / HR ดริฟต์) กับคำอธิบายเรื่อง Zone 2 และหลัก 80/20
       ย้ายไปอยู่ที่แท็บ <b>🏃 ออกกำลัง</b> แล้ว — เลื่อนลงล่างสุดของโหมดคาร์ดิโอ</div>
     <button class="btn ghost" onclick="gotoLt1()">ไปที่เครื่องมือทดสอบ →</button>
   </div>
 
   <div class="card">
-    <h2>🔔 แจ้งเตือน</h2>
+    <h2><i data-ic="star" data-sz="19"></i>แจ้งเตือน</h2>
     <div id="notiState" class="hint"></div>
     <button class="btn" id="notiAsk" style="margin-top:11px">เปิดการแจ้งเตือน</button>
 
@@ -1107,7 +1133,7 @@ details.fold.sub .subh{margin:9px 0 5px}
       <button class="btn ghost" id="nTest">ทดสอบแจ้งเตือนตอนนี้</button>
     </div>
 
-    <button class="btn ghost" id="icsBtn">📅 ดาวน์โหลดไฟล์ปฏิทินเตือน (.ics)</button>
+    <button class="btn ghost" id="icsBtn"><i data-ic="cal" data-sz="16"></i> ดาวน์โหลดไฟล์ปฏิทินเตือน (.ics)</button>
     <div class="hint" style="margin-top:11px">
       <b>เตือนได้ 3 ระดับ:</b><br>
       1. <b>ในแอป</b> — เตือนได้เฉพาะตอนเปิดแอปค้างไว้หรือเพิ่งปิดไม่นาน (ข้อจำกัดของเว็บแอปทุกตัว)<br>
@@ -1117,22 +1143,22 @@ details.fold.sub .subh{margin:9px 0 5px}
   </div>
 
   <div class="card">
-    <h2>💾 ข้อมูลและการสำรอง</h2>
+    <h2><i data-ic="cloud" data-sz="19"></i>ข้อมูลและการสำรอง</h2>
     <div class="hint" id="saveInfo">บันทึกในเครื่องแล้ว</div>
     <div class="hint" id="persistInfo" data-nofold="1" style="margin-top:4px"></div>
     <div class="hint" id="queueInfo" data-nofold="1" style="margin-top:4px"></div>
-    <button class="btn g" id="syncNow" style="margin-top:10px">🔄 ดึงข้อมูลจากชีตเดี๋ยวนี้</button>
+    <button class="btn g" id="syncNow" style="margin-top:10px"><i data-ic="cloud" data-sz="16"></i> ดึงข้อมูลจากชีตเดี๋ยวนี้</button>
     <div class="mini" id="syncInfo" data-nofold="1" style="margin-top:6px"></div>
-    <button class="btn ghost" id="expJson" style="margin-top:11px">📦 สำรองข้อมูลทั้งหมดเป็นไฟล์</button>
+    <button class="btn ghost" id="expJson" style="margin-top:11px"><i data-ic="cloud" data-sz="16"></i> สำรองข้อมูลทั้งหมดเป็นไฟล์</button>
     <input type="file" id="impFile" accept=".json" style="display:none">
-    <button class="btn ghost" id="impJson">📥 กู้คืนจากไฟล์สำรอง</button>
-    <button class="btn ghost" id="expCsv">📊 ดาวน์โหลดเป็น CSV (เปิดใน Excel)</button>
+    <button class="btn ghost" id="impJson"><i data-ic="cloud" data-sz="16"></i> กู้คืนจากไฟล์สำรอง</button>
+    <button class="btn ghost" id="expCsv"><i data-ic="chart" data-sz="16"></i> ดาวน์โหลดเป็น CSV (เปิดใน Excel)</button>
     <div class="hint" style="margin-top:9px">ข้อมูลถูกเก็บใน<b>เครื่องนี้</b>อัตโนมัติทุกครั้งที่บันทึก — ถ้าเชื่อม Google Sheets ไว้ด้วยจะส่งขึ้นคลาวด์ให้อีกชั้น<br>
     ⚠️ ถ้าล้างข้อมูลเบราว์เซอร์หรือเปลี่ยนเครื่อง ข้อมูลในเครื่องจะหาย — ควรกดสำรองเป็นไฟล์ไว้เดือนละครั้ง หรือเชื่อม Google Sheets</div>
   </div>
 
   <div class="card">
-    <h2>🧷 จุดกู้คืนอัตโนมัติ</h2>
+    <h2><i data-ic="lock" data-sz="19"></i>จุดกู้คืนอัตโนมัติ</h2>
     <div class="hint">แอปเก็บสำเนาข้อมูลไว้ให้เอง <b>วันละ 1 ชุด ย้อนหลัง 7 วัน</b> เก็บคนละที่กับข้อมูลหลัก
       และไม่เกี่ยวกับ Google Sheets เลย — ถ้าวันไหนตัวเลขเพี้ยนหรือข้อมูลหาย กดย้อนกลับได้ทันที<br>
       <span style="color:var(--dim)">ไม่รวมรูป progress (กินพื้นที่มาก) · การย้อนกลับไม่ลบรูปที่มีอยู่</span></div>
@@ -1140,7 +1166,7 @@ details.fold.sub .subh{margin:9px 0 5px}
   </div>
 
   <div class="card">
-    <h2>ℹ️ เกี่ยวกับ</h2>
+    <h2><i data-ic="book" data-sz="19"></i>เกี่ยวกับ</h2>
     <div class="hint">
       อาหารจานไทยเป็น<b>ค่าประมาณ</b>จากเมนูทั่วไป อาจต่างจากของจริง ±20% ใช้ดูแนวโน้มได้ ไม่ใช่ค่าทางการแพทย์<br>
       ส่วน<b>วัตถุดิบเดี่ยวและผลไม้</b> ใช้ค่าที่วัดจากห้องแล็บ แม่นกว่ามาก<br><br>
@@ -1164,7 +1190,7 @@ details.fold.sub .subh{margin:9px 0 5px}
 
   <!-- แผงของเจ้าของแอป — ผู้ใช้ทั่วไปมองไม่เห็น (แตะเลขเวอร์ชัน 5 ครั้งเพื่อเปิด) -->
   <div class="card" id="ownerCard" style="display:none;border-color:var(--acc)">
-    <h2>🔧 แผงเจ้าของ</h2>
+    <h2><i data-ic="gear" data-sz="19"></i>แผงเจ้าของ</h2>
     <div class="mini">ปุ่มชุดนี้ซ่อนจากผู้ใช้ทั่วไป — แตะเลขเวอร์ชัน 5 ครั้งเพื่อเปิด/ปิด</div>
     <button class="btn ghost" id="showSetup" style="margin-top:11px">ดูหน้าต้อนรับที่ผู้รับจะเห็น</button>
     <div class="lastbox" style="margin-top:11px">ลิงก์ไฟล์ต้นแบบ (TEMPLATE_URL):
@@ -1209,12 +1235,12 @@ details.fold.sub .subh{margin:9px 0 5px}
 </div>
 
 <nav>
-  <button class="on" data-p="home"><i>🏠</i>สรุป</button>
-  <button data-p="move"><i>🏃</i>ออกกำลัง</button>
-  <button data-p="food"><i>🍽️</i>อาหาร</button>
-  <button data-p="sleep"><i>😴</i>นอน</button>
-  <button data-p="body"><i>⚖️</i>ร่างกาย</button>
-  <button data-p="set"><i>⚙️</i>ตั้งค่า</button>
+  <button class="on" data-p="home"><i data-ic="home" data-sz="22"></i>สรุป</button>
+  <button data-p="move"><i data-ic="run" data-sz="22"></i>ออกกำลัง</button>
+  <button data-p="food"><i data-ic="food" data-sz="22"></i>อาหาร</button>
+  <button data-p="sleep"><i data-ic="sleep" data-sz="22"></i>นอน</button>
+  <button data-p="body"><i data-ic="body" data-sz="22"></i>ร่างกาย</button>
+  <button data-p="set"><i data-ic="gear" data-sz="22"></i>ตั้งค่า</button>
 </nav>
 
 <script>
@@ -1569,7 +1595,7 @@ function loadLocal(){
 }
 
 const APP_NAME="สุขภาพ Tracker";
-const APP_VER="5.1";
+const APP_VER="5.2";
 const GS_CODE=`/*************************************************************
  *  สุขภาพ Tracker — Google Apps Script Backend
  *  วางโค้ดนี้ใน Extensions > Apps Script ของ Google Sheets
@@ -2057,121 +2083,124 @@ function weeklySummary() {
 function setupSheets() { firstSetup(); }
 `;
 
-// ฐานข้อมูลอาหารไทย: [ชื่อ, กิโลแคลอรี่, โปรตีน(g), คาร์บ(g), ไขมัน(g), หน่วย/1 เสิร์ฟ, หมวด]
+// ฐานข้อมูลอาหารไทย: [ชื่อ, กิโลแคลอรี่, โปรตีน(g), คาร์บ(g), ไขมัน(g), หน่วย/1 เสิร์ฟ, หมวด,
+//                    ใยอาหาร(g), โซเดียม(mg), ไขมันอิ่มตัว(g), น้ำตาลอิสระ(g), แอลกอฮอล์(g), โพแทสเซียม(mg)]
+// โซเดียมของเมนู "น้ำ" (ก๋วยเตี๋ยว/ก๋วยจั๊บ/บะหมี่/เย็นตาโฟ/ราเมง) = ค่าเมื่อ "ซดน้ำหมดชาม"
+// อ้างอิงผลวัดของกรมอนามัย 2568 (ชามละ 500 ก.) — ในแอปผู้ใช้เลือกได้ว่าซดแค่ไหน แล้วคูณลดให้
 const FOODS = [
 // ===== ข้าว/เส้น จานเดียว =====
 ["ข้าวเหนียว 1 ห่อ",280,5,62,0.6,"1 ห่อ (150 ก.)","จานเดียว",1.5,5,0.2,0,0,60],
 ["ข้าวกล้อง",220,5,45,1.8,"1 ทัพพี (150 ก.)","จานเดียว",2.7,5,0.4,0,0,130],
-["ข้าวผัด",560,20,70,22,"1 จาน","จานเดียว",2.5,1200,6,4,0,450],
-["ข้าวผัดกะเพราหมูสับไข่ดาว",680,28,72,32,"1 จาน","จานเดียว",3,1500,9,4,0,600],
-["ข้าวกะเพราหมูสับ",560,25,68,20,"1 จาน","จานเดียว",3,1400,6.5,4,0,550],
-["ข้าวกะเพราไก่",520,28,66,16,"1 จาน","จานเดียว",3,1400,4.5,4,0,550],
-["ข้าวกะเพราหมูกรอบ",720,24,70,38,"1 จาน","จานเดียว",3,1600,13,5,0,600],
-["ข้าวมันไก่",600,28,72,22,"1 จาน","จานเดียว",1.5,1300,7,5,0,500],
-["ข้าวมันไก่ทอด",700,28,74,32,"1 จาน","จานเดียว",1.5,1400,10,5,0,500],
-["ข้าวหมูแดง",560,24,80,16,"1 จาน","จานเดียว",2,1500,5,18,0,500],
-["ข้าวหมูกรอบ",680,24,72,34,"1 จาน","จานเดียว",2,1500,12,6,0,520],
-["ข้าวขาหมู",700,30,75,30,"1 จาน","จานเดียว",3,1800,11,10,0,620],
-["ข้าวหมกไก่",620,26,78,22,"1 จาน","จานเดียว",3,1400,7,6,0,550],
-["ข้าวคลุกกะปิ",580,18,78,20,"1 จาน","จานเดียว",4,1700,6,16,0,600],
+["ข้าวผัด",560,20,70,22,"1 จาน","จานเดียว",2.5,1100,6,4,0,450],
+["ข้าวผัดกะเพราหมูสับไข่ดาว",680,28,72,32,"1 จาน","จานเดียว",3,1300,9,4,0,600],
+["ข้าวกะเพราหมูสับ",560,25,68,20,"1 จาน","จานเดียว",3,1200,6.5,4,0,550],
+["ข้าวกะเพราไก่",520,28,66,16,"1 จาน","จานเดียว",3,1200,4.5,4,0,550],
+["ข้าวกะเพราหมูกรอบ",720,24,70,38,"1 จาน","จานเดียว",3,1350,13,5,0,600],
+["ข้าวมันไก่",600,28,72,22,"1 จาน","จานเดียว",1.5,1184,7,5,0,500],
+["ข้าวมันไก่ทอด",700,28,74,32,"1 จาน","จานเดียว",1.5,1250,10,5,0,500],
+["ข้าวหมูแดง",560,24,80,16,"1 จาน","จานเดียว",2,1250,5,18,0,500],
+["ข้าวหมูกรอบ",680,24,72,34,"1 จาน","จานเดียว",2,1300,12,6,0,520],
+["ข้าวขาหมู",700,30,75,30,"1 จาน","จานเดียว",3,1205,11,10,0,620],
+["ข้าวหมกไก่",620,26,78,22,"1 จาน","จานเดียว",3,1200,7,6,0,550],
+["ข้าวคลุกกะปิ",580,18,78,20,"1 จาน","จานเดียว",4,1500,6,16,0,600],
 ["ข้าวไข่เจียว",520,16,60,24,"1 จาน","จานเดียว",1,700,6,1,0,300],
 ["ข้าวไข่ดาว",400,12,56,14,"1 จาน","จานเดียว",1,500,3.6,0,0,250],
-["ข้าวหน้าเป็ด",620,28,76,22,"1 จาน","จานเดียว",2,1600,7,10,0,550],
-["ข้าวผัดอเมริกัน",900,28,90,48,"1 จาน","จานเดียว",4,2200,15,12,0,800],
-["ข้าวผัดปู",620,20,74,26,"1 จาน","จานเดียว",2.5,1400,6.5,4,0,480],
-["ข้าวผัดกุ้ง",580,24,72,22,"1 จาน","จานเดียว",2.5,1300,5.5,4,0,480],
-["ข้าวราดแกงเขียวหวานไก่",600,24,70,24,"1 จาน","จานเดียว",4,1400,15,8,0,600],
-["ข้าวราดผัดกระเพราทะเล",540,26,68,18,"1 จาน","จานเดียว",3,1500,4.5,4,0,550],
-["ข้าวผัดพริกแกงหมู",640,26,68,29,"1 จาน","จานเดียว",3.5,1500,10,6,0,580],
-["ข้าวหน้าไก่เทอริยากิ",620,30,80,18,"1 จาน","จานเดียว",2,1700,4.5,18,0,550],
-["ข้าวแกงกะหรี่ญี่ปุ่นหมูทอด",850,28,100,36,"1 จาน","จานเดียว",5,2000,13,14,0,750],
-["ข้าวหน้าหมูทอด (ทงคัตสึ)",800,30,90,34,"1 จาน","จานเดียว",3,1600,11,12,0,650],
-["ข้าวหน้าเนื้อ (กิวด้ง)",650,26,85,22,"1 ชาม","จานเดียว",2.5,1700,8,16,0,550],
-["ผัดไทย",550,18,72,20,"1 จาน","จานเดียว",3.5,1300,4.5,18,0,500],
-["ผัดไทยกุ้งสด",600,24,72,22,"1 จาน","จานเดียว",3.5,1400,5,18,0,550],
-["ผัดซีอิ๊ว",560,18,70,22,"1 จาน","จานเดียว",3,1600,6,8,0,500],
-["ราดหน้าหมู",520,20,66,18,"1 จาน","จานเดียว",3.5,1600,5.5,8,0,600],
-["ผัดกระเพราหมูสับ (ไม่รวมข้าว)",320,24,8,20,"1 จาน","จานเดียว",2,1300,6.5,3,0,480],
-["ผัดมาม่า",480,12,62,18,"1 จาน","จานเดียว",3,1700,7,5,0,350],
-["สปาเก็ตตี้คาโบนาร่า",700,24,72,34,"1 จาน","จานเดียว",4,1200,16,5,0,450],
-["สปาเก็ตตี้ผัดขี้เมา",560,20,70,20,"1 จาน","จานเดียว",4,1300,5,6,0,500],
-["ข้าวต้มหมู",280,16,40,5,"1 ชาม","จานเดียว",1.5,900,1.8,2,0,400],
-["โจ๊กหมู",300,16,42,7,"1 ชาม","จานเดียว",1.5,1100,2.5,2,0,350],
+["ข้าวหน้าเป็ด",620,28,76,22,"1 จาน","จานเดียว",2,1300,7,10,0,550],
+["ข้าวผัดอเมริกัน",900,28,90,48,"1 จาน","จานเดียว",4,1900,15,12,0,800],
+["ข้าวผัดปู",620,20,74,26,"1 จาน","จานเดียว",2.5,1150,6.5,4,0,480],
+["ข้าวผัดกุ้ง",580,24,72,22,"1 จาน","จานเดียว",2.5,1150,5.5,4,0,480],
+["ข้าวราดแกงเขียวหวานไก่",600,24,70,24,"1 จาน","จานเดียว",4,1200,15,8,0,600],
+["ข้าวราดผัดกระเพราทะเล",540,26,68,18,"1 จาน","จานเดียว",3,1300,4.5,4,0,550],
+["ข้าวผัดพริกแกงหมู",640,26,68,29,"1 จาน","จานเดียว",3.5,1300,10,6,0,580],
+["ข้าวหน้าไก่เทอริยากิ",620,30,80,18,"1 จาน","จานเดียว",2,1400,4.5,18,0,550],
+["ข้าวแกงกะหรี่ญี่ปุ่นหมูทอด",850,28,100,36,"1 จาน","จานเดียว",5,1700,13,14,0,750],
+["ข้าวหน้าหมูทอด (ทงคัตสึ)",800,30,90,34,"1 จาน","จานเดียว",3,1300,11,12,0,650],
+["ข้าวหน้าเนื้อ (กิวด้ง)",650,26,85,22,"1 ชาม","จานเดียว",2.5,1400,8,16,0,550],
+["ผัดไทย",550,18,72,20,"1 จาน","จานเดียว",3.5,1150,4.5,18,0,500],
+["ผัดไทยกุ้งสด",600,24,72,22,"1 จาน","จานเดียว",3.5,1200,5,18,0,550],
+["ผัดซีอิ๊ว",560,18,70,22,"1 จาน","จานเดียว",3,1352,6,8,0,500],
+["ราดหน้าหมู",520,20,66,18,"1 จาน","จานเดียว",3.5,1400,5.5,8,0,600],
+["ผัดกระเพราหมูสับ (ไม่รวมข้าว)",320,24,8,20,"1 จาน","จานเดียว",2,1150,6.5,3,0,480],
+["ผัดมาม่า",480,12,62,18,"1 จาน","จานเดียว",3,1500,7,5,0,350],
+["สปาเก็ตตี้คาโบนาร่า",700,24,72,34,"1 จาน","จานเดียว",4,1000,16,5,0,450],
+["สปาเก็ตตี้ผัดขี้เมา",560,20,70,20,"1 จาน","จานเดียว",4,1200,5,6,0,500],
+["ข้าวต้มหมู",280,16,40,5,"1 ชาม","จานเดียว",1.5,800,1.8,2,0,400],
+["โจ๊กหมู",300,16,42,7,"1 ชาม","จานเดียว",1.5,900,2.5,2,0,350],
 ["ข้าวเปล่า+ไข่ต้ม",320,10,53,7,"1 ชุด","จานเดียว",1,130,2.2,0,0,220],
 
 // ===== ก๋วยเตี๋ยว/ซุป =====
-["ก๋วยเตี๋ยวน้ำหมู",350,18,45,10,"1 ชาม","ก๋วยเตี๋ยว",2.5,1700,3.6,4,0,450],
-["ก๋วยเตี๋ยวน้ำตก",400,20,45,14,"1 ชาม","ก๋วยเตี๋ยว",3,1800,5,5,0,520],
-["ก๋วยเตี๋ยวต้มยำ",450,20,50,18,"1 ชาม","ก๋วยเตี๋ยว",3,1900,6,12,0,550],
-["ก๋วยเตี๋ยวเรือ",380,20,44,12,"1 ชาม","ก๋วยเตี๋ยว",3,1800,4.3,6,0,500],
-["ก๋วยเตี๋ยวแห้ง",420,20,50,16,"1 ชาม","ก๋วยเตี๋ยว",2.5,1400,5.5,5,0,470],
-["เย็นตาโฟ",400,18,55,12,"1 ชาม","ก๋วยเตี๋ยว",4,1900,4,14,0,550],
-["ก๋วยเตี๋ยวเป็ดตุ๋น",450,24,50,16,"1 ชาม","ก๋วยเตี๋ยว",2.5,1900,5.5,6,0,520],
-["บะหมี่หมูแดง",420,20,55,13,"1 ชาม","ก๋วยเตี๋ยว",2.5,1500,4.5,9,0,430],
-["บะหมี่เกี๊ยวกุ้ง",400,20,52,12,"1 ชาม","ก๋วยเตี๋ยว",2.5,1600,4,5,0,420],
+["ก๋วยเตี๋ยวน้ำหมู",350,18,45,10,"1 ชาม","ก๋วยเตี๋ยว",2.5,1900,3.6,4,0,450],
+["ก๋วยเตี๋ยวน้ำตก",400,20,45,14,"1 ชาม","ก๋วยเตี๋ยว",3,2200,5,5,0,520],
+["ก๋วยเตี๋ยวต้มยำ",450,20,50,18,"1 ชาม","ก๋วยเตี๋ยว",3,2100,6,12,0,550],
+["ก๋วยเตี๋ยวเรือ",380,20,44,12,"1 ชาม","ก๋วยเตี๋ยว",3,2000,4.3,6,0,500],
+["ก๋วยเตี๋ยวแห้ง",420,20,50,16,"1 ชาม","ก๋วยเตี๋ยว",2.5,1300,5.5,5,0,470],
+["เย็นตาโฟ",400,18,55,12,"1 ชาม","ก๋วยเตี๋ยว",4,2500,4,14,0,550],
+["ก๋วยเตี๋ยวเป็ดตุ๋น",450,24,50,16,"1 ชาม","ก๋วยเตี๋ยว",2.5,1950,5.5,6,0,520],
+["บะหมี่หมูแดง",420,20,55,13,"1 ชาม","ก๋วยเตี๋ยว",2.5,1480,4.5,9,0,430],
+["บะหมี่เกี๊ยวกุ้ง",400,20,52,12,"1 ชาม","ก๋วยเตี๋ยว",2.5,1700,4,5,0,420],
 ["ก๋วยจั๊บน้ำข้น",480,18,50,22,"1 ชาม","ก๋วยเตี๋ยว",2,1900,8,3,0,480],
 ["ราเมง",550,24,65,20,"1 ชาม","ก๋วยเตี๋ยว",4,2300,7,6,0,600],
-["ก๋วยเตี๋ยวไก่มะระ",320,20,38,8,"1 ชาม","ก๋วยเตี๋ยว",3,1600,2.4,3,0,500],
-["สุกี้น้ำ",320,22,30,10,"1 ชาม","ก๋วยเตี๋ยว",4,1500,3.5,8,0,700],
-["สุกี้แห้ง",450,24,40,20,"1 จาน","ก๋วยเตี๋ยว",4,1600,6.5,9,0,700],
-["มาม่าต้มยำ (ซอง)",320,7,45,12,"1 ซอง","ก๋วยเตี๋ยว",2,1600,6,5,0,180],
-["ต้มยำกุ้งน้ำใส",180,20,10,6,"1 ถ้วย","ก๋วยเตี๋ยว",2,1400,1.8,5,0,520],
-["ต้มยำกุ้งน้ำข้น",320,20,14,20,"1 ถ้วย","ก๋วยเตี๋ยว",2,1500,11,6,0,550],
-["ต้มจืดหมูสับ",150,14,8,6,"1 ถ้วย","ก๋วยเตี๋ยว",1.5,900,2.2,2,0,400],
-["แกงจืดเต้าหู้หมูสับ",160,14,9,7,"1 ถ้วย","ก๋วยเตี๋ยว",1.5,950,2.4,2,0,420],
+["ก๋วยเตี๋ยวไก่มะระ",320,20,38,8,"1 ชาม","ก๋วยเตี๋ยว",3,1700,2.4,3,0,500],
+["สุกี้น้ำ",320,22,30,10,"1 ชาม","ก๋วยเตี๋ยว",4,1400,3.5,8,0,700],
+["สุกี้แห้ง",450,24,40,20,"1 จาน","ก๋วยเตี๋ยว",4,1400,6.5,9,0,700],
+["มาม่าต้มยำ (ซอง)",320,7,45,12,"1 ซอง","ก๋วยเตี๋ยว",2,1500,6,5,0,180],
+["ต้มยำกุ้งน้ำใส",180,20,10,6,"1 ถ้วย","ก๋วยเตี๋ยว",2,1200,1.8,5,0,520],
+["ต้มยำกุ้งน้ำข้น",320,20,14,20,"1 ถ้วย","ก๋วยเตี๋ยว",2,1300,11,6,0,550],
+["ต้มจืดหมูสับ",150,14,8,6,"1 ถ้วย","ก๋วยเตี๋ยว",1.5,800,2.2,2,0,400],
+["แกงจืดเต้าหู้หมูสับ",160,14,9,7,"1 ถ้วย","ก๋วยเตี๋ยว",1.5,850,2.4,2,0,420],
 
 // ===== กับข้าว/แกง =====
-["แกงเขียวหวานไก่",300,18,12,20,"1 ถ้วย","กับข้าว",3,1100,13,6,0,480],
-["แกงเผ็ดหมู",320,18,12,22,"1 ถ้วย","กับข้าว",3,1100,14,6,0,480],
-["แกงส้มผักรวมกุ้ง",180,16,14,6,"1 ถ้วย","กับข้าว",3.5,1300,1.2,8,0,550],
-["แกงมัสมั่นไก่",380,20,20,25,"1 ถ้วย","กับข้าว",3,1100,15,10,0,550],
-["พะแนงหมู",350,20,10,26,"1 ถ้วย","กับข้าว",2,1100,16,5,0,450],
-["ต้มข่าไก่",280,16,10,20,"1 ถ้วย","กับข้าว",1.5,1100,13,4,0,450],
-["ผัดผักบุ้งไฟแดง",120,4,10,8,"1 จาน","กับข้าว",3,900,1.6,3,0,400],
-["ผัดผักรวม",130,5,12,8,"1 จาน","กับข้าว",3.5,800,1.6,4,0,420],
-["ผัดคะน้าหมูกรอบ",320,14,12,25,"1 จาน","กับข้าว",3,1200,8.5,3,0,450],
+["แกงเขียวหวานไก่",300,18,12,20,"1 ถ้วย","กับข้าว",3,1000,13,6,0,480],
+["แกงเผ็ดหมู",320,18,12,22,"1 ถ้วย","กับข้าว",3,1000,14,6,0,480],
+["แกงส้มผักรวมกุ้ง",180,16,14,6,"1 ถ้วย","กับข้าว",3.5,1130,1.2,8,0,550],
+["แกงมัสมั่นไก่",380,20,20,25,"1 ถ้วย","กับข้าว",3,1000,15,10,0,550],
+["พะแนงหมู",350,20,10,26,"1 ถ้วย","กับข้าว",2,1000,16,5,0,450],
+["ต้มข่าไก่",280,16,10,20,"1 ถ้วย","กับข้าว",1.5,1000,13,4,0,450],
+["ผัดผักบุ้งไฟแดง",120,4,10,8,"1 จาน","กับข้าว",3,800,1.6,3,0,400],
+["ผัดผักรวม",130,5,12,8,"1 จาน","กับข้าว",3.5,700,1.6,4,0,420],
+["ผัดคะน้าหมูกรอบ",320,14,12,25,"1 จาน","กับข้าว",3,1050,8.5,3,0,450],
 ["ไข่เจียว",220,12,2,18,"1 ฟอง (จาน)","กับข้าว",0,400,4.5,0,0,160],
 ["ไข่ต้ม",78,6.3,0.6,5.3,"1 ฟอง","กับข้าว",0,62,1.6,0.6,0],   // ค่าละเอียดจาก USDA 173424
-["ไข่ตุ๋น",130,10,3,8,"1 ถ้วย","กับข้าว",0.2,600,2.5,1,0,180],
-["หมูทอดกระเทียม",380,26,6,28,"1 จาน","กับข้าว",0.5,900,9.5,2,0,450],
-["ไก่ทอด",300,24,12,18,"1 ชิ้นใหญ่","กับข้าว",0.5,700,4.5,1,0,320],
-["ไก่ย่าง",240,30,3,12,"1/4 ตัว","กับข้าว",0.2,700,3.4,2,0,400],
+["ไข่ตุ๋น",130,10,3,8,"1 ถ้วย","กับข้าว",0.2,500,2.5,1,0,180],
+["หมูทอดกระเทียม",380,26,6,28,"1 จาน","กับข้าว",0.5,750,9.5,2,0,450],
+["ไก่ทอด",300,24,12,18,"1 ชิ้นใหญ่","กับข้าว",0.5,650,4.5,1,0,320],
+["ไก่ย่าง",240,30,3,12,"1/4 ตัว","กับข้าว",0.2,600,3.4,2,0,400],
 ["ปลาทอด",280,28,4,17,"1 ตัวกลาง","กับข้าว",0,500,3.5,0,0,450],
-["ปลานึ่งมะนาว",220,32,6,8,"1 จาน","กับข้าว",1,1200,2,3,0,600],
+["ปลานึ่งมะนาว",220,32,6,8,"1 จาน","กับข้าว",1,1000,2,3,0,600],
 ["ปลาเผา",250,35,2,11,"1 ตัว","กับข้าว",0,400,2.5,0,0,620],
 ["หมูปิ้ง",90,7,4,5,"1 ไม้","กับข้าว",0,270,2.4,3,0],   // คำนวณจากส่วนผสม: หมู 35 ก. + น้ำตาล/นมข้น/กะทิ + น้ำปลา-ซีอิ๊ว
 ["ไก่ปิ้ง",80,9,2,4,"1 ไม้","กับข้าว",0,220,1.2,1.5,0],   // คำนวณจากส่วนผสม: ไก่ 35 ก. + น้ำตาลหมัก + ซีอิ๊ว
 ["ลูกชิ้นปิ้ง",120,6,10,6,"1 ไม้ (5 ลูก)","กับข้าว",0.3,700,2.4,4,0,120],
 ["ไส้กรอกอีสาน",180,8,10,12,"1 ไม้","กับข้าว",0.5,800,4.5,2,0,180],
-["ส้มตำไทย",120,4,20,3,"1 จาน","กับข้าว",4,1200,0.6,14,0,450],
-["ส้มตำปูปลาร้า",150,8,18,5,"1 จาน","กับข้าว",4,1800,1,12,0,500],
-["ลาบหมู",280,24,8,17,"1 จาน","กับข้าว",2,1100,6,2,0,480],
-["น้ำตกหมู",300,26,8,18,"1 จาน","กับข้าว",2,1100,6.5,3,0,500],
-["ยำวุ้นเส้น",250,14,28,9,"1 จาน","กับข้าว",2,1200,2.5,8,0,400],
-["ยำทะเล",220,26,14,6,"1 จาน","กับข้าว",2,1300,1.2,8,0,550],
+["ส้มตำไทย",120,4,20,3,"1 จาน","กับข้าว",4,900,0.6,14,0,450],
+["ส้มตำปูปลาร้า",150,8,18,5,"1 จาน","กับข้าว",4,1300,1,12,0,500],
+["ลาบหมู",280,24,8,17,"1 จาน","กับข้าว",2,950,6,2,0,480],
+["น้ำตกหมู",300,26,8,18,"1 จาน","กับข้าว",2,950,6.5,3,0,500],
+["ยำวุ้นเส้น",250,14,28,9,"1 จาน","กับข้าว",2,1000,2.5,8,0,400],
+["ยำทะเล",220,26,14,6,"1 จาน","กับข้าว",2,1100,1.2,8,0,550],
 ["สลัดผัก (น้ำสลัดใส)",120,4,12,6,"1 จาน","กับข้าว",3,400,1,7,0,400],
 ["สลัดอกไก่",280,30,12,12,"1 จาน","กับข้าว",3,700,2.5,6,0,650],
 ["เต้าหู้ทอด",180,12,6,12,"1 จานเล็ก","กับข้าว",1.5,350,1.8,1,0,250],
-["ปอเปี๊ยะทอด",180,5,20,9,"2 ชิ้น","กับข้าว",1.5,400,3,3,0,150],
+["ปอเปี๊ยะทอด",180,5,20,9,"2 ชิ้น","กับข้าว",1.5,350,3,3,0,150],
 ["หมูสามชั้นทอด",420,20,2,38,"100 กรัม","วัตถุดิบ",0,300,14,0,0,280],
 ["กุ้งเผา",120,24,1,2,"4 ตัว","กับข้าว",0,300,0.4,0,0,300],
-["หมูกระทะ (ต่อมื้อ)",900,50,40,60,"1 มื้อ","กับข้าว",5,2800,21,14,0,1100],
-["ชาบู (ต่อมื้อ)",700,45,45,35,"1 มื้อ","กับข้าว",6,2500,13,12,0,1200],
-["ปิ้งย่างเกาหลี (ต่อมื้อ)",950,55,45,62,"1 มื้อ","กับข้าว",5,2800,22,18,0,1200],
+["หมูกระทะ (ต่อมื้อ)",900,50,40,60,"1 มื้อ","กับข้าว",5,2500,21,14,0,1100],
+["ชาบู (ต่อมื้อ)",700,45,45,35,"1 มื้อ","กับข้าว",6,2200,13,12,0,1200],
+["ปิ้งย่างเกาหลี (ต่อมื้อ)",950,55,45,62,"1 มื้อ","กับข้าว",5,2500,22,18,0,1200],
 
 // ===== ฟาสต์ฟู้ด/ขนมปัง =====
-["แฮมเบอร์เกอร์",550,25,45,30,"1 ชิ้น","ฟาสต์ฟู้ด",3,950,11,8,0,400],
+["แฮมเบอร์เกอร์",550,25,45,30,"1 ชิ้น","ฟาสต์ฟู้ด",3,900,11,8,0,400],
 ["เฟรนช์ฟรายส์",340,4,44,17,"1 ห่อกลาง","ฟาสต์ฟู้ด",4,350,2.6,0,0,750],
 ["พิซซ่า",280,12,32,11,"1 ชิ้น","ฟาสต์ฟู้ด",2,640,5,4,0,200],
 ["ไก่ทอด KFC",290,20,12,18,"1 ชิ้น","ฟาสต์ฟู้ด",0.5,800,4,0,0,250],
-["แซนด์วิชแฮมชีส",320,15,32,14,"1 ชิ้น","ฟาสต์ฟู้ด",2,900,6,4,0,250],
+["แซนด์วิชแฮมชีส",320,15,32,14,"1 ชิ้น","ฟาสต์ฟู้ด",2,800,6,4,0,250],
 ["ขนมปังปิ้งเนยน้ำตาล",250,5,32,11,"1 แผ่น","ฟาสต์ฟู้ด",1.5,300,6,12,0,80],
 ["ครัวซองต์",270,6,30,14,"1 ชิ้น","ฟาสต์ฟู้ด",1.5,320,8,6,0,80],
 ["โดนัท",250,4,32,12,"1 ชิ้น","ฟาสต์ฟู้ด",1,250,5.5,14,0,70],
 ["ซาลาเปาไส้หมูสับ",220,9,32,6,"1 ลูก","ฟาสต์ฟู้ด",1,400,2,6,0,150],
 ["ปาท่องโก๋",90,2,10,5,"1 คู่","ฟาสต์ฟู้ด",0.4,150,2.2,0,0,30],
 ["ข้าวเหนียวหมูปิ้ง",370,12,60,9,"1 ชุด","ฟาสต์ฟู้ด",1.5,700,3,8,0,220],
-["ข้าวเหนียวไก่ทอด",520,22,62,20,"1 ชุด","ฟาสต์ฟู้ด",1.5,900,5,3,0,320],
+["ข้าวเหนียวไก่ทอด",520,22,62,20,"1 ชุด","ฟาสต์ฟู้ด",1.5,800,5,3,0,320],
 
 // ===== ผลไม้ =====
 ["กล้วยน้ำว้า 1 ผล",100,1.2,25,0.3,"1 ผล","ผลไม้",2.6,1,0.1,0,0,350],
@@ -2648,10 +2677,10 @@ const FOODS = [
 ["ซี่โครงหมูตุ๋นสุก",397,29.1,0,30.3,"100 ก.","วัตถุดิบ",0,93,11.1,0,0,320],   // 167854 pork spareribs, lean and fat, braised
 
 // ===== สเต๊กจานเสิร์ฟ (คำนวณจากส่วนผสม — ค่าประมาณ) =====
-["สเต๊กเนื้อสันนอก 1 จาน (เนื้อ 200 ก.)",700,62.0,26.0,37.0,"1 จาน","จานเดียว",2.5,1030,12.0,4.0,0],
-["สเต๊กเนื้อ ร้านทั่วไป 1 จาน (เนื้อ 120 ก. + เฟรนช์ฟรายส์)",770,41.6,54.0,39.8,"1 จาน","จานเดียว",4.6,930,11.0,6.0,0],
+["สเต๊กเนื้อสันนอก 1 จาน (เนื้อ 200 ก.)",700,62.0,26.0,37.0,"1 จาน","จานเดียว",2.5,900,12.0,4.0,0],
+["สเต๊กเนื้อ ร้านทั่วไป 1 จาน (เนื้อ 120 ก. + เฟรนช์ฟรายส์)",770,41.6,54.0,39.8,"1 จาน","จานเดียว",4.6,830,11.0,6.0,0],
 ["สเต๊กริบอาย 1 จาน (เนื้อ 250 ก.)",700,66.0,3.0,47.0,"1 จาน","จานเดียว",0.3,700,20.0,1.0,0],
-["สเต๊กหมู 1 จาน (ร้านทั่วไป)",750,45.0,52.0,40.0,"1 จาน","จานเดียว",4.5,900,12.0,6.0,0],
+["สเต๊กหมู 1 จาน (ร้านทั่วไป)",750,45.0,52.0,40.0,"1 จาน","จานเดียว",4.5,800,12.0,6.0,0],
 ["สเต๊กอกไก่ 1 จาน (ไก่ 180 ก.)",650,52.0,45.0,29.0,"1 จาน","จานเดียว",4.5,850,7.5,5.0,0],
 ["สเต๊กปลาแซลมอน 1 จาน",630,42.0,35.0,34.0,"1 จาน","จานเดียว",3.5,750,8.0,4.0,0],
 
@@ -2661,16 +2690,16 @@ const FOODS = [
 ["หมูแดดเดียวทอด 100 ก.",360,37.5,3.0,22.0,"100 ก.","วัตถุดิบ",0,1100,8.5,3.0,0],
 ["เนื้อสวรรค์",370,35.0,10.0,20.0,"100 ก.","วัตถุดิบ",0,900,8.0,9.0,0],
 ["ต้มเนื้อเปื่อย 1 ถ้วย",210,27.3,2.0,9.2,"1 ถ้วย 250 ก.","กับข้าว",0.4,700,3.3,1.0,0],
-["ต้มแซ่บเนื้อเปื่อย 1 ถ้วย",200,25.0,4.0,9.0,"1 ถ้วย 250 ก.","กับข้าว",0.8,900,3.3,1.0,0],
-["ก๋วยเตี๋ยวเนื้อตุ๋น 1 ชาม",380,27.5,34.0,11.6,"1 ชาม","ก๋วยเตี๋ยว",1.8,1600,4.5,3.0,0],
-["แกงมัสมั่นเนื้อ 1 ถ้วย",480,30.0,19.0,30.5,"1 ถ้วย","กับข้าว",2.0,900,18.0,6.0,0],
-["พะโล้เนื้อ 1 ถ้วย",290,33.0,10.0,12.5,"1 ถ้วย","กับข้าว",0.2,1100,4.5,8.0,0],
+["ต้มแซ่บเนื้อเปื่อย 1 ถ้วย",200,25.0,4.0,9.0,"1 ถ้วย 250 ก.","กับข้าว",0.8,850,3.3,1.0,0],
+["ก๋วยเตี๋ยวเนื้อตุ๋น 1 ชาม",380,27.5,34.0,11.6,"1 ชาม","ก๋วยเตี๋ยว",1.8,1950,4.5,3.0,0],
+["แกงมัสมั่นเนื้อ 1 ถ้วย",480,30.0,19.0,30.5,"1 ถ้วย","กับข้าว",2.0,1000,18.0,6.0,0],
+["พะโล้เนื้อ 1 ถ้วย",290,33.0,10.0,12.5,"1 ถ้วย","กับข้าว",0.2,1000,4.5,8.0,0],
 ["สตูว์เนื้อ 1 ถ้วย",350,29.0,25.0,14.0,"1 ถ้วย","กับข้าว",2.5,750,5.0,4.0,0],
 ["ซี่โครงวัวตุ๋นซอสบาร์บีคิว 1 ชิ้น",430,34.0,14.0,26.5,"1 ชิ้น ~150 ก.","กับข้าว",0.3,570,12.0,12.0,0],
-["เนื้อย่างจิ้มแจ่ว 1 จาน",360,44.5,7.0,14.5,"1 จาน (เนื้อ 150 ก.)","กับข้าว",0.5,1000,5.5,3.0,0],
-["เนื้อผัดน้ำมันหอย 1 จาน",345,28.0,9.0,21.0,"1 จาน","กับข้าว",2.0,1500,6.0,2.0,0],
-["ยำเนื้อย่าง 1 จาน",250,29.0,9.0,9.0,"1 จาน","กับข้าว",1.8,900,3.5,4.0,0],
-["เนื้อย่างเกาหลี (บุลโกกิ) 1 จาน",490,38.0,17.0,28.0,"1 จาน","กับข้าว",0.8,1000,9.0,13.0,0],
+["เนื้อย่างจิ้มแจ่ว 1 จาน",360,44.5,7.0,14.5,"1 จาน (เนื้อ 150 ก.)","กับข้าว",0.5,850,5.5,3.0,0],
+["เนื้อผัดน้ำมันหอย 1 จาน",345,28.0,9.0,21.0,"1 จาน","กับข้าว",2.0,1300,6.0,2.0,0],
+["ยำเนื้อย่าง 1 จาน",250,29.0,9.0,9.0,"1 จาน","กับข้าว",1.8,850,3.5,4.0,0],
+["เนื้อย่างเกาหลี (บุลโกกิ) 1 จาน",490,38.0,17.0,28.0,"1 จาน","กับข้าว",0.8,900,9.0,13.0,0],
 
 // ===== ปิ้งย่างเป็นไม้/เป็นชิ้น (คำนวณจากส่วนผสม — ค่าประมาณ) =====
 ["หมูปิ้งไม้ใหญ่",165,12.5,6.0,9.5,"1 ไม้ ~60 ก.","กับข้าว",0,480,4.2,5.5,0],
@@ -3155,6 +3184,70 @@ function newTs(){ let t=Date.now(); if(t<=_lastTs) t=_lastTs+1; _lastTs=t; retur
 function today(){const d=new Date();return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate());}
 function p2(n){return String(n).padStart(2,"0");}
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+/* ============================================================
+   ชุดไอคอนของแอป — วาดเองทั้งหมด ไม่ได้โหลดจากที่ไหน
+   ใช้เส้นหนาเท่ากันและปลายมนแบบเดียวกับไอคอนแอป จะได้เป็นชุดเดียวกันทั้งแอป
+   สีตาม currentColor จึงเปลี่ยนตามธีมสว่าง/มืดเองโดยไม่ต้องมีสองชุด
+   ============================================================ */
+const IC={
+ home:'<path d="M3 10.6 12 3l9 7.6V20a1.5 1.5 0 0 1-1.5 1.5H15V15H9v6.5H4.5A1.5 1.5 0 0 1 3 20z"/>',
+ run:'<circle cx="15.6" cy="4.6" r="1.9"/><path d="M8 21.2 11 16l-2.6-3 1-4.9 4 2L16 12.6h4"/><path d="m5.4 9.6 4-1.5"/>',
+ food:'<path d="M6 3v6a2 2 0 0 0 4 0V3M8 11v10"/><path d="M17.6 3c-1.5 1.5-2.1 3.5-1.9 5.6.1 1.3.8 2.1 1.9 2.4V21"/>',
+ sleep:'<path d="M20.5 14.6A8.5 8.5 0 1 1 9.9 4a6.8 6.8 0 0 0 10.6 10.6z"/>',
+ body:'<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7.6 11.4a5 5 0 0 1 8.8 0"/><path d="m12 11.4 2.2-2.4"/>',
+ gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2.2v2.3M12 19.5v2.3M4.8 4.8l1.6 1.6M17.6 17.6l1.6 1.6M2.2 12h2.3M19.5 12h2.3M4.8 19.2l1.6-1.6M17.6 6.4l1.6-1.6"/>',
+ chart:'<path d="M3 21h18"/><path d="M6.5 21v-8M12 21V5.5M17.5 21v-5.5"/>',
+ up:'<path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
+ cal:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10.5h18"/>',
+ pin:'<path d="M12 21.5V15"/><path d="M9 2.5h6l-1 6.2 3 3V14H7v-2.3l3-3z"/>',
+ heart:'<path d="M12 20.3s-7-4.4-7-9.4A4.1 4.1 0 0 1 12 7.2a4.1 4.1 0 0 1 7 3.7c0 5-7 9.4-7 9.4z"/>',
+ beer:'<path d="M6 8h8v12.5H6z"/><path d="M14 10.5h2.8a2.8 2.8 0 0 1 0 5.5H14"/><path d="M6 8a3 3 0 0 1 2.9-3 3 3 0 0 1 5-1 3 3 0 0 1 .1 4"/>',
+ flame:'<path d="M12 21.2c3.3 0 6-2.5 6-5.7 0-3.6-3.4-5.4-4-9.5-2 1.6-3 3.5-3 5.5-1-.6-1.6-1.6-1.8-2.9C7.6 10.3 6 12.7 6 15.5c0 3.2 2.7 5.7 6 5.7z"/>',
+ ruler:'<rect x="2.5" y="9" width="19" height="6" rx="2"/><path d="M7 9v2.6M12 9v3.6M17 9v2.6"/>',
+ cam:'<rect x="3" y="7" width="18" height="13.5" rx="3"/><circle cx="12" cy="13.7" r="3.4"/><path d="m8.6 7 1.2-2.5h4.4L15.4 7"/>',
+ bulb:'<path d="M9.6 18.2h4.8M10.4 21h3.2"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2h5c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/>',
+ bowl:'<path d="M3 11.5h18a9 9 0 0 1-18 0z"/><path d="M6.5 8.5c.8-2 2.8-2.6 3.9-1.6M12.6 7c.4-2 2.4-3 3.9-2.6"/>',
+ drop:'<path d="M12 3.2s6 6.5 6 10.2a6 6 0 1 1-12 0c0-3.7 6-10.2 6-10.2z"/>',
+ flask:'<path d="M9 3h6M10.2 3v6.4L5.6 18A2 2 0 0 0 7.4 21h9.2a2 2 0 0 0 1.8-3l-4.6-8.6V3"/><path d="M7.6 15.2h8.8"/>',
+ note:'<path d="M4 20.5h16"/><path d="m14.6 4.4 3 3L9 16l-4 1 1-4z"/>',
+ dumb:'<path d="M3 9.5v5M6 7v10M18 7v10M21 9.5v5M6 12h12"/>',
+ book:'<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15.5H6.5A2.5 2.5 0 0 0 4 21z"/><path d="M4 21a2.5 2.5 0 0 1 2.5-2.5H19"/>',
+ star:'<path d="m12 3.2 2.6 5.6 6 .8-4.4 4.3 1.1 6-5.3-2.9-5.3 2.9 1.1-6-4.4-4.3 6-.8z"/>',
+ target:'<circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="4.2"/><circle cx="12" cy="12" r="1"/>',
+ cloud:'<path d="M7 18.5h10.2a4.2 4.2 0 0 0 .4-8.4A6.2 6.2 0 0 0 5.9 11 3.7 3.7 0 0 0 7 18.5z"/>',
+ lock:'<rect x="4.5" y="10" width="15" height="10.5" rx="2.5"/><path d="M8 10V7.6a4 4 0 0 1 8 0V10"/>',
+ clock:'<circle cx="12" cy="13.2" r="8"/><path d="M12 9.2v4l2.6 2M9 2.2h6"/>',
+ list:'<rect x="6" y="4" width="12" height="17" rx="2.5"/><path d="M9.6 4V3h4.8v1"/><path d="M9.4 10h5.2M9.4 14h5.2"/>',
+ /* --- ตัวชี้วัดอาหาร --- */
+ egg:'<path d="M12 21c-3.3 0-6-2.6-6-5.9C6 10.6 8.7 6 12 6s6 4.6 6 9.1C18 18.4 15.3 21 12 21z"/>',
+ rice:'<path d="M3 12.5h18a9 9 0 0 1-18 0z"/><path d="M12 9V5.6M8.8 9.6V7M15.2 9.6V7"/>',
+ avo:'<path d="M12 3.2c-3 3-5 6.2-5 9.3a5 5 0 0 0 10 0c0-3.1-2-6.3-5-9.3z"/><circle cx="12" cy="14" r="2.1"/>',
+ butter:'<rect x="3.5" y="9" width="17" height="8" rx="1.6"/><path d="M3.5 12.4h17"/>',
+ candy:'<rect x="8" y="8.8" width="8" height="6.4" rx="2.2"/><path d="M8 12 4 8.6v6.8zM16 12l4-3.4v6.8z"/>',
+ leaf:'<path d="M4 20.2c8.4 2 16.2-4.2 16.2-14.4C11.8 3.8 4 10 4 20.2z"/><path d="M4 20.2 14.4 9.8"/>',
+ salt:'<path d="M7.6 21 9.1 9.4h5.8L16.4 21z"/><path d="M9.3 9.4a2.7 2.7 0 0 1 5.4 0"/><path d="M10.8 5.4V6M13.2 5.4V6M12 4v.7"/>',
+ banana:'<path d="M4.6 6c0 7.4 5.4 12.6 12.4 12.6 1.7 0 2.8-.5 3.2-1.5-3.6-.4-6.5-2.1-8.4-4.6-1.7-2.3-2.6-4.6-2.6-6.9C8 5.3 6.2 5.4 4.6 6z"/>',
+ sunrise:'<path d="M12 3.5v3M5 8.5 7 10M19 8.5 17 10M3 15h3M18 15h3"/><path d="M8 15a4 4 0 0 1 8 0"/><path d="M3 19.5h18"/>',
+ sun:'<circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.4M12 19v2.4M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2.6 12H5M19 12h2.4M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/>',
+ cookie:'<circle cx="12" cy="12" r="8.4"/><circle cx="9.6" cy="10" r="1"/><circle cx="14.3" cy="9.4" r="1"/><circle cx="12.4" cy="14.6" r="1"/>',
+ night:'<path d="M20.5 14.6A8.5 8.5 0 1 1 9.9 4a6.8 6.8 0 0 0 10.6 10.6z"/><path d="M6.5 4.2v1.6M5.7 5h1.6"/>',
+ scale:'<path d="M12 4.2v16.6M7 20.8h10M5 8.6h14"/><path d="m5 8.6-2.6 6.2h5.2zM19 8.6l-2.6 6.2h5.2"/>',
+};
+function ic(n,sz){
+  const p=IC[n]; if(!p) return "";
+  const s=sz||18;
+  return `<svg class="ic" viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor"
+    stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+}
+/* ใน HTML เขียนแค่ <i data-ic="ชื่อ"></i> แล้วเติมรูปให้ตรงนี้
+   เขียนซ้ำได้ปลอดภัย (ตัวที่เติมแล้วจะไม่ว่าง จึงถูกข้าม) จึงเรียกหลังวาดใหม่ได้ทุกครั้ง */
+function paintIcons(root){
+  (root||document).querySelectorAll("i[data-ic]:empty").forEach(e=>{
+    e.innerHTML=ic(e.dataset.ic, +e.dataset.sz||18);
+  });
+}
+paintIcons();   /* สคริปต์อยู่ท้าย body แล้ว DOM พร้อมใช้ตั้งแต่ตอนนี้ */
 function el(id){return document.getElementById(id);}
 function n1(v){return Math.round(v*10)/10;}
 
@@ -3329,6 +3422,7 @@ document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
   b.classList.add("on"); el("p-"+b.dataset.p).classList.add("on");
   window.scrollTo(0,0);
   if(b.dataset.p==="body") renderBody();
+  fitSoon();          /* ช่องเวลาที่เพิ่งถูกแสดง ต้องวัดความกว้างตอนนี้ ตอนซ่อนอยู่วัดไม่ได้ */
 });
 
 el("dateSel").value = S.date;
@@ -3505,7 +3599,7 @@ function woName(){
 function drawSets(){
   el("setRows").innerHTML=S.sets.map((s0,i)=>`<div class="setrow">
     <div class="no">${i+1}</div>
-    <input type="number" inputmode="decimal" step="0.5" value="${s0[0]||""}" placeholder="นน." data-i="${i}" data-f="0">
+    <input type="number" inputmode="decimal" step="any" value="${s0[0]||""}" placeholder="นน." data-i="${i}" data-f="0">
     <div class="u">กก. ×</div>
     <input type="number" inputmode="numeric" value="${s0[1]||""}" placeholder="ครั้ง" data-i="${i}" data-f="1">
     <div class="u">ครั้ง</div>
@@ -3620,7 +3714,7 @@ fillExList(); drawSets();
 function nowHHMM(){const d=new Date();return p2(d.getHours())+":"+p2(d.getMinutes());}
 function mealOf(t){const h=+String(t||"12:00").split(":")[0];
   return h<10.5?"เช้า":h<15?"กลางวัน":h<21?"เย็น":"ดึก";}
-function mealIcon(m){return {"เช้า":"🌅","กลางวัน":"☀️","เย็น":"🌙","ดึก":"🌌","ว่าง":"🍪"}[m]||"🍽️";}
+function mealIcon(m){return ic({"เช้า":"sunrise","กลางวัน":"sun","เย็น":"sleep","ดึก":"night","ว่าง":"cookie"}[m]||"food",15);}
 function setTime(t){S.time=t; el("fTime").value=t; S.meal=mealOf(t);
   el("fTimeTag").innerHTML=`${mealIcon(S.meal)} ระบบจัดให้เป็นมื้อ <b>${esc(S.meal)}</b> อัตโนมัติ (แก้เวลาได้ตามจริง)`;}
 el("fTime").onchange=e=>setTime(e.target.value);
@@ -3744,22 +3838,37 @@ function naK(na,pot){ return pot? n1(na/pot) : null; }
    ค่าที่บันทึกไว้เป็น 0 คือ "วัดแล้วได้ศูนย์" ไม่ใช่ "ไม่มีข้อมูล" — ห้ามเอาค่าประมาณไปทับ
    (ไม่งั้นน้ำมันมะกอกที่โซเดียม 0 จะโดนเดาเป็น 400 มก.) */
 const NUTK=["fiber","sodium","sat","sugar","alc"];
+/* ลำดับความน่าเชื่อถือ: ฐานข้อมูลเมนู → ค่าที่บันทึกไว้ในรายการ → ค่าประมาณจากชนิดอาหาร
+   ฐานข้อมูลมาก่อน เพราะเมื่อเราแก้ค่าให้แม่นขึ้น รายการเก่าต้องดีขึ้นตามด้วย
+   ไม่งั้นค่าประมาณผิด ๆ ที่เคยถูกบันทึกไว้จะค้างอยู่ตลอดไป */
 function nutRow(b){
   const f=findFood(b.name), cat=f?f[6]:"";
+  const q=+b.qty||1;
+  const bf=(+b.broth>0&&+b.broth<=1)?+b.broth:1;      /* ซดน้ำซุปแค่ไหน — มีผลเฉพาะโซเดียม */
+  /* เทียบขนาดจาก "แคลอรี่ที่บันทึกไว้ ÷ แคลอรี่ต่อหน่วยในฐานข้อมูล" ไม่ใช่ช่อง qty
+     เพราะบันทึกเก่าบางรายการไม่มี qty และผู้ใช้แก้แคลอรี่เองได้ — ใช้แคลจึงตรงกับของจริงเสมอ */
+  const ratio=(f && +f[1]>0 && +b.kcal>0) ? (+b.kcal/+f[1]) : q;
   const has=k=>(b[k]!==undefined&&b[k]!=="");
-  const pick=(k,est)=>has(k)?(+b[k]||0):est;
-  const kk=potRow(b);
-  return {
-    fiber : pick("fiber", fiberOf(b.name,+b.carb||0,cat)),
-    sodium: pick("sodium",sodiumOf(b.name,cat)),
-    sat   : pick("sat",   satOf(b.name,+b.fat||0,cat)),
-    sugar : pick("sugar", sugarOf(b.name,+b.carb||0,cat)),
-    alc   : pick("alc",   alcOf(b.name)),
-    pot   : kk.mg,
-    potLab: kk.lab,
-    /* จำนวนช่องที่ยังเป็นค่าประมาณ — เอาไว้บอกผู้ใช้ว่าตัวเลขนี้เชื่อได้แค่ไหน */
-    est   : NUTK.filter(k=>!has(k)).length + (kk.lab?0:1)
+  const db=i=>(f && f[i]!==undefined && f[i]!=="") ? (+f[i]||0)*ratio : null;
+  const src={};
+  const pick=(k,i,est)=>{
+    const v=db(i); if(v!==null){ src[k]="db"; return v; }
+    if(has(k)){ src[k]="rec"; return +b[k]||0; }
+    src[k]="est"; return est;
   };
+  const kk=potRow(b);
+  const o={
+    fiber : pick("fiber", 7,fiberOf(b.name,+b.carb||0,cat)),
+    sodium: pick("sodium",8,sodiumOf(b.name,cat))*bf,
+    sat   : pick("sat",   9,satOf(b.name,+b.fat||0,cat)),
+    sugar : pick("sugar",10,sugarOf(b.name,+b.carb||0,cat)),
+    alc   : pick("alc",  11,alcOf(b.name)),
+    pot   : kk.mg,
+    potLab: kk.lab, broth:bf, src,
+  };
+  /* จำนวนช่องที่ยังเป็นค่าประมาณ — เอาไว้บอกผู้ใช้ว่าตัวเลขนี้เชื่อได้แค่ไหน */
+  o.est = NUTK.filter(k=>src[k]==="est").length + (kk.lab?0:1);
+  return o;
 }
 /* เมนูที่ให้สารตัวนั้นมากที่สุดของวัน — ใช้ชี้ตัวจริงแทนการเดาว่า "ของทอด/กะทิ" */
 function topSrc(fd,key,n){
@@ -3815,15 +3924,70 @@ function parseQty(txt,unit){
   if(rest==="") return {q:n,why:"ตัวคูณ"};
   return {q:null,why:'พิมพ์ได้แค่ตัวเลข หรือ ตัวเลข+หน่วย เช่น "150 ก."'};
 }
-el("fQty").oninput=e=>{
+/* ---------- น้ำซุป: ตัวแปรเดียวที่คุมโซเดียมได้จริงในอาหารไทย ----------
+   กรมอนามัยวัดก๋วยเตี๋ยวชามละ 500 ก. ได้โซเดียม 1,400–2,700 มก. ต่อชาม "เมื่อซดน้ำหมด"
+   ค่าที่เก็บในฐานข้อมูลของเมนูน้ำจึงเป็นแบบซดหมด แล้วให้ผู้ใช้เลือกว่าซดแค่ไหน
+   (น้ำซุปกินโซเดียมราว 60% ของทั้งชาม — ไม่ซดน้ำจึงลดได้มาก) */
+const SOUPRE=/ก๋วยเตี๋ยว|ก๋วยจั๊บ|บะหมี่|เย็นตาโฟ|ราเมง|เกาเหลา|สุกี้น้ำ/;
+function isSoup(name,cat){
+  const n=String(name||"");
+  if(/แห้ง/.test(n)) return false;
+  return SOUPRE.test(n) || (cat==="ก๋วยเตี๋ยว" && !/ต้มจืด|แกงจืด|ต้มยำ/.test(n));
+}
+let brothF=0.68;
+function brothSync(){
+  const on=!!S.chosen && isSoup(S.chosen[0],S.chosen[6]);
+  el("brothBox").style.display=on?"block":"none";
+  if(!on){ brothF=1; return; }
+  brothF=+(el("brothSeg").querySelector("button.on")||{dataset:{b:"0.68"}}).dataset.b||0.68;
+  brothNote();
+}
+function brothNote(){
   if(!S.chosen) return;
-  const r=parseQty(e.target.value,S.chosen[5]);
+  const f=S.chosen, full=(f[8]!==undefined?+f[8]:sodiumOf(f[0],f[6]))*(S.qty||1);
+  el("brothNote").innerHTML=`โซเดียมที่จะบันทึก <b style="color:${full*brothF>=1200?"var(--bad)":"var(--txt)"}">${Math.round(full*brothF).toLocaleString()}</b> มก.`
+    + (brothF<1?` <span style="color:var(--move)">(ลดจาก ${Math.round(full).toLocaleString()})</span>`:"");
+}
+el("brothSeg").onclick=e=>{
+  const b=e.target.closest("button"); if(!b) return;
+  el("brothSeg").querySelectorAll("button").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on"); brothF=+b.dataset.b||1; brothNote();
+};
+/* หน่วยเลือกด้วยปุ่ม ไม่ต้องพิมพ์ — คีย์บอร์ดตัวเลขบนมือถือไม่มีตัวอักษรไทยให้พิมพ์ "ก." อยู่แล้ว */
+let fUnitMode="x";
+function fQtyApply(){
+  if(!S.chosen) return;
+  const raw=el("fQty").value;
+  if(String(raw).trim()===""){ el("fQtyNote").textContent=""; return; }
+  const suffix={x:"",g:" ก.",ml:" มล."}[fUnitMode]||"";
+  const r=parseQty(raw+suffix,S.chosen[5]);
   if(!r){ el("fQtyNote").textContent=""; return; }
   if(r.q===null){ el("fQtyNote").innerHTML=`<span style="color:var(--bad)">${esc(r.why)}</span>`; return; }
   el("qtyChips").querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));
   S.qty=r.q; el("fQtyNote").textContent="= "+n1(r.q)+" × "+S.chosen[5]+"  ("+r.why+")";
   fPreview();
+}
+el("fQty").oninput=fQtyApply;
+el("fUnitSeg").onclick=e=>{
+  const b=e.target.closest("button"); if(!b) return;
+  el("fUnitSeg").querySelectorAll("button").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on"); fUnitMode=b.dataset.u;
+  el("fQty").placeholder = fUnitMode==="x" ? "หรือพิมพ์ตัวเลขเอง เช่น 1.25"
+                        : fUnitMode==="g" ? "น้ำหนักเป็นกรัม เช่น 150" : "ปริมาตรเป็นมล. เช่น 250";
+  fQtyApply();
 };
+/* เมนูไหนไม่ได้บอกน้ำหนักต่อหน่วย ก็เลือกกรัม/มล. ไม่ได้ — ปิดปุ่มไว้ ไม่ให้กดแล้วงงว่าทำไมไม่ขึ้น */
+function fUnitSegSync(){
+  const per=S.chosen?unitGrams(S.chosen[5]):0;
+  el("fUnitSeg").querySelectorAll("button").forEach(b=>{
+    const off = b.dataset.u!=="x" && !per;
+    b.disabled=off; b.style.opacity=off?".38":"";
+  });
+  if(!per && fUnitMode!=="x"){
+    fUnitMode="x";
+    el("fUnitSeg").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x.dataset.u==="x"));
+  }
+}
 
 function ALLFOODS(){
   return FOODS.concat(S.myfood.map(m=>[m.name,+m.kcal||0,+m.protein||0,+m.carb||0,+m.fat||0,m.unit||"1 ที่","ของฉัน",+m.fiber||0,+m.sodium||0,+m.sat||0,+m.sugar||0,
@@ -3836,7 +4000,9 @@ function foodMap(){
   const n=arr(S.myfood).length;
   if(_foodMap && _foodMapN===n) return _foodMap;
   const m=new Map();
-  ALLFOODS().forEach(f=>{ if(!m.has(f[0])) m.set(f[0],f); });
+  /* ชื่อชนกัน → เมนูที่ผู้ใช้เพิ่มเองต้องชนะเมนูสำเร็จรูปเสมอ เพราะเป็นตัวเลขที่เขาตั้งใจใส่เอง
+     (ALLFOODS เรียงของสำเร็จรูปมาก่อน จึงต้องให้ของทีหลังเขียนทับ) */
+  ALLFOODS().forEach(f=>{ m.set(f[0],f); });
   _foodMapN=n;
   return _foodMap=m;
 }
@@ -3878,28 +4044,36 @@ el("fPick").onclick=e=>{
   el("fChosen").style.display="block";
   el("fName").textContent=S.chosen[0];
   const per=unitGrams(S.chosen[5]);
-  el("fUnit").textContent="1 หน่วย = "+S.chosen[5]+(per?" (พิมพ์เป็นกรัมได้)":"");
+  el("fUnit").textContent="1 หน่วย = "+S.chosen[5]+(per?` (≈ ${per} ${/มล\.|ml/i.test(S.chosen[5])?"มล.":"ก."})`:"");
   S.qty=1; el("fQty").value=""; el("fQtyNote").textContent="";
   el("qtyChips").querySelectorAll(".chip").forEach(x=>x.classList.toggle("on",x.dataset.q==="1"));
-  fPreview();
+  /* เมนูที่ผู้ใช้เพิ่มเอง — ให้ลบได้จากตรงนี้ แทนที่จะมีกล่อง "เมนูของฉัน" แยกอีกกล่อง */
+  const mine=S.chosen[6]==="ของฉัน" ? arr(S.myfood).find(m=>m.name===S.chosen[0]) : null;
+  el("fOwnBox").style.display=mine?"block":"none";
+  if(mine) el("fOwnBox").innerHTML=`<span class="tag">📒 เมนูที่คุณเพิ่มเอง</span>
+    <button class="del" style="font-size:13px" onclick="delMyFood(${mine.ts})">✕ ลบเมนูนี้</button>`;
+  fUnitSegSync(); brothSync(); fPreview();
 };
 function fPreview(){
   if(!S.chosen)return;
   const f=S.chosen,q=S.qty;
   el("fKcal").textContent=Math.round(f[1]*q);
   el("fMac").textContent=`โปรตีน ${n1(f[2]*q)} ก. · คาร์บ ${n1(f[3]*q)} ก. · ไขมัน ${n1(f[4]*q)} ก.`;
+  brothNote();
 }
 el("fClear").onclick=()=>{S.chosen=null;el("fChosen").style.display="none";
   S.qty=1;el("fQty").value="";el("fQtyNote").textContent="";};
 el("fAdd").onclick=async()=>{
   const f=S.chosen,q=S.qty;if(!f)return;
+  const bf=isSoup(f[0],f[6])?brothF:1;
   const r={date:S.date,time:S.time,meal:S.meal,name:f[0],qty:q,unit:f[5],
     kcal:Math.round(f[1]*q),protein:n1(f[2]*q),carb:n1(f[3]*q),fat:n1(f[4]*q),
     fiber:n1((f[7]!==undefined?f[7]:fiberOf(f[0],f[3],f[6]))*q),
-    sodium:Math.round((f[8]!==undefined?f[8]:sodiumOf(f[0],f[6]))*q),
+    sodium:Math.round((f[8]!==undefined?f[8]:sodiumOf(f[0],f[6]))*q*bf),
     sat:n1((f[9]!==undefined?f[9]:satOf(f[0],f[4],f[6]))*q),
     sugar:n1((f[10]!==undefined?f[10]:sugarOf(f[0],f[3],f[6]))*q),
     alc:n1((f[11]!==undefined?f[11]:alcOf(f[0]))*q),ts:newTs()};
+  if(bf!==1) r.broth=bf;
   S.food.push(r);S.chosen=null;el("fChosen").style.display="none";
   render(); await api({action:"add",sheet:"Food",row:r});
 };
@@ -3965,20 +4139,16 @@ el("mAdd").onclick=async()=>{
   el("mPreview").innerHTML=""; el("fSearch").value=""; el("fManual").style.display="none";
   render(); await api({action:"add",sheet:"Food",row:r});
 };
+/* เมนูที่ผู้ใช้เพิ่มเองไม่มีกล่องแยกอีกแล้ว — ค้นเจอในช่องค้นหาปกติ (และขึ้นก่อนเสมอ)
+   ฟังก์ชันนี้เหลือหน้าที่เดียวคือทำความสะอาดรายการและล้างแคชการค้นหา */
 function renderMyFood(){
-  const c=el("myFoodCard");
   S.myfood=arr(S.myfood).filter(x=>okRow(x)&&x.name); clearFoodMap();
-  c.style.display=S.myfood.length?"block":"none";
-  el("myFoodN").textContent=S.myfood.length;
-  el("myFoodList").innerHTML=S.myfood.map(m=>`<div class="pr"><div>${esc(m.name)}
-    <small>${esc(m.unit)} · P${m.protein} C${m.carb} F${m.fat}</small></div>
-    <div style="white-space:nowrap"><b style="color:var(--food)">${m.kcal}</b> kcal
-    <button class="del" onclick="delMyFood(${m.ts})">✕</button></div></div>`).join("");
-  const md=document.querySelector('details[data-fold="myFoodBox"]'); if(md) foldBind(md);
 }
 async function delMyFood(ts){
-  if(!confirm("ลบเมนูนี้ออกจากเมนูของฉัน? (ประวัติที่บันทึกไว้แล้วไม่หาย)"))return;
-  S.myfood=arr(S.myfood).filter(x=>x.ts!=ts); renderMyFood(); saveNow();
+  if(!confirm("ลบเมนูนี้ออกจากรายการของฉัน? (ที่บันทึกกินไปแล้วไม่หาย)"))return;
+  S.myfood=arr(S.myfood).filter(x=>x.ts!=ts);
+  S.chosen=null; el("fChosen").style.display="none";
+  renderMyFood(); render(); saveNow();
   await api({action:"del",sheet:"MyFood",ts:ts});
 }
 
@@ -5161,6 +5331,25 @@ function foldBind(d){
 }
 /* ตั้งค่าเริ่มต้นโดยโปรแกรม — ไม่ถูกจำเป็นความตั้งใจของผู้ใช้ */
 function foldAuto(d,open){ d.open=open; }
+/* ---------- ช่องเวลา/วันที่ ให้พอดีกล่องเสมอ ----------
+   บน iOS ช่อง <input type=time> เป็นตัวควบคุมของระบบ ย่อด้วย width/max-width ไม่ได้
+   ความกว้างขั้นต่ำของมันขึ้นกับขนาดตัวอักษร ถ้าผู้ใช้ตั้งตัวอักษรใหญ่ไว้ ช่องจะกว้างจนล้นการ์ด
+   จึงวัดของจริงหลังวาดเสร็จ แล้วลดขนาดตัวอักษรทีละขั้นจนพอดี — ไม่ต้องเดาว่าเครื่องไหนกว้างเท่าไร */
+function fitTimeInputs(){
+  document.querySelectorAll("input[type=time],input[type=date]").forEach(inp=>{
+    const p=inp.parentElement; if(!p||!inp.offsetParent) return;
+    inp.style.fontSize=""; inp.style.padding="";
+    let fs=16, guard=0;
+    while(inp.offsetWidth > p.clientWidth && guard++<10){
+      if(fs>10){ fs-=1; inp.style.fontSize=fs+"px"; }
+      else { inp.style.padding="11px 4px"; break; }      /* บีบขอบในเป็นทางสุดท้าย */
+    }
+  });
+}
+let _fitT=null;
+function fitSoon(){ clearTimeout(_fitT); _fitT=setTimeout(()=>{try{fitTimeInputs();}catch(e){}},0); }
+addEventListener("resize",fitSoon);
+addEventListener("orientationchange",fitSoon);
 /* คำอธิบายยาวเกิน 160 ตัวอักษร ที่ไม่ได้อยู่ในกล่องพับอยู่แล้ว → ห่อให้อัตโนมัติ
    เรียกซ้ำได้ปลอดภัย (ของที่ห่อแล้วจะถูกข้าม) จึงเรียกหลังวาดหน้าจอใหม่ได้ทุกครั้ง */
 let _foldN=0;
@@ -5237,13 +5426,13 @@ function nutList(d,u,g,ratio,gkg,unsat){
   const wkAlc=period(S.date,7).reduce((a,b)=>a+b.alc,0);
   const dl=S.user.sex==="m"?20:10;
   const L=[
-   {k:"pr", ic:"🍗", n:"โปรตีน",      ab:"P",  v:d.pr,  goal:u.pGoal,  un:"ก.", low:false, color:"var(--move)",
+   {k:"pr", ic:ic("egg",17), n:"โปรตีน",      ab:"P",  v:d.pr,  goal:u.pGoal,  un:"ก.", low:false, color:"var(--move)",
     note:u.w?` · <b>${gkg}</b> ก./กก.`:"",
     tip:`${u.w?`วันนี้ได้ <b>${gkg}</b> ก. ต่อน้ำหนักตัว 1 กก. — เป้าที่ตั้งไว้คือ ${u.pkg} ก./กก. ตามเป้าหมาย${(+u.goal<=-250)?"ลดน้ำหนัก (ต้องการมากขึ้นเพื่อรักษากล้ามเนื้อ)":(+u.goal>0)?"เพิ่มกล้ามเนื้อ":"รักษาน้ำหนัก"}<br><br>`:""}อ้างอิง ISSN 2017 / Helms 2014: ช่วงลดน้ำหนัก 1.8–2.7 ก./กก. · รักษา 1.4–1.8 ก./กก.`},
-   {k:"cb", ic:"🍚", n:"คาร์โบไฮเดรต", ab:"C",  v:d.cb,  goal:u.cGoal,  un:"ก.", low:false, color:"var(--food)",
+   {k:"cb", ic:ic("rice",17), n:"คาร์โบไฮเดรต", ab:"C",  v:d.cb,  goal:u.cGoal,  un:"ก.", low:false, color:"var(--food)",
     tip:`ตั้งไว้ที่ 45% ของพลังงานทั้งวัน — เป็นตัวเลขกลาง ๆ ปรับได้ตามชนิดการฝึก ถ้าซ้อมหนักหรือวิ่งไกลจะต้องการมากกว่านี้`},
-   {k:"ft", ic:"🥑", n:"ไขมันรวม",    ab:"F",  v:d.ft,  goal:u.fGoal,  un:"ก.", low:false, color:"var(--sleep)",
-    extraTile:`<div class="nt"><div class="h"><em>⚖️</em>สัดส่วนไขมัน</div>
+   {k:"ft", ic:ic("avo",17), n:"ไขมันรวม",    ab:"F",  v:d.ft,  goal:u.fGoal,  un:"ก.", low:false, color:"var(--sleep)",
+    extraTile:`<div class="nt"><div class="h"><em>${ic("scale",16)}</em>สัดส่วนไขมัน</div>
       <b style="font-size:15px">${d.ft?`อิ่มตัว ${fatSplit(d,u).pct}%`:"–"}</b>
       <span class="st" style="color:${fatSplit(d,u).ok===null?"var(--dim)":fatSplit(d,u).ok?"var(--move)":"var(--food)"}">
         ${fatSplit(d,u).msg}</span></div>`,
@@ -5253,26 +5442,26 @@ function nutList(d,u,g,ratio,gkg,unsat){
     tip:d.ft?`แถบแดง = ไขมันอิ่มตัว ${n1(d.sat)} ก. · แถบเขียว = ไขมันไม่อิ่มตัว ${unsat} ก.<br>
       สัดส่วนอิ่มตัว <b>${fatSplit(d,u).pct}%</b> ของไขมันทั้งหมด — ${fatSplit(d,u).msg}`
       :`ยังไม่มีข้อมูลไขมันวันนี้`},
-   {k:"sat",ic:"🧈", n:"ไขมันอิ่มตัว", ab:"อิ่มตัว", v:d.sat, goal:u.satGoal, un:"ก.", low:true, color:"var(--bad)",
+   {k:"sat",ic:ic("butter",17), n:"ไขมันอิ่มตัว", ab:"อิ่มตัว", v:d.sat, goal:u.satGoal, un:"ก.", low:true, color:"var(--bad)",
     tip:`WHO แนะนำไม่เกิน 10% ของพลังงานทั้งวัน (= ${u.satGoal} ก. สำหรับเป้า ${u.target.toLocaleString()} kcal)<br><br>ตัวการหลักในอาหารไทย: กะทิ ของทอด หมูสามชั้น เนย ชีส ครีมเทียม`},
-   {k:"sug",ic:"🍬", n:"น้ำตาล",      ab:"น้ำตาล", v:d.sug, goal:u.sugGoal, un:"ก.", low:true, color:"var(--bad)",
+   {k:"sug",ic:ic("candy",17), n:"น้ำตาล",      ab:"น้ำตาล", v:d.sug, goal:u.sugGoal, un:"ก.", low:true, color:"var(--bad)",
     tip:`นับเฉพาะ <b>น้ำตาลอิสระ</b> ตามนิยาม WHO — น้ำตาลที่เติมเข้าไป บวกน้ำผึ้ง ไซรัป และน้ำผลไม้คั้น<br>
       น้ำตาลในผลไม้ทั้งลูก ผัก และนมจืด <b>ไม่นับ</b><br><br>
       เพดาน 10% ของพลังงาน = ${u.sugGoal} ก. · ระดับที่ดีที่สุด 5% = ${u.sugIdeal} ก.`},
-   {k:"fb", ic:"🥦", n:"ไฟเบอร์",     ab:"ใย", v:d.fb,  goal:u.fibGoal, un:"ก.", low:false, color:"#22c55e",
+   {k:"fb", ic:ic("leaf",17), n:"ไฟเบอร์",     ab:"ใย", v:d.fb,  goal:u.fibGoal, un:"ก.", low:false, color:"#22c55e",
     tip:d.fb<u.fibGoal?`ขาดอีก ${n1(u.fibGoal-d.fb)} ก. ≈ ผักลวก ${Math.ceil((u.fibGoal-d.fb)/2.4)} ถ้วย หรือผลไม้ ${Math.ceil((u.fibGoal-d.fb)/2.5)} ผล<br><br>เกณฑ์ 14 ก. ต่อพลังงาน 1,000 kcal`:`ครบแล้ว — เกณฑ์คือ 14 ก. ต่อพลังงาน 1,000 kcal`},
-   {k:"na", ic:"🧂", n:"โซเดียม",     ab:"Na", v:d.na,  goal:NA_LIMIT,  un:"มก.", low:true, color:"var(--bad)",
+   {k:"na", ic:ic("salt",17), n:"โซเดียม",     ab:"Na", v:d.na,  goal:NA_LIMIT,  un:"มก.", low:true, color:"var(--bad)",
     note:ratio!==null?` · Na:K <b style="color:${ratio<=1?"var(--move)":ratio<=2?"var(--food)":"var(--bad)"}">${ratio}</b>`:"",
     tip:`เพดาน WHO 2,000 มก./วัน (≈ เกลือ 5 ก.)<br><br>ตัวการหลัก: น้ำซุปก๋วยเตี๋ยว น้ำปลา ซีอิ๊ว น้ำจิ้ม ผงปรุงรส ซุปก้อน ของหมักดอง อาหารสำเร็จรูป
       ${ratio!==null?`<br><br>อัตราส่วน <b>Na : K = ${ratio}</b> — ความดันขึ้นกับอัตราส่วนนี้มากกว่าโซเดียมเดี่ยว ๆ (INTERSALT, DASH) เป้าคือไม่เกิน 1`:""}`},
-   {k:"pot",ic:"🍌", n:"โพแทสเซียม",   ab:"K",  v:d.pot, goal:K_GOAL,    un:"มก.", low:false, color:"#22c55e",
+   {k:"pot",ic:ic("banana",17), n:"โพแทสเซียม",   ab:"K",  v:d.pot, goal:K_GOAL,    un:"มก.", low:false, color:"#22c55e",
     tip:`WHO แนะนำอย่างน้อย ${K_GOAL.toLocaleString()} มก./วัน — โพแทสเซียมช่วยหักล้างผลของโซเดียมต่อความดัน<br><br>
       หาง่าย: ผักใบเขียว ฟักทอง มันเทศ กล้วย มะละกอ ส้ม ถั่ว ปลา น้ำมะพร้าว (ราว 400 มก. ต่อ 1 ถ้วย/1 ผล)
       ${d.fd.length?`<br><br><span style="opacity:.75">วันนี้ ${d.potLab}/${d.fd.length} เมนูใช้ค่าจากห้องแล็บ ที่เหลือเป็นค่าประมาณจากชนิดอาหาร</span>`:""}`},
-   {k:"wa", ic:"💧", n:"น้ำดื่ม",      ab:"น้ำ", v:g,     goal:waterGoal(), un:"มล.", low:false, color:"var(--acc)",
+   {k:"wa", ic:ic("drop",17), n:"น้ำดื่ม",      ab:"น้ำ", v:g,     goal:waterGoal(), un:"มล.", low:false, color:"var(--acc)",
     tip:`เป้าคำนวณจากน้ำหนักตัวและปริมาณการออกกำลังกายวันนี้`},
   ];
-  if(d.alc||wkAlc) L.push({k:"alc", ic:"🍺", n:"แอลกอฮอล์", ab:"เหล้า", v:d.alc, goal:dl, un:"ก.", low:true, color:"var(--bad)",
+  if(d.alc||wkAlc) L.push({k:"alc", ic:ic("beer",17), n:"แอลกอฮอล์", ab:"เหล้า", v:d.alc, goal:dl, un:"ก.", low:true, color:"var(--bad)",
     note:` · ≈ <b>${n1(d.alc/10)}</b> ดื่ม`,
     tip:`วันนี้ ${n1(d.alc)} ก. ≈ ${n1(d.alc/10)} ดื่มมาตรฐาน · เพดานต่อวัน ${dl} ก. (${S.user.sex==="m"?"ชาย 2":"หญิง 1"} ดื่ม)<br><br>
       สัปดาห์นี้รวม ${n1(wkAlc)} ก. ≈ ${n1(wkAlc/10)} ดื่ม ${wkAlc>100?"— เกินคำแนะนำสัปดาห์ละ 10 ดื่ม":""}`});
@@ -5289,8 +5478,16 @@ function nutList(d,u,g,ratio,gkg,unsat){
 function nutSummary(d,u,g,ratio,gkg,unsat){
   if(!d.fd.length && !g) return "";
   const L=nutList(d,u,g,ratio,gkg,unsat);
-  const chips=L.map(x=>`<span style="color:${x.c};border-color:${x.c}55">${x.ab} <b>${kShort(x.v)}</b>/${kShort(x.goal)}</span>`).join("");
-  const bad=L.filter(x=>x.st==="bad").length, okN=L.filter(x=>x.st==="ok").length;
+  /* สรุปแบบสั้น — เดิมโชว์ชิปครบ 9 ตัวทุกครั้ง ซึ่งซ้ำกับตารางข้างล่างและอ่านยาก
+     "เกินเพดาน" กับ "ยังกินไม่ครบ" ต้องแยกกัน ตอนเช้าที่ยังไม่ได้กินอะไร ไม่ใช่การทำพลาด */
+  const over  = L.filter(x=>x.low && x.v>x.goal);
+  const shortL= L.filter(x=>!x.low && x.v<x.goal);
+  const okN   = L.filter(x=>x.low ? x.v<=x.goal : x.v>=x.goal).length;
+  const cut=(a,n)=>a.slice(0,n).map(x=>x.n).join(" · ")+(a.length>n?` +${a.length-n}`:"");
+  const chips = over.length||shortL.length
+    ? (over.length?`<span style="color:var(--bad);border-color:var(--bad)55">⚠️ เกินเพดาน: ${cut(over,3)}</span>`:"")
+     +(shortL.length?`<span style="color:var(--dim)">ยังขาด: ${cut(shortL,4)}</span>`:"")
+    : `<span style="color:var(--move);border-color:var(--move)55">เข้าเกณฑ์ครบทุกตัว ✅</span>`;
   /* แถวเดียวต่อหนึ่งสารอาหาร แบบเดียวกับตัวชี้วัดในการ์ดความพร้อม — อ่านง่ายกว่าตาราง 2 ช่อง
      ซ้าย: ไอคอน + ชื่อ + รายละเอียด · กลาง: กราฟแท่ง · ขวา: ตัวเลขที่กินไป */
   const rows=L.map(x=>{
@@ -5306,16 +5503,16 @@ function nutSummary(d,u,g,ratio,gkg,unsat){
   }).join("");
   const fs0=fatSplit(d,u), fsc=fs0.ok?"var(--move)":"var(--food)";
   const fatRow = d.ft? `<div class="fbar nut">
-      <span class="nl"><b>⚖️ สัดส่วนไขมัน</b><small>${fs0.msg}</small></span>
+      <span class="nl"><b>${ic("scale",17)} สัดส่วนไขมัน</b><small>${fs0.msg}</small></span>
       <span class="fb2 wide"><i style="width:${Math.min(100,fs0.pct)}%;background:${fsc}"></i></span>
       <span class="nv"><b style="color:${fsc}">${fs0.pct}%</b><i>อิ่มตัว</i></span></div>` : "";
   const docs=L.map(x=>`<div class="nudoc"><b style="color:${x.c}">${x.ic} ${x.n}</b>
       <span>${kShort(x.v)} / ${kShort(x.goal)} ${x.un} · ${x.msg}</span><div>${x.tip}</div></div>`).join("");
   const body=`<div class="nutrows">${rows}${fatRow}</div>
-    <details class="fold sub" data-fold="nutDoc"><summary>📖 เกณฑ์และคำแนะนำของแต่ละตัว</summary>
+    <details class="fold sub" data-fold="nutDoc"><summary>${ic("book",17)} เกณฑ์และคำแนะนำของแต่ละตัว</summary>
       <div class="foldc">${docs}</div></details>`;
   return `<div class="offchips">${chips}</div>
-    ${subFold("nutTiles",`📊 สารอาหาร <span class="fn">เข้าเกณฑ์ ${okN}/${L.length}${bad?` · หลุด ${bad}`:""}</span>`, body)}`;
+    ${subFold("nutTiles",`${ic("chart",17)} สารอาหาร <span class="fn">เข้าเกณฑ์ ${okN}/${L.length}${over.length?` · เกินเพดาน ${over.length}`:""}</span>`, body)}`;
 }
 /* หัวข้อย่อยแบบ "เห็นสรุปเสมอ กดแล้วค่อยคลี่รายละเอียด"
    หัวข้อ (head) มีป้ายสถานะอยู่แล้ว จึงยังอ่านรู้เรื่องแม้ตอนพับ */
@@ -5478,11 +5675,11 @@ function render(){
    el("scoreArc").style.stroke=A.score>=75?"var(--move)":A.score>=50?"var(--food)":"var(--bad)";}
   el("dScore").style.color=A.score>=75?"var(--move)":A.score>=50?"var(--food)":"var(--bad)";
   el("dBars").innerHTML=[
-    ["🍽️","อาหาร",A.sFood,d.kIn>u.target?`เกิน ${(d.kIn-u.target).toLocaleString()} kcal`:`เหลือ ${(u.target-d.kIn).toLocaleString()} kcal`,"var(--food)"],
-    ["🏃","ออกกำลัง",A.sMove,d.load>=60?"ครบเป้าแล้ว ✓":`ขาด ${Math.max(0,Math.round(60-d.load))} โหลด`,"var(--move)"],
+    [ic("food",17),"อาหาร",A.sFood,d.kIn>u.target?`เกิน ${(d.kIn-u.target).toLocaleString()} kcal`:`เหลือ ${(u.target-d.kIn).toLocaleString()} kcal`,"var(--food)"],
+    [ic("run",17),"ออกกำลัง",A.sMove,d.load>=60?"ครบเป้าแล้ว ✓":`ขาด ${Math.max(0,Math.round(60-d.load))} โหลด`,"var(--move)"],
     /* เกณฑ์การนอนดูที่ "คะแนนคุณภาพ" ไม่ใช่จำนวนชั่วโมง — นอน 8 ชม. แต่ตื่น 5 ครั้งไม่ใช่การนอนที่ดี
        ชั่วโมงยังบอกไว้ข้าง ๆ เพราะเป็นตัวเลขที่คนคุ้นเคย */
-    ["😴","นอน",A.sSleep,d.sl?`${A.sSleep}/100 · ${d.hours} ชม.${ev?"":" (ยังไม่ได้ใส่ระยะการนอน)"}`:"ยังไม่บันทึก","var(--sleep)"]
+    [ic("sleep",17),"นอน",A.sSleep,d.sl?`${A.sSleep}/100 · ${d.hours} ชม.${ev?"":" (ยังไม่ได้ใส่ระยะการนอน)"}`:"ยังไม่บันทึก","var(--sleep)"]
   ].map(b=>`<div class="hb"><div class="l"><span>${b[0]} ${b[1]}</span><b style="color:${b[2]>=70?"var(--move)":b[2]>=40?"var(--food)":"var(--dim)"}">${b[3]}</b></div>
     <div class="bar"><i style="background:${b[4]};width:${Math.min(100,b[2])}%"></i></div></div>`).join("");
   const miss=[!d.fd.length&&"อาหาร",!d.min&&"ออกกำลังกาย",!d.sl&&"การนอน"].filter(Boolean);
@@ -5504,7 +5701,7 @@ function render(){
 
     ${nutSummary(d,u,g,ratio,gkg,unsat)}
 
-    ${d.fd.length? subFold("homeMeals",`🍽️ ที่กินวันนี้ <span class="pill ok">${d.fd.length} รายการ</span>`, sortByTime(d.fd).map(x=>
+    ${d.fd.length? subFold("homeMeals",`${ic("food",17)} ที่กินวันนี้ <span class="pill ok">${d.fd.length} รายการ</span>`, sortByTime(d.fd).map(x=>
       `<div class="meal"><div>${x.time?`<b style="color:var(--food)">${x.time}</b> `:""}${mealIcon(x.meal)} ${esc(x.name)}
         <small style="display:block;color:var(--dim);font-size:11px">${x.qty} × ${esc(x.unit)} · P${n1(x.protein)} C${n1(x.carb)} F${n1(x.fat)}${x.sodium>=700?` · <span style="color:var(--bad)">🧂 ${x.sodium}</span>`:x.sodium?` · 🧂 ${x.sodium}`:""}</small></div>
       <b style="color:var(--food);white-space:nowrap">${x.kcal} kcal</b></div>`).join(""), d.fd.length<=4) : ""}
@@ -5528,7 +5725,7 @@ function render(){
       :`ขาดอีก <b style="color:var(--food)">${Math.round(60-d.load)}</b> โหลด ≈ เดินเร็ว ${Math.ceil((60-d.load)/2)} นาที หรือวิ่ง ${Math.ceil((60-d.load)/4)} นาที`}</div>
     <div class="mini" style="margin-top:6px">คาร์ดิโอ ${Math.round(cLoad)} + เวท ${wLoad} · โหลด = เวลา × ความหนัก</div>
 
-    ${subFold("mvCardio",`🏃 คาร์ดิโอ ${cMin?`<span class="pill ${pctAvg>=85?"bad":pctAvg>=70?"warn":"ok"}">${cMin} นาที · ${pctAvg}% HRmax</span>`:`<span class="pill warn">ยังไม่ได้ทำ</span>`}`,`
+    ${subFold("mvCardio",`${ic("run",17)} คาร์ดิโอ ${cMin?`<span class="pill ${pctAvg>=85?"bad":pctAvg>=70?"warn":"ok"}">${cMin} นาที · ${pctAvg}% HRmax</span>`:`<span class="pill warn">ยังไม่ได้ทำ</span>`}`,`
       ${cMin? `<div class="stat">
         <div class="s"><span>เวลา</span><b style="color:var(--move)">${cMin}</b><span>นาที · ${cKcal} kcal</span></div>
         <div class="s"><span>HR เฉลี่ย</span><b style="color:var(--acc)">${hrAvg||"–"}</b><span>bpm${mainZ?` · ส่วนใหญ่ ${mainZ[1]}`:""}</span></div>
@@ -5538,9 +5735,9 @@ function render(){
       ${d.ex.map(x=>`<div class="meal"><div>${esc(x.type)}<small style="display:block;color:var(--dim);font-size:11px">${x.min} นาที${x.km?" · "+x.km+" กม.":""}${x.hr?" · HR ~"+x.hr:""}${x.fat?" · ไขมัน "+x.fat+"%":""}</small></div><b style="color:var(--move)">${x.kcal} kcal</b></div>`).join("")}`
       : `<div class="mini">วันนี้ยังไม่มีคาร์ดิโอ</div>`}`, !!cMin)}
 
-    ${subFold("mvPolar",`🫀 Zone 2 &amp; 80/20 <span class="pill ${P7.pGoal>=100?"ok":"warn"}">7 วัน · ${P7.pGoal>=100?"ครบโดส":"ยังไม่ครบ"}</span>`, polarMini(P7))}
+    ${subFold("mvPolar",`${ic("heart",17)} Zone 2 &amp; 80/20 <span class="pill ${P7.pGoal>=100?"ok":"warn"}">7 วัน · ${P7.pGoal>=100?"ครบโดส":"ยังไม่ครบ"}</span>`, polarMini(P7))}
 
-    ${subFold("mvWo",`🏋️ เวทเทรนนิ่ง ${d.wo.length?`<span class="pill ok">${d.wo.length} ท่า · ${wSets} เซ็ต</span>`:`<span class="pill warn">ยังไม่ได้ทำ</span>`}`,`
+    ${subFold("mvWo",`${ic("dumb",17)} เวทเทรนนิ่ง ${d.wo.length?`<span class="pill ok">${d.wo.length} ท่า · ${wSets} เซ็ต</span>`:`<span class="pill warn">ยังไม่ได้ทำ</span>`}`,`
       ${d.wo.length? `<div class="stat">
         <div class="s"><span>ปริมาณรวม</span><b style="color:var(--move)">${Math.round(d.vol).toLocaleString()}</b><span>กก.·ครั้ง</span></div>
         <div class="s"><span>กลุ่มที่เล่น</span><b style="font-size:15px">${esc([...new Set(d.wo.map(x=>x.group))].join(" · "))}</b><span>&nbsp;</span></div>
@@ -5568,7 +5765,7 @@ function render(){
         <div class="s"><span>ชั่วโมงที่หลับจริง</span><b style="color:${d.hours>=7&&d.hours<=9?"var(--move)":"var(--food)"}">${d.hours}</b><span>ชม. (เกณฑ์ 7–9)</span></div>
         <div class="s"><span>ประสิทธิภาพ</span><b style="color:${effCol(ev.eff)}">${ev.eff}</b><span>% (เกณฑ์ ≥85)</span></div>
       </div>${sleepHead(ev)}
-      ${subFold("slStages",`🌙 ระยะการนอนแต่ละช่วง <span class="pill ${ev.grades.filter(x=>x.st!=="ok").length?"warn":"ok"}">${ev.grades.filter(x=>x.st==="ok").length}/${ev.grades.length} อยู่ในเกณฑ์</span>`,
+      ${subFold("slStages",`${ic("sleep",17)} ระยะการนอนแต่ละช่วง <span class="pill ${ev.grades.filter(x=>x.st!=="ok").length?"warn":"ok"}">${ev.grades.filter(x=>x.st==="ok").length}/${ev.grades.length} อยู่ในเกณฑ์</span>`,
         stageBar(ev)+stageGrades(ev)+`<div class="mini" style="margin-top:9px">${ev.msg}</div>`)}`
       : `<div class="mini" style="margin-top:10px">ยังไม่ได้ใส่ระยะการนอน — ใส่ที่แท็บ 😴 นอน แล้วระบบจะให้คะแนนคุณภาพอัตโนมัติ</div>`}`
     : `<div class="empty">ยังไม่ได้บันทึกการนอน</div>`);
@@ -5646,7 +5843,7 @@ function render(){
      ค่าที่เป็นการประมาณจากชนิดอาหารจะมีเครื่องหมาย ~ กำกับ ไม่ปนกับค่าที่วัดมาจริง */
   let anyEst=false;
   el("fList").innerHTML=d.fd.length?sortByTime(d.fd).map(x=>{
-    const nr=nutRow(x), e=k=>{const v=(x[k]!==undefined&&x[k]!=="");if(!v)anyEst=true;return v?"":"~";};
+    const nr=nutRow(x), e=k=>{const est=nr.src[k]==="est"; if(est)anyEst=true; return est?"~":"";};
     const chip=(ic,lab,txt)=>`<span class="nch">${ic} ${lab?lab+" ":""}${txt}</span>`;
     const sodiumHot = nr.sodium>=700;
     if(!nr.potLab) anyEst=true;
@@ -5654,17 +5851,18 @@ function render(){
       `${x.time?`<b style="color:var(--food)">${x.time}</b> `:""}${esc(x.name)} <span class="tag">${mealIcon(x.meal)} ${esc(x.meal||"")}</span>`,
       `${x.qty} × ${esc(x.unit)} · P${n1(x.protein)} C${n1(x.carb)} F${n1(x.fat)}
        <span class="nchs">${
-         chip("🥦","ใย",`${e("fiber")}${n1(nr.fiber)} ก.`)+
-         `<span class="nch"${sodiumHot?' style="color:var(--bad)"':''}>🧂 ${e("sodium")}${Math.round(nr.sodium).toLocaleString()} มก.</span>`+
-         chip("🧈","อิ่มตัว",`${e("sat")}${n1(nr.sat)} ก.`)+
-         chip("🍬","",`${e("sugar")}${n1(nr.sugar)} ก.`)+
-         chip("🍌","",`${nr.potLab?"":"~"}${nr.pot.toLocaleString()} มก.`)+
-         (nr.alc?chip("🍺","",`${n1(nr.alc)} ก.`):"")}</span>`,
+         chip(ic("leaf",14),"ใย",`${e("fiber")}${n1(nr.fiber)} ก.`)+
+         `<span class="nch"${sodiumHot?' style="color:var(--bad)"':''}>${ic("salt",14)} ${e("sodium")}${Math.round(nr.sodium).toLocaleString()} มก.</span>`+
+         chip(ic("butter",14),"อิ่มตัว",`${e("sat")}${n1(nr.sat)} ก.`)+
+         chip(ic("candy",14),"",`${e("sugar")}${n1(nr.sugar)} ก.`)+
+         chip(ic("banana",14),"",`${nr.potLab?"":"~"}${nr.pot.toLocaleString()} มก.`)+
+         (nr.alc?chip(ic("beer",14),"",`${n1(nr.alc)} ก.`):"")+
+         (nr.broth<1?`<span class="nch" style="color:var(--move)">${ic("bowl",14)} ${nr.broth<=0.5?"ไม่ซดน้ำ":"ซดน้ำบ้าง"}</span>`:"")}</span>`,
       `<span style="color:var(--food)">${x.kcal}</span>`,"food",x.ts);
   }).join(""):`<div class="empty">ยังไม่มีบันทึก</div>`;
   el("fListNote").innerHTML = (d.fd.length&&anyEst)
     ? `<div class="mini">~ = ค่าประมาณจากชนิดอาหาร (เมนูนั้นยังไม่มีค่าจริงในฐานข้อมูล) · ตัวเลขที่ไม่มี ~ คือค่าจริง</div>` : "";
-  setTimeout(()=>{ try{ foldify(); }catch(e){} },0);   /* การ์ดที่วาดใหม่ต้องผูกกล่องพับด้วย */
+  setTimeout(()=>{ try{ foldify(); fitTimeInputs(); paintIcons(); }catch(e){} },0);   /* การ์ดที่วาดใหม่ต้องผูกกล่องพับ วัดช่องเวลา และเติมไอคอนด้วย */
   foldCount("fList",d.fd.length,"รายการ");
   foldCount("sList",d.sl?1:0,"รายการ");
   el("sList").innerHTML=d.sl?row(`${d.sl.bed} → ${d.sl.wake}`,
@@ -5954,15 +6152,15 @@ function drawCharts(){
   /* แถบคุณภาพ — สิ่งที่โดนัทสัดส่วนพลังงานบอกไม่ได้: ใยอาหาร โซเดียม น้ำตาลอิสระ ไขมันอิ่มตัว โพแทสเซียม */
   {const rr=A.avgNa&&A.avgPot? n1(A.avgNa/A.avgPot) : null;
    const QL=[
-    {ic:"🍗",n:"โปรตีน",     v:A.avgPr, goal:u.pGoal,  un:"ก.",  low:false,col:"var(--move)"},
-    {ic:"🥦",n:"ใยอาหาร",    v:A.avgFb, goal:u.fibGoal,un:"ก.",  low:false,col:"#22c55e"},
-    {ic:"🍌",n:"โพแทสเซียม",  v:A.avgPot,goal:K_GOAL,   un:"มก.", low:false,col:"#22c55e"},
-    {ic:"🧂",n:"โซเดียม",    v:A.avgNa, goal:NA_LIMIT, un:"มก.", low:true, col:"var(--bad)",
+    {ic:ic("egg",17),n:"โปรตีน",     v:A.avgPr, goal:u.pGoal,  un:"ก.",  low:false,col:"var(--move)"},
+    {ic:ic("leaf",17),n:"ใยอาหาร",    v:A.avgFb, goal:u.fibGoal,un:"ก.",  low:false,col:"#22c55e"},
+    {ic:ic("banana",17),n:"โพแทสเซียม",  v:A.avgPot,goal:K_GOAL,   un:"มก.", low:false,col:"#22c55e"},
+    {ic:ic("salt",17),n:"โซเดียม",    v:A.avgNa, goal:NA_LIMIT, un:"มก.", low:true, col:"var(--bad)",
       note:rr!==null?` · Na:K <b style="color:${rr<=1?"var(--move)":rr<=2?"var(--food)":"var(--bad)"}">${rr}</b>`:""},
-    {ic:"🍬",n:"น้ำตาลอิสระ", v:A.avgSug,goal:u.sugGoal,un:"ก.",  low:true, col:"var(--bad)"},
-    {ic:"🧈",n:"ไขมันอิ่มตัว", v:A.avgSat,goal:u.satGoal,un:"ก.",  low:true, col:"var(--bad)"},
+    {ic:ic("candy",17),n:"น้ำตาลอิสระ", v:A.avgSug,goal:u.sugGoal,un:"ก.",  low:true, col:"var(--bad)"},
+    {ic:ic("butter",17),n:"ไขมันอิ่มตัว", v:A.avgSat,goal:u.satGoal,un:"ก.",  low:true, col:"var(--bad)"},
    ];
-   if(A.avgAlc>0) QL.push({ic:"🍺",n:"แอลกอฮอล์",v:A.avgAlc,goal:S.user.sex==="m"?20:10,un:"ก.",low:true,col:"var(--bad)"});
+   if(A.avgAlc>0) QL.push({ic:ic("beer",17),n:"แอลกอฮอล์",v:A.avgAlc,goal:S.user.sex==="m"?20:10,un:"ก.",low:true,col:"var(--bad)"});
    el("statNut").innerHTML = A.fdDays? `<div class="nutrows" style="margin-top:6px">${QL.map(x=>{
       const st = x.low ? (x.v<=x.goal*0.75?"ok":x.v<=x.goal?"warn":"bad")
                        : (x.v>=x.goal?"ok":x.v>=x.goal*0.6?"warn":"bad");
@@ -6233,7 +6431,7 @@ function showOnboard(){
     <div class="step"><h3><i>1</i> คัดลอกไฟล์ต้นแบบ</h3>
       <div class="hint">กดปุ่มนี้ → หน้า Google จะถามว่า "ทำสำเนา" → กดยืนยัน<br>
       คุณจะได้ไฟล์ Google Sheets ของตัวเอง <b>พร้อมระบบครบทุกอย่างในไฟล์เดียว</b> ไม่ต้องก็อปโค้ดเอง</div>
-      <button class="btn" onclick="window.open('${T}','_blank')">📄 เปิดไฟล์ต้นแบบ &amp; ทำสำเนา</button></div>
+      <button class="btn" onclick="window.open('${T}','_blank')"><i data-ic="book" data-sz="16"></i> เปิดไฟล์ต้นแบบ &amp; ทำสำเนา</button></div>
 
     <div class="step"><h3><i>2</i> กดเมนู "ตั้งค่าครั้งแรก"</h3>
       <div class="hint">ในไฟล์ที่เพิ่งทำสำเนา ดูแถบเมนูด้านบน จะมีเมนูชื่อ <b>💪 แอปสุขภาพ</b><br>
@@ -6276,7 +6474,7 @@ function showOnboard(){
       <li>ลบโค้ดเดิมทั้งหมด แล้ววางโค้ดที่คัดลอกจากปุ่มนี้</li>
       <li>กดบันทึก (Ctrl+S) แล้วกลับมารีเฟรชหน้า Sheets</li>
       <li>จะเห็นเมนูใหม่ <b>💪 แอปสุขภาพ</b> → กด <b>1️⃣ ตั้งค่าครั้งแรก</b></li></ol>
-      <button class="btn ghost" onclick="copyCode(this)">📋 คัดลอกโค้ด Apps Script</button></div>
+      <button class="btn ghost" onclick="copyCode(this)"><i data-ic="list" data-sz="16"></i> คัดลอกโค้ด Apps Script</button></div>
 
     <div class="step"><h3><i>3</i> Deploy เป็น Web App</h3>
       <ol><li>กด <b>Deploy → New deployment</b></li>
