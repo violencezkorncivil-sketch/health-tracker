@@ -57,9 +57,13 @@ main{padding:14px;max-width:640px;margin:0 auto}
 .card h2{font-size:16.5px;margin:0 0 12px;display:flex;align-items:center;gap:8px}
 label{display:block;font-size:13.5px;color:var(--dim);margin:11px 0 5px}
 input,select,textarea,button{font-family:inherit;font-size:16.5px}
-input,select,textarea{width:100%;background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:11px;padding:11px 12px;outline:none}
+input,select,textarea{width:100%;min-width:0;max-width:100%;background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:11px;padding:11px 12px;outline:none}
 input:focus,select:focus,textarea:focus{border-color:var(--acc)}
-.row{display:flex;gap:9px} .row>*{flex:1}
+.row{display:flex;gap:9px} .row>*{flex:1 1 0;min-width:0}
+/* ลูกของ flex/grid ย่อไม่ได้ถ้าไม่ตั้ง min-width:0 — ช่องเวลา/ตัวเลขบน iOS กว้างขั้นต่ำเยอะ แล้วดันจนล้นกล่อง */
+.stgin>*,.ntiles>*,.stat>*,.z2g>*,.bud>*{min-width:0}
+.stgin .f div{min-width:0}
+.stgin .f input{min-width:0;flex:1 1 0}
 .btn{background:var(--acc);color:#fff;border:none;border-radius:12px;padding:13px;font-weight:700;width:100%;margin-top:14px;cursor:pointer}
 .btn:active{opacity:.8}
 .btn.g{background:var(--move);color:#fff}
@@ -205,7 +209,7 @@ nav button.on{color:var(--acc)}
 .grade{display:flex;justify-content:space-between;font-size:13.5px;padding:6px 0;border-bottom:1px solid var(--line)}
 .grade:last-child{border:0}
 /* กล่องพับ — ใช้ทั้งแอปเพื่อให้หน้าจอโล่ง เห็นเฉพาะสิ่งที่ต้องทำ */
-details.fold{border:1px solid var(--line);border-radius:13px;background:var(--card2);margin-top:11px;overflow:hidden}
+details.fold{border:1px solid var(--line);border-radius:13px;background:var(--card2);margin:11px 0;overflow:hidden}
 details.fold>summary{list-style:none;cursor:pointer;padding:11px 13px;font-weight:700;font-size:13.5px;
   display:flex;align-items:center;gap:7px;color:var(--txt);user-select:none;flex-wrap:wrap}
 details.fold>summary>*{min-width:0}
@@ -252,6 +256,22 @@ details.fold.sub .subh{margin:9px 0 5px}
 .nudoc b{font-size:13.5px}
 .nudoc>span{font-size:11.5px;margin-left:7px}
 .nudoc>div{margin-top:5px}
+/* แถวสารอาหาร — เลย์เอาต์เดียวกับตัวชี้วัดความพร้อม */
+.nutrows{margin-top:4px}
+.fbar.nut{align-items:center;padding:9px 0}
+.fbar.nut .nl{flex:1;min-width:0}
+.fbar.nut .nl>b{font-size:13.5px;display:block}
+.fbar.nut .nl small b{display:inline;font-size:inherit}
+.fbar.nut .nl small{display:block;color:var(--dim);font-size:11.5px;line-height:1.5;margin-top:2px}
+.fbar.nut .fb2.wide{width:72px;margin:0 9px}
+.fbar.nut .nv{flex:none;text-align:right;line-height:1.15;white-space:nowrap}
+.fbar.nut .nv b{font-size:17px;display:block}
+.fbar.nut .nv i{font-style:normal;font-size:10.5px;color:var(--dim);display:block}
+.fbar.nut .fatsplit.in{margin:0;height:100%;background:none}
+@media (max-width:359px){
+  .fbar.nut .fb2.wide{width:54px;margin:0 7px}
+  .fbar.nut .nv b{font-size:15px}
+}
 .nt{background:var(--card2);border-radius:13px;padding:11px}
 .nt .h{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--dim);margin-bottom:5px}
 .nt .h em{font-style:normal;font-size:14px}
@@ -1531,7 +1551,7 @@ function loadLocal(){
 }
 
 const APP_NAME="สุขภาพ Tracker";
-const APP_VER="4.7";
+const APP_VER="4.9";
 const GS_CODE=`/*************************************************************
  *  สุขภาพ Tracker — Google Apps Script Backend
  *  วางโค้ดนี้ใน Extensions > Apps Script ของ Google Sheets
@@ -4764,7 +4784,7 @@ function polarMini(P){
   :`<div class="mini">ยังไม่มีคาร์ดิโอในสัปดาห์นี้ — ดูวิธีเริ่ม Zone 2 ได้ที่แท็บ <b>🏃 ออกกำลัง</b></div>`}`;
 }
 /* บล็อก HTML ของ Zone 2 + 80/20 (ใช้ทั้งหน้าออกกำลังและหน้าสถิติ) */
-function polarHTML(P,full){
+function polarHTML(P,full,keyid){
   const V=polarVerdict(P);
   const [zlo,zhi]=zoneBpm(1);
   const eff=full?z2Eff():null;
@@ -4799,7 +4819,7 @@ function polarHTML(P,full){
       ${wk>1.2?`<span class="mini" style="display:block">รวมทั้งช่วง ${P.z2Min} นาที ใน ${P.n} วัน</span>`:""}</div>
   </div>
 
-  ${full?subFold("z2sess",`📊 คุณภาพเซสชัน <span class="pill ${P.z2Full?"ok":"warn"}">เต็มโดส ${P.z2Full} ครั้ง</span>`,`
+  ${full?subFold("z2sess"+(keyid||""),`📊 คุณภาพเซสชัน <span class="pill ${P.z2Full?"ok":"warn"}">เต็มโดส ${P.z2Full} ครั้ง</span>`,`
   <div class="z2g">
     <div><b style="color:var(--acc)">${P.z2Sess}</b><span>เซสชัน Z2<br>(≥20 นาที)</span></div>
     <div><b style="color:${P.z2Full?"var(--move)":"var(--dim)"}">${P.z2Full}</b><span>เซสชันเต็มโดส<br>(≥45 นาที)</span></div>
@@ -5097,6 +5117,17 @@ function foldCount(id,n,unit){
   const k="lst-"+id;
   if(foldState()[k]===undefined) foldAuto(d, n>0 && n<=4);   /* ค่าเริ่มต้น: น้อยก็กาง เยอะก็พับ */
 }
+/* เขียน innerHTML เฉพาะตอนเนื้อหาเปลี่ยนจริง
+   ถ้าเขียนทับทุกครั้งที่ render() กล่องพับที่ผู้ใช้เพิ่งกดจะถูกสร้างใหม่กลางคัน
+   บนมือถือทำให้ภาพค้าง/เนื้อหาหายได้ และยังเปลืองแรงวาดโดยไม่จำเป็น */
+const _htmlCache=new WeakMap();
+function setHTML(node,html){
+  if(!node) return false;
+  if(_htmlCache.get(node)===html) return false;
+  _htmlCache.set(node,html);
+  node.innerHTML=html;
+  return true;
+}
 /* ---------- สรุปสารอาหาร: เห็นตัวย่อครบทุกตัว กดคลี่ดูทีละตัว ----------
    ทุกสารอาหารถูกปฏิบัติเหมือนกันหมด ไม่มีตัวไหนถูกเน้นเป็นพิเศษ
    สีบอกสถานะ: เขียว = เข้าเกณฑ์ · ส้ม = เฉียด · แดง = หลุด */
@@ -5173,11 +5204,27 @@ function nutSummary(d,u,g,ratio,gkg,unsat){
   const L=nutList(d,u,g,ratio,gkg,unsat);
   const chips=L.map(x=>`<span style="color:${x.c};border-color:${x.c}55">${x.ab} <b>${kShort(x.v)}</b>/${kShort(x.goal)}</span>`).join("");
   const bad=L.filter(x=>x.st==="bad").length, okN=L.filter(x=>x.st==="ok").length;
-  /* กดครั้งเดียวเห็นกราฟครบทุกตัว — ไม่ต้องกดซ้ำทีละตัวอีก */
-  const tiles=L.map(x=>ntile(x.ic,x.n,x.v,x.goal,x.un,x.color||x.c,x.low,x.extra,x.note)+(x.extraTile||"")).join("");
+  /* แถวเดียวต่อหนึ่งสารอาหาร แบบเดียวกับตัวชี้วัดในการ์ดความพร้อม — อ่านง่ายกว่าตาราง 2 ช่อง
+     ซ้าย: ไอคอน + ชื่อ + รายละเอียด · กลาง: กราฟแท่ง · ขวา: ตัวเลขที่กินไป */
+  const rows=L.map(x=>{
+    const pct=Math.min(100, x.goal? x.v/x.goal*100 : 0);
+    const bar = x.extra
+      ? `<span class="fb2 wide">${x.extra.replace('class="fatsplit"','class="fatsplit in"')}</span>`
+      : `<span class="fb2 wide"><i style="width:${pct}%;background:${x.color||x.c}"></i></span>`;
+    return `<div class="fbar nut">
+      <span class="nl"><b>${x.ic} ${x.n}</b>
+        <small><span style="color:${x.c}">${x.msg}</span>${x.note||""}</small></span>
+      ${bar}
+      <span class="nv"><b style="color:${x.c}">${n1(x.v).toLocaleString()}</b><i>/ ${x.goal.toLocaleString()} ${x.un}</i></span></div>`;
+  }).join("");
+  const fatRow = d.ft? `<div class="fbar nut">
+      <span class="nl"><b>⚖️ สัดส่วนไขมัน</b>
+        <small>${d.sat/d.ft<=0.35?"สัดส่วนดี เน้นไขมันดีอยู่":"ไขมันอิ่มตัวเยอะไป ลองเลี่ยงของทอด/กะทิ"}</small></span>
+      <span class="fb2 wide"><i style="width:${Math.min(100,d.sat/d.ft*100)}%;background:${d.sat/d.ft<=0.35?"var(--move)":"var(--food)"}"></i></span>
+      <span class="nv"><b style="color:${d.sat/d.ft<=0.35?"var(--move)":"var(--food)"}">${Math.round(d.sat/d.ft*100)}%</b><i>อิ่มตัว</i></span></div>` : "";
   const docs=L.map(x=>`<div class="nudoc"><b style="color:${x.c}">${x.ic} ${x.n}</b>
       <span>${kShort(x.v)} / ${kShort(x.goal)} ${x.un} · ${x.msg}</span><div>${x.tip}</div></div>`).join("");
-  const body=`<div class="ntiles">${tiles}</div>
+  const body=`<div class="nutrows">${rows}${fatRow}</div>
     <details class="fold sub" data-fold="nutDoc"><summary>📖 เกณฑ์และคำแนะนำของแต่ละตัว</summary>
       <div class="foldc">${docs}</div></details>`;
   return `<div class="offchips">${chips}</div>
@@ -5360,7 +5407,7 @@ function render(){
   /* อัตราส่วนโซเดียม:โพแทสเซียม — ตัวชี้วัดความดันที่ดีกว่าโซเดียมเดี่ยว ๆ */
   const ratio = naK(d.na,d.pot);
 
-  el("secFood").innerHTML=`
+  setHTML(el("secFood"),`
     <div class="big"><b style="color:var(--food)">${d.kIn.toLocaleString()}</b><span>/ ${u.target.toLocaleString()} kcal</span></div>
     <div class="bar" style="height:11px;margin-top:9px"><i style="background:${left<0?"var(--bad)":"var(--food)"};width:${Math.min(100,d.kIn/u.target*100)}%"></i></div>
     <div class="remain">${left>=0?`เหลือกินได้อีก <b style="color:var(--move)">${left.toLocaleString()}</b> kcal`
@@ -5372,7 +5419,7 @@ function render(){
       `<div class="meal"><div>${x.time?`<b style="color:var(--food)">${x.time}</b> `:""}${mealIcon(x.meal)} ${esc(x.name)}
         <small style="display:block;color:var(--dim);font-size:11px">${x.qty} × ${esc(x.unit)} · P${n1(x.protein)} C${n1(x.carb)} F${n1(x.fat)}${x.sodium>=700?` · <span style="color:var(--bad)">🧂 ${x.sodium}</span>`:x.sodium?` · 🧂 ${x.sodium}`:""}</small></div>
       <b style="color:var(--food);white-space:nowrap">${x.kcal} kcal</b></div>`).join(""), d.fd.length<=4) : ""}
-    ${d.fd.length?"":`<div class="empty" style="margin-top:12px">ยังไม่ได้บันทึกอาหาร</div>`}`;
+    ${d.fd.length?"":`<div class="empty" style="margin-top:12px">ยังไม่ได้บันทึกอาหาร</div>`}`);
 
   /* ---------- ออกกำลังกาย ---------- */
   const zTot=[1,2,3,4,5].map(z=>d.ex.reduce((a,x)=>a+(+x["z"+z]||0),0));
@@ -5384,8 +5431,8 @@ function render(){
   const mainZ=zSum? ZONES[zTot.indexOf(Math.max(...zTot))] : null;
   const wSets=d.wo.reduce((a,b)=>a+b.sets.length,0);
   const adv=woAdvice(d.wo), wk=weekAnalysis(), P7=polar(7);
-  if(el("mvPolar")) el("mvPolar").innerHTML=polarHTML(P7,true);
-  el("secMove").innerHTML=`
+  if(el("mvPolar")) setHTML(el("mvPolar"),polarHTML(P7,true,"-mv"));
+  setHTML(el("secMove"),`
     <div class="big"><b style="color:var(--move)">${Math.round(d.load)}</b><span>/ 60 โหลดการฝึกรวม</span></div>
     <div class="bar" style="height:10px;margin-top:9px"><i style="background:var(--move);width:${Math.min(100,d.load/60*100)}%"></i></div>
     <div class="remain">${d.load>=60?`<b style="color:var(--move)">ถึงเป้าวันนี้แล้ว</b> 💪`
@@ -5416,10 +5463,10 @@ function render(){
       : `<div class="mini">วันนี้ยังไม่ได้เล่นเวท</div>`}`, d.wo.length>0)}
 
     ${subFold("mvWeek","📅 ภาพรวม 7 วันล่าสุด",
-      wk.map(a=>`<div class="ins"><div>${a[0]}</div><div>${a[1]}</div></div>`).join(""))}`;
+      wk.map(a=>`<div class="ins"><div>${a[0]}</div><div>${a[1]}</div></div>`).join(""))}`);
 
   /* ---------- การนอน ---------- */
-  el("secSleep").innerHTML = d.sl? `
+  setHTML(el("secSleep"), d.sl? `
     <div class="big"><b style="color:var(--sleep)">${d.hours}</b><span>ชม.${ev?" หลับจริง":""} · ${d.sl.bed} → ${d.sl.wake}</span></div>
     <div class="bar" style="height:10px;margin-top:9px"><i style="background:var(--sleep);width:${Math.min(100,d.hours/8*100)}%"></i></div>
     <div class="remain">${d.hours<7?`ขาดอีก <b style="color:var(--food)">${n1(7-d.hours)}</b> ชม. ถึงเกณฑ์ต่ำสุด (7 ชม.)`
@@ -5431,7 +5478,7 @@ function render(){
       ${subFold("slStages",`🌙 ระยะการนอนแต่ละช่วง <span class="pill ${ev.grades.filter(x=>x.st!=="ok").length?"warn":"ok"}">${ev.grades.filter(x=>x.st==="ok").length}/${ev.grades.length} อยู่ในเกณฑ์</span>`,
         stageBar(ev)+stageGrades(ev)+`<div class="mini" style="margin-top:9px">${ev.msg}</div>`)}`
       : `<div class="mini" style="margin-top:10px">ยังไม่ได้ใส่ระยะการนอน — ใส่ที่แท็บ 😴 นอน แล้วระบบจะให้คะแนนคุณภาพอัตโนมัติ</div>`}`
-    : `<div class="empty">ยังไม่ได้บันทึกการนอน</div>`;
+    : `<div class="empty">ยังไม่ได้บันทึกการนอน</div>`);
 
   /* ---------- ร่างกาย ---------- */
   const bArr=bodySorted(), wArr=bArr.filter(x=>x.w>0), lw=wArr[wArr.length-1];
@@ -5708,7 +5755,7 @@ function drawCharts(){
   /* ---- Zone 2 & 80/20 ---- */
   {const PP=polar(N);
    el("polTag").textContent = N+" วันล่าสุด";
-   el("secPolar").innerHTML = PP.tot? polarHTML(PP,true)
+   el("secPolar").innerHTML = PP.tot? polarHTML(PP,true,"-st")
      : `<div class="empty">ยังไม่มีคาร์ดิโอในช่วงนี้ — บันทึกที่แท็บ 🏃 ออกกำลังกาย แล้วใส่เวลาแยกโซนหัวใจ</div>`;}
 
   /* ---- ปฏิทิน ---- */
