@@ -1,17 +1,17 @@
 /* Service Worker — ทำให้แอปเปิดได้แม้ไม่มีเน็ต
    เวลาอัปเดตแอปใหม่ ให้เปลี่ยนเลข VERSION ข้างล่าง แล้ว push ขึ้น GitHub
    ผู้ใช้จะได้เวอร์ชันใหม่อัตโนมัติเมื่อเปิดแอปครั้งถัดไป */
-const VERSION = 'v27';
+const VERSION = 'v28';
 const CACHE = 'health-tracker-' + VERSION;
 
 const SHELL = [
   './',
   './index.html',
   './manifest.json',
-  './icon-192.png',
-  './icon-512.png',
-  './icon-maskable-512.png',
-  './apple-touch-icon.png'
+  './icon-192-v2.png',
+  './icon-512-v2.png',
+  './icon-maskable-512-v2.png',
+  './apple-touch-icon-v2.png'
 ];
 
 self.addEventListener('install', e => {

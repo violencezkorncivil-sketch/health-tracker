@@ -6,8 +6,8 @@
 <meta name="theme-color" content="#f5f7f5" id="metaTheme">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20512%20512%22%3E%3Crect%20width%3D%22512%22%20height%3D%22512%22%20rx%3D%22114%22%20fill%3D%22%230e1a18%22%2F%3E%3Cg%20transform%3D%22rotate%28-90%20256%20256%29%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-width%3D%2234%22%3E%3Ccircle%20cx%3D%22256%22%20cy%3D%22256%22%20r%3D%22176%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%22256%22%20cy%3D%22256%22%20r%3D%22128%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%22256%22%20cy%3D%22256%22%20r%3D%2280%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.08%22%2F%3E%3Ccircle%20cx%3D%22256%22%20cy%3D%22256%22%20r%3D%22176%22%20stroke%3D%22%2334d399%22%20stroke-dasharray%3D%22862%20244%22%20pathLength%3D%221106%22%2F%3E%3Ccircle%20cx%3D%22256%22%20cy%3D%22256%22%20r%3D%22128%22%20stroke%3D%22%23f59e0b%22%20stroke-dasharray%3D%22499%20305%22%20pathLength%3D%22804%22%2F%3E%3Ccircle%20cx%3D%22256%22%20cy%3D%22256%22%20r%3D%2280%22%20stroke%3D%22%23818cf8%22%20stroke-dasharray%3D%22226%20277%22%20pathLength%3D%22503%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon-v2.png">
+<link rel="apple-touch-icon" sizes="192x192" href="icon-192-v2.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="สุขภาพ">
@@ -247,6 +247,11 @@ details.fold.sub .subh{margin:9px 0 5px}
 .ntiles.one{grid-template-columns:1fr;margin-top:9px}
 .ntiles.one .nt{background:var(--card)}
 .ntiles.one .nt .bar{height:9px;margin-top:9px}
+.nudoc{padding:10px 0;border-bottom:1px solid var(--line);font-size:12.5px;line-height:1.65;color:var(--dim)}
+.nudoc:last-child{border:0}
+.nudoc b{font-size:13.5px}
+.nudoc>span{font-size:11.5px;margin-left:7px}
+.nudoc>div{margin-top:5px}
 .nt{background:var(--card2);border-radius:13px;padding:11px}
 .nt .h{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--dim);margin-bottom:5px}
 .nt .h em{font-style:normal;font-size:14px}
@@ -1526,7 +1531,7 @@ function loadLocal(){
 }
 
 const APP_NAME="สุขภาพ Tracker";
-const APP_VER="4.6";
+const APP_VER="4.7";
 const GS_CODE=`/*************************************************************
  *  สุขภาพ Tracker — Google Apps Script Backend
  *  วางโค้ดนี้ใน Extensions > Apps Script ของ Google Sheets
@@ -5168,14 +5173,15 @@ function nutSummary(d,u,g,ratio,gkg,unsat){
   const L=nutList(d,u,g,ratio,gkg,unsat);
   const chips=L.map(x=>`<span style="color:${x.c};border-color:${x.c}55">${x.ab} <b>${kShort(x.v)}</b>/${kShort(x.goal)}</span>`).join("");
   const bad=L.filter(x=>x.st==="bad").length, okN=L.filter(x=>x.st==="ok").length;
-  const rows=L.map(x=>`<details class="fold sub" data-fold="nut-${x.k}">
-      <summary>${x.ic} ${x.n}<span class="fn" style="color:${x.c}">${kShort(x.v)} / ${kShort(x.goal)} ${x.un} · ${x.msg}</span></summary>
-      <div class="foldc">
-        <div class="ntiles one">${ntile(x.ic,x.n,x.v,x.goal,x.un,x.color||x.c,x.low,x.extra,x.note)}${x.extraTile||""}</div>
-        <div class="mini" style="margin-top:9px">${x.tip}</div>
-      </div></details>`).join("");
+  /* กดครั้งเดียวเห็นกราฟครบทุกตัว — ไม่ต้องกดซ้ำทีละตัวอีก */
+  const tiles=L.map(x=>ntile(x.ic,x.n,x.v,x.goal,x.un,x.color||x.c,x.low,x.extra,x.note)+(x.extraTile||"")).join("");
+  const docs=L.map(x=>`<div class="nudoc"><b style="color:${x.c}">${x.ic} ${x.n}</b>
+      <span>${kShort(x.v)} / ${kShort(x.goal)} ${x.un} · ${x.msg}</span><div>${x.tip}</div></div>`).join("");
+  const body=`<div class="ntiles">${tiles}</div>
+    <details class="fold sub" data-fold="nutDoc"><summary>📖 เกณฑ์และคำแนะนำของแต่ละตัว</summary>
+      <div class="foldc">${docs}</div></details>`;
   return `<div class="offchips">${chips}</div>
-    ${subFold("nutTiles",`📊 สารอาหาร <span class="fn">เข้าเกณฑ์ ${okN}/${L.length}${bad?` · หลุด ${bad}`:""} — กดดูทีละตัว</span>`, rows)}`;
+    ${subFold("nutTiles",`📊 สารอาหาร <span class="fn">เข้าเกณฑ์ ${okN}/${L.length}${bad?` · หลุด ${bad}`:""}</span>`, body)}`;
 }
 /* หัวข้อย่อยแบบ "เห็นสรุปเสมอ กดแล้วค่อยคลี่รายละเอียด"
    หัวข้อ (head) มีป้ายสถานะอยู่แล้ว จึงยังอ่านรู้เรื่องแม้ตอนพับ */
