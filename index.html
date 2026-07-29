@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="app-ver" content="5.6">
+<meta name="app-ver" content="5.9">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#f5f7f5" id="metaTheme">
 <link rel="manifest" href="manifest.json">
@@ -101,6 +101,7 @@ input[type=date]{padding-left:10px;padding-right:10px}
 .item .m small{color:var(--dim);font-size:12.5px;display:block;margin-top:2px}
 .item .v{text-align:right;white-space:nowrap;font-weight:700;font-size:14px}
 .del{background:none;border:0;color:var(--bad);font-size:17px;cursor:pointer;padding:0 3px;line-height:1}
+.edt{background:none;border:0;color:var(--acc);font-size:15px;cursor:pointer;padding:0 3px;line-height:1}
 .empty{color:var(--dim);font-size:14px;text-align:center;padding:16px 0}
 nav{position:fixed;bottom:0;left:0;right:0;background:var(--navbg);border-top:1px solid var(--line);display:flex;z-index:30;padding-bottom:env(safe-area-inset-bottom)}
 nav button{flex:1;background:none;border:0;color:var(--dim);padding:9px 2px 10px;font-size:11.5px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
@@ -244,6 +245,21 @@ details.fold.sub .subh{margin:9px 0 5px}
    เพราะเวลาตัดบรรทัดบนมือถือ ตัวคั่นจะไปขึ้นต้นบรรทัดใหม่แล้วอ่านยาก */
 .nchs{display:flex;flex-wrap:wrap;gap:3px 10px;margin-top:3px}
 .nch{white-space:nowrap}
+/* รายงานสำหรับหมอ — ซ่อนบนจอ โชว์เฉพาะตอนพิมพ์ (ทั้งหน้าเหลือแต่รายงาน) */
+#printDoc{display:none}
+@media print{
+  header,main,nav,#updBar,#dayBar{display:none!important}
+  body{background:#fff;color:#000;padding:0}
+  #printDoc{display:block;font-size:13px;color:#000;padding:6mm}
+  #printDoc h1{font-size:19px;margin:0 0 2px}
+  #printDoc .sub{color:#555;font-size:11.5px;margin-bottom:12px}
+  #printDoc h2{font-size:14px;margin:14px 0 6px;border-bottom:1.5px solid #000;padding-bottom:3px}
+  #printDoc table{width:100%;border-collapse:collapse}
+  #printDoc td{padding:3.5px 6px;border-bottom:1px solid #ddd;vertical-align:top}
+  #printDoc td:nth-child(2){text-align:right;font-weight:700;white-space:nowrap}
+  #printDoc td:nth-child(3){text-align:right;color:#555;white-space:nowrap}
+  #printDoc .foot{margin-top:14px;font-size:10.5px;color:#666;line-height:1.6}
+}
 .offchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .offchips span{font-size:12px;padding:5px 11px;border-radius:20px;background:var(--card2);border:1px solid var(--line);line-height:1.45}
 .card>details.fold:first-child{margin-top:0}
@@ -413,12 +429,15 @@ details.fold.sub .subh{margin:9px 0 5px}
   <div id="backupWarn" class="warn" style="display:none"></div>
   <div id="updBar" class="warn" style="display:none"></div>
   <div id="dayBar" class="warn" style="display:none"></div>
-  <div id="noUrlWarn" class="warn" style="display:none">
-    💾 ข้อมูลเก็บใน<b>เครื่องนี้</b>ที่เดียว — ล้างข้อมูลเบราว์เซอร์หรือเปลี่ยนเครื่องแล้วจะหาย
-    <details class="fold" data-fold="bkupHow"><summary>วิธีสำรองข้อมูล</summary><div class="foldc">
-      <button class="btn" style="margin-top:4px" onclick="showOnboard()">📖 เชื่อม Google Sheets — มีคู่มือพาทำทีละขั้น</button>
-      <button class="btn ghost" style="margin-top:7px" onclick="el('expJson').click()">หรือกดสำรองเป็นไฟล์ไว้ก่อน</button>
-    </div></details>
+  <!-- เตือนเรื่องสำรองข้อมูล — เห็นทุกวัน จึงต้องเป็นบรรทัดพับ ไม่ใช่กล่องใหญ่กินครึ่งจอ -->
+  <div id="noUrlWarn" style="display:none">
+    <details class="fold" data-fold="bkupHow" style="margin:0 0 13px;border-color:var(--warn-bd);background:var(--warn-bg)">
+      <summary style="color:var(--warn-tx)">💾 ข้อมูลอยู่ในเครื่องนี้ที่เดียว <span class="fn">แตะเพื่อดูวิธีสำรอง</span></summary>
+      <div class="foldc" style="color:var(--warn-tx)">
+        ล้างข้อมูลเบราว์เซอร์หรือเปลี่ยนเครื่องแล้วข้อมูลจะหาย — กันไว้ได้ 2 ทาง
+        <button class="btn" style="margin-top:9px" onclick="showOnboard()">📖 เชื่อม Google Sheets — มีคู่มือพาทำทีละขั้น</button>
+        <button class="btn ghost" style="margin-top:7px" onclick="el('expJson').click()">หรือกดสำรองเป็นไฟล์ไว้ก่อน</button>
+      </div></details>
   </div>
 
   <div class="seg a" id="viewSeg">
@@ -481,6 +500,8 @@ details.fold.sub .subh{margin:9px 0 5px}
       <div class="chip" data-d="365">1 ปี</div>
       <div class="chip" data-d="all">ทั้งหมด</div>
     </div>
+    <button class="btn ghost" id="docBtn" style="margin-top:11px">🖨️ รายงานสรุปสำหรับหมอ (30 วันล่าสุด)</button>
+    <div class="mini">พิมพ์หรือเซฟเป็น PDF หน้าเดียว — เอาไปให้หมอ/นักโภชนาการดูได้เลย</div>
   </div>
 
   <!-- คะแนนรวม 3 วง -->
@@ -850,6 +871,7 @@ details.fold.sub .subh{margin:9px 0 5px}
       </div>
     </div>
 
+    <div id="fEditBar" class="warn" style="display:none;margin-top:12px"></div>
     <div id="fChosen" style="display:none">
       <div class="card" style="background:var(--card2);margin:13px 0 0">
         <b id="fName"></b><div class="mini" id="fUnit"></div>
@@ -1229,6 +1251,8 @@ details.fold.sub .subh{margin:9px 0 5px}
 </section>
 
 </main>
+<!-- รายงานสำหรับหมอ — มองไม่เห็นบนจอ โผล่เฉพาะตอนสั่งพิมพ์ -->
+<div id="printDoc"></div>
 
 <div id="lic" class="onb" style="display:none">
   <div class="onbx">
