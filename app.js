@@ -4836,14 +4836,20 @@ function render(){
    el("scoreArc").setAttribute("stroke-dasharray",v+" "+(c-v));
    el("scoreArc").style.stroke=A.score>=75?"var(--move)":A.score>=50?"var(--food)":"var(--bad)";}
   el("dScore").style.color=A.score>=75?"var(--move)":A.score>=50?"var(--food)":"var(--bad)";
+  /* ความยาวแถบ "อาหาร" ต้องเป็น "กินไปกี่ % ของเป้า" ไม่ใช่คะแนน
+     ไม่งั้นเวลากินเกินเป้า แถบจะหดลง ซึ่งอ่านแล้วสวนความรู้สึกทันที
+     เกินเป้าเมื่อไร แถบเต็มแล้วเปลี่ยนเป็นสีเตือน */
+  const foodPct = u.target? Math.min(100, Math.round(d.kIn/u.target*100)) : 0;
+  const foodCol = d.kIn>u.target ? "var(--bad)" : "var(--food)";
   el("dBars").innerHTML=[
-    ["🍽️","อาหาร",A.sFood,d.kIn>u.target?`เกิน ${(d.kIn-u.target).toLocaleString()} kcal`:`เหลือ ${(u.target-d.kIn).toLocaleString()} kcal`,"var(--food)"],
+    ["🍽️","อาหาร",A.sFood,d.kIn>u.target?`เกิน ${(d.kIn-u.target).toLocaleString()} kcal`:`เหลือ ${(u.target-d.kIn).toLocaleString()} kcal`,foodCol,foodPct],
     ["🏃","ออกกำลัง",A.sMove,d.load>=60?"ครบเป้าแล้ว ✓":`ขาด ${Math.max(0,Math.round(60-d.load))} โหลด`,"var(--move)"],
     /* เกณฑ์การนอนดูที่ "คะแนนคุณภาพ" ไม่ใช่จำนวนชั่วโมง — นอน 8 ชม. แต่ตื่น 5 ครั้งไม่ใช่การนอนที่ดี
        ชั่วโมงยังบอกไว้ข้าง ๆ เพราะเป็นตัวเลขที่คนคุ้นเคย */
     ["😴","นอน",A.sSleep,d.sl?`${A.sSleep}/100 · ${d.hours} ชม.${ev?"":" (ยังไม่ได้ใส่ระยะการนอน)"}`:"ยังไม่บันทึก","var(--sleep)"]
-  ].map(b=>`<div class="hb"><div class="l"><span>${b[0]} ${b[1]}</span><b style="color:${b[2]>=70?"var(--move)":b[2]>=40?"var(--food)":"var(--dim)"}">${b[3]}</b></div>
-    <div class="bar"><i style="background:${b[4]};width:${Math.min(100,b[2])}%"></i></div></div>`).join("");
+  ].map(b=>{ const w=Math.min(100,b[5]!==undefined?b[5]:b[2]);
+    return `<div class="hb"><div class="l"><span>${b[0]} ${b[1]}</span><b style="color:${b[2]>=70?"var(--move)":b[2]>=40?"var(--food)":"var(--dim)"}">${b[3]}</b></div>
+    <div class="bar"><i style="background:${b[4]};width:${w}%"></i></div></div>`}).join("");
   const miss=[!d.fd.length&&"อาหาร",!d.min&&"ออกกำลังกาย",!d.sl&&"การนอน"].filter(Boolean);
   el("dMsg").innerHTML = miss.length? `ยังไม่ได้บันทึก: <b>${miss.join(" · ")}</b>` : `บันทึกครบทั้ง 3 ด้านแล้ววันนี้ 🎉`;
 
@@ -5124,6 +5130,17 @@ function foodScore(kIn){
   const off=Math.abs(kIn-S.user.target)/S.user.target;   // ห่างจากเป้ากี่ %
   return Math.max(0,Math.round(100-Math.max(0,off-0.10)*150));  // ±10% ถือว่าเต็ม
 }
+/* คะแนนอาหารของ "วันที่ยังไม่จบ" — ห้ามตัดสินว่ากินน้อยไป เพราะยังกินต่อได้อีกทั้งวัน
+   เช้า 11 โมง กินไป 379 จากเป้า 2,671 สูตรข้างบนจะได้ 0 คะแนน แถบเลยนิ่งสนิท
+   ทั้งที่ความจริงคือ "เพิ่งเริ่มวัน" ไม่ใช่ "วันนี้พัง"
+   วันนี้จึงวัดเป็น "เดินไปถึงไหนแล้ว" (กินไป ÷ เป้า) แถบจะขยับทุกครั้งที่บันทึก
+   ส่วนกินเกินเป้ายังหักคะแนนเหมือนเดิม เพราะกินไปแล้วเอาคืนไม่ได้ ต่างจากกินยังไม่ครบ
+   พอถึงวันรุ่งขึ้น วันนั้นก็กลับไปใช้เกณฑ์ "เข้าใกล้เป้าแค่ไหน" ตามปกติ */
+function foodScoreDay(kIn,dateKey){
+  const t=S.user.target||1;
+  if(dateKey!==today() || kIn>t*1.10) return foodScore(kIn);
+  return Math.max(0,Math.min(100,Math.round(kIn/t*100)));
+}
 function agg(days){
   const n=days.length,u=S.user;
   const fdDays=days.filter(d=>d.kIn>0), slDays=days.filter(d=>d.hours>0), exDays=days.filter(d=>d.min>0);
@@ -5152,7 +5169,7 @@ function agg(days){
   // คะแนน 3 ด้าน
   o.load = days.reduce((a,d)=>a+d.load,0);
   o.sMove = Math.min(100, Math.round(o.load/(n*60)*100));   // เป้าโหลด 60/วัน
-  o.sFood = fdDays.length ? Math.round(fdDays.reduce((a,d)=>a+foodScore(d.kIn),0)/fdDays.length) : 0;
+  o.sFood = fdDays.length ? Math.round(fdDays.reduce((a,d)=>a+foodScoreDay(d.kIn,d.key),0)/fdDays.length) : 0;
   /* คะแนนนอน: ถ้ากรอกระยะการนอนไว้ ใช้คะแนนคุณภาพเต็มรูปแบบ (ระยะหลับ + ประสิทธิภาพ + จำนวนครั้งที่ตื่น)
      ถ้ามีแค่เวลาเข้า–ออกนอน ก็ยังให้คะแนนจากจำนวนชั่วโมงเหมือนเดิม จะได้ไม่ลงโทษคนที่ไม่มีนาฬิกาวัด */
   o.sSleep = slDays.length ? Math.round(slDays.reduce((a,d)=>{
