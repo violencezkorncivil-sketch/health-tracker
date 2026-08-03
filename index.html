@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="app-ver" content="6.0">
+<meta name="app-ver" content="6.1">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#f5f7f5" id="metaTheme">
 <link rel="manifest" href="manifest.json">
@@ -429,6 +429,7 @@ details.fold.sub .subh{margin:9px 0 5px}
   <div id="backupWarn" class="warn" style="display:none"></div>
   <div id="updBar" class="warn" style="display:none"></div>
   <div id="dayBar" class="warn" style="display:none"></div>
+  <div id="instBar" style="display:none"></div>
   <!-- เตือนเรื่องสำรองข้อมูล — เห็นทุกวัน จึงต้องเป็นบรรทัดพับ ไม่ใช่กล่องใหญ่กินครึ่งจอ -->
   <div id="noUrlWarn" style="display:none">
     <details class="fold" data-fold="bkupHow" style="margin:0 0 13px;border-color:var(--warn-bd);background:var(--warn-bg)">
@@ -1188,6 +1189,11 @@ details.fold.sub .subh{margin:9px 0 5px}
       2. <b>ปฏิทินมือถือ (.ics)</b> — เตือนได้แน่นอนทุกวันแม้ไม่ได้เปิดแอป เพราะเป็นการเตือนของเครื่องเอง <b>แนะนำที่สุด</b><br>
       3. <b>อีเมล</b> — ถ้าเชื่อม Google Sheets ไว้ ตั้ง trigger ใน Apps Script ให้ส่งสรุปเข้าเมลได้ (ดูในคู่มือ)
     </div>
+  </div>
+
+  <div class="card" id="instCard">
+    <h2>📲 เพิ่มแอปลงหน้าจอโฮม</h2>
+    <div id="instBox"></div>
   </div>
 
   <div class="card">

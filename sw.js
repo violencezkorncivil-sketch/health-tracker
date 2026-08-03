@@ -1,7 +1,7 @@
 /* Service Worker — ทำให้แอปเปิดได้แม้ไม่มีเน็ต
    เวลาอัปเดตแอปใหม่ ให้เปลี่ยนเลข VERSION ข้างล่าง แล้ว push ขึ้น GitHub
    ผู้ใช้จะได้เวอร์ชันใหม่อัตโนมัติเมื่อเปิดแอปครั้งถัดไป */
-const VERSION = 'v41';
+const VERSION = 'v42';
 const CACHE = 'health-tracker-' + VERSION;
 
 const SHELL = [

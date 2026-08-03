@@ -351,7 +351,7 @@ function loadLocal(){
 }
 
 const APP_NAME="สุขภาพ Tracker";
-const APP_VER="6.0";
+const APP_VER="6.1";
 const GS_CODE=`/*************************************************************
  *  สุขภาพ Tracker — Google Apps Script Backend
  *  วางโค้ดนี้ใน Extensions > Apps Script ของ Google Sheets
@@ -5534,6 +5534,86 @@ addEventListener("pageshow",()=>window.scrollTo(0,0));
 window.scrollTo(0,0);
 setTimeout(()=>{ try{ foldify(); syncInfo(); }catch(e){} },0);
 dayWatch();
+/* ================= เพิ่มแอปลงหน้าจอโฮม =================
+   ทำไมถึงสำคัญกับแอปนี้เป็นพิเศษ ไม่ใช่แค่ "ความสวย"
+   1. Safari บน iPhone ล้างข้อมูลเว็บที่ไม่ได้เข้าเกิน 7 วันทิ้ง — แอปที่อยู่บนหน้าจอโฮมไม่โดนกฎนี้
+   2. เปิดเต็มจอ ไม่มีแถบที่อยู่เว็บ และเปิดเร็วกว่าเพราะเบราว์เซอร์เก็บไฟล์ไว้ให้แล้ว
+   3. ใช้ได้แม้เน็ตหลุด
+   iPhone ไม่มีคำสั่งให้เว็บสั่งติดตั้งเองได้ ต้องบอกวิธีเป็นขั้น ๆ
+   ส่วน Android/Chrome มี beforeinstallprompt ให้กดติดตั้งได้จริงในปุ่มเดียว จึงแยกทางกัน */
+let _instEvt=null;
+function isStandalone(){
+  return window.matchMedia && window.matchMedia("(display-mode: standalone)").matches
+      || navigator.standalone===true;
+}
+function instPlat(){
+  const ua=navigator.userAgent||"";
+  if(/iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua)&&navigator.maxTouchPoints>1)) return "ios";
+  if(/Android/.test(ua)) return "android";
+  return "desktop";
+}
+function instSteps(){
+  const p=instPlat();
+  if(p==="ios") return `<b>บน iPhone / iPad (ต้องเปิดด้วย Safari)</b>
+    <ol style="margin:7px 0 0;padding-left:20px;line-height:1.9">
+      <li>แตะปุ่ม <b>แชร์</b> <span style="font-size:15px">⬆️</span> ตรงแถบล่าง (หรือมุมขวาบน)</li>
+      <li>เลื่อนลงหา <b>เพิ่มไปยังหน้าจอโฮม</b> (Add to Home Screen)</li>
+      <li>แตะ <b>เพิ่ม</b> มุมขวาบน</li>
+    </ol>
+    <div class="mini" style="margin-top:8px">ถ้าเปิดอยู่ใน Chrome หรือในแอป LINE/Facebook จะไม่มีเมนูนี้
+      — แตะ <b>…</b> แล้วเลือก <b>เปิดใน Safari</b> ก่อน</div>`;
+  if(p==="android") return `<b>บน Android (Chrome)</b>
+    <ol style="margin:7px 0 0;padding-left:20px;line-height:1.9">
+      <li>แตะ <b>⋮</b> มุมขวาบน</li>
+      <li>เลือก <b>ติดตั้งแอป</b> หรือ <b>เพิ่มลงในหน้าจอหลัก</b></li>
+      <li>แตะ <b>ติดตั้ง</b></li>
+    </ol>`;
+  return `<b>บนคอมพิวเตอร์</b>
+    <ol style="margin:7px 0 0;padding-left:20px;line-height:1.9">
+      <li>ดูที่ปลายช่องที่อยู่เว็บ จะมีไอคอน <b>⊕ ติดตั้ง</b></li>
+      <li>กดแล้วเลือก <b>ติดตั้ง</b></li>
+    </ol>
+    <div class="mini" style="margin-top:8px">ถ้าจะใช้บนมือถือ เปิดลิงก์นี้ในมือถือแล้วทำตามขั้นตอนของเครื่องนั้น</div>`;
+}
+function instWhy(){
+  return `<div class="mini" style="margin-top:9px;line-height:1.75">ทำไมควรทำ —
+    Safari จะ<b>ลบข้อมูลเว็บที่ไม่ได้เปิดเกิน 7 วันทิ้ง</b> แต่แอปที่อยู่บนหน้าจอโฮมไม่โดนกฎนี้
+    · เปิดเต็มจอ ไม่มีแถบที่อยู่เว็บ · เปิดเร็วขึ้น · ใช้ได้แม้เน็ตหลุด</div>`;
+}
+function instHTML(short){
+  if(isStandalone())
+    return `<div class="hint" data-nofold="1"><span style="color:var(--move)">✅ เพิ่มลงหน้าจอโฮมแล้ว</span>
+      — ข้อมูลปลอดภัยจากการที่เบราว์เซอร์ล้างเว็บที่ไม่ได้เข้านาน ๆ</div>`;
+  const btn = _instEvt ? `<button class="btn" style="margin-top:10px" onclick="instNow()">📲 ติดตั้งเดี๋ยวนี้</button>` : "";
+  return `<div class="hint" data-nofold="1">${instSteps()}</div>${btn}${short?"":instWhy()}`;
+}
+async function instNow(){
+  if(!_instEvt) return;
+  const e=_instEvt; _instEvt=null;
+  e.prompt(); try{ await e.userChoice; }catch(err){}
+  instRefresh();
+}
+function instRefresh(){
+  const box=el("instBox"); if(box) box.innerHTML=instHTML(false);
+  const onb=el("onbInst"); if(onb) onb.innerHTML=instHTML(false);
+  /* แถบชวนบนหน้าสรุป — ขึ้นเฉพาะคนที่ยังไม่ได้เพิ่ม และปิดแล้วไม่กวนอีก
+     ไม่ขึ้นในการเปิดครั้งแรก เพราะตอนนั้นเขากำลังตั้งค่าอย่างอื่นอยู่ */
+  const bar=el("instBar"); if(!bar) return;
+  const opens=+LS.get("opens")||0;
+  if(isStandalone() || LS.get("instHide") || opens<2){ bar.style.display="none"; return; }
+  bar.style.display="block";
+  bar.innerHTML=`<details class="fold" data-fold="instHow" style="margin:0 0 13px;border-color:var(--info-bd);background:var(--info-bg)">
+    <summary style="color:var(--info-tx)">📲 เพิ่มแอปลงหน้าจอโฮม <span class="fn">แตะเพื่อดูวิธี</span></summary>
+    <div class="foldc" style="color:var(--info-tx)">${instHTML(true)}
+      <button class="btn ghost" style="margin-top:9px" onclick="LS.set('instHide','1');instRefresh()">ไม่ต้องแสดงอีก</button>
+    </div></details>`;
+  foldBind(bar.querySelector("details"));
+}
+window.addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); _instEvt=e; instRefresh(); });
+window.addEventListener("appinstalled",()=>{ _instEvt=null; instRefresh(); });
+LS.set("opens", String((+LS.get("opens")||0)+1));
+instRefresh();
+
 (async()=>{ try{
   if(navigator.storage&&navigator.storage.persist){
     let ok=await navigator.storage.persisted();
@@ -5542,7 +5622,9 @@ dayWatch();
     const used=est?Math.round(est.usage/1024):0;
     const b=el("persistInfo");
     if(b) b.innerHTML = (ok?'<span style="color:var(--move)">🔒 ขอสิทธิ์เก็บข้อมูลถาวรสำเร็จ</span> — เบราว์เซอร์จะไม่ลบข้อมูลนี้ทิ้งเอง'
-      :'<span style="color:var(--food)">⚠️ ยังไม่ได้สิทธิ์เก็บถาวร</span> — ถ้าไม่เปิดแอปนานๆ บางเบราว์เซอร์ (โดยเฉพาะ Safari ที่ล้างข้อมูลเว็บที่ไม่ได้เข้า 7 วัน) อาจลบข้อมูลทิ้ง แนะนำให้เพิ่มลงหน้าจอโฮมและสำรองไฟล์ไว้')
+      :'<span style="color:var(--food)">⚠️ ยังไม่ได้สิทธิ์เก็บถาวร</span> — ถ้าไม่เปิดแอปนานๆ บางเบราว์เซอร์ (โดยเฉพาะ Safari ที่ล้างข้อมูลเว็บที่ไม่ได้เข้า 7 วัน) อาจลบข้อมูลทิ้ง'
+        + (isStandalone()? ' แต่ตอนนี้เพิ่มลงหน้าจอโฮมแล้ว จึงไม่โดนกฎนี้ ✅'
+                         : ' <b>วิธีกัน: เพิ่มแอปลงหน้าจอโฮม</b> (ขั้นตอนอยู่ในกล่อง 📲 ด้านบน) แล้วสำรองไฟล์ไว้ด้วย'))
       + ` · ใช้พื้นที่ ${used.toLocaleString()} KB`;
   }
 }catch(e){} })();
@@ -5649,6 +5731,9 @@ function showOnboard(){
       การเชื่อม Google Sheets ด้านล่างเป็น<b>ตัวเลือกเสริม</b> สำหรับคนที่อยากให้ข้อมูลอยู่หลายเครื่อง ไม่หายถ้าล้างเบราว์เซอร์ และมีระบบสำรองอัตโนมัติทุกคืน — ทำทีหลังก็ได้ที่แท็บตั้งค่า</div>
       <button class="btn" onclick="LS.set('skipSetup','1');el('onb').style.display='none'">▶️ เริ่มใช้เลย (เก็บในเครื่อง)</button></div>
 
+    <div class="step"><h3><i>📲</i> เพิ่มลงหน้าจอโฮมก่อน (สำคัญ)</h3>
+      <div id="onbInst"></div></div>
+
 
 
     <div class="hint" style="text-align:center;margin:20px 0 12px;font-size:15px">
@@ -5722,6 +5807,7 @@ function showOnboard(){
     <button class="btn ghost" onclick="LS.set('skipSetup','1');el('onb').style.display='none'">ข้ามไปก่อน — ใช้แบบเก็บในเครื่อง</button>
     <div class="hint" style="text-align:center;margin-top:9px">กลับมาเปิดหน้านี้ได้ทุกเมื่อที่ <b>⚙️ ตั้งค่า → 🔗 เชื่อม Google Sheets</b></div>
     <div class="hint" style="text-align:center;padding:0 10px;margin-top:10px">เวอร์ชัน ${APP_VER}</div>`;
+  instRefresh();   /* เพิ่งเขียนทับ innerHTML ทั้งก้อน ช่อง "เพิ่มลงหน้าจอโฮม" จึงต้องเติมใหม่ */
 }
 function copyCode(btn){
   navigator.clipboard.writeText(GS_CODE).then(()=>{btn.textContent="✅ คัดลอกแล้ว — ไปวางใน Apps Script";})
