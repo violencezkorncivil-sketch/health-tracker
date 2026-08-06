@@ -351,7 +351,7 @@ function loadLocal(){
 }
 
 const APP_NAME="สุขภาพ Tracker";
-const APP_VER="6.2";
+const APP_VER="6.3";
 const GS_CODE=`/*************************************************************
  *  สุขภาพ Tracker — Google Apps Script Backend
  *  วางโค้ดนี้ใน Extensions > Apps Script ของ Google Sheets
@@ -2405,23 +2405,62 @@ function woChange(){
   const last=lastSession(woName());
   if(last) S.sets=last.sets.map(x=>[x[0],x[1]]);
   else S.sets=[[0,10],[0,10],[0,10]];
-  drawSets(); showLast();
+  drawSets(); sideDraw(); showLast();
 }
 function woName(){
   if(S.exName==="พิมพ์ชื่อท่าเอง"){const c=el("woCustom");return (c&&c.value.trim())||"ท่าอื่นๆ";}
   return S.exName||"";
 }
 function drawSets(){
+  /* ท่าดัมเบลเขียนหน่วยกำกับไว้ในแถวเลย จะได้ไม่ต้องเลื่อนไปอ่านคำอธิบาย */
+  const kgU = isDbEx(woName()) ? "กก./ลูก ×" : "กก. ×";
   el("setRows").innerHTML=S.sets.map((s0,i)=>`<div class="setrow">
     <div class="no">${i+1}</div>
     <input type="number" inputmode="decimal" step="any" value="${s0[0]||""}" placeholder="นน." data-i="${i}" data-f="0">
-    <div class="u">กก. ×</div>
+    <div class="u">${kgU}</div>
     <input type="number" step="any" inputmode="decimal" value="${s0[1]||""}" placeholder="ครั้ง" data-i="${i}" data-f="1">
     <div class="u">ครั้ง</div>
     <button onclick="rmSet(${i})">✕</button></div>`).join("");
   el("setRows").querySelectorAll("input").forEach(inp=>inp.oninput=e=>{
     S.sets[+e.target.dataset.i][+e.target.dataset.f]=+e.target.value||0; calcWo();});
   calcWo();
+}
+/* แถบเลือกวิธีนับครั้ง — โผล่เฉพาะท่าดัมเบล ท่าบาร์เบล/แมชชีนไม่มีปัญหานี้ */
+function sideDraw(){
+  const box=el("sideBox"), note=el("setNote"); if(!box) return;
+  const n=woName();
+  if(!n || !isDbEx(n)){ box.innerHTML=""; if(note) note.textContent=""; calcWo(); return; }
+  const side=curSide(n);
+  box.innerHTML=`<label style="margin-top:13px">จำนวนครั้งที่กรอก นับยังไง</label>
+    <div class="seg a" id="sideSeg" style="margin:0">
+      <button class="${side===2?"on":""}" data-s="2">นับต่อข้าง</button>
+      <button class="${side===1?"on":""}" data-s="1">นับรวม 2 ข้าง</button>
+    </div>
+    <div class="mini" data-nofold="1" style="margin-top:6px">${side===2
+      ? "เช่น ยกดัมเบลสองลูกพร้อมกัน 10 ครั้ง หรือสลับข้างละ 10 ครั้ง → ปริมาณคูณสองให้"
+      : "เช่น ยกสลับซ้าย-ขวารวมกัน 10 ครั้ง (ข้างละ 5) → ไม่คูณสอง"}</div>`;
+  el("sideSeg").onclick=e=>{
+    const b=e.target.closest("button"); if(!b) return;
+    const v=+b.dataset.s;
+    if(v===curSide(n)) return;
+    sideSet(n,v); sideDraw(); askFixOld(n,v);
+  };
+  if(note) note.innerHTML=`💡 ใส่น้ำหนัก <b>ต่อดัมเบล 1 ลูก</b> — ตัวเลขที่เขียนอยู่บนลูกดัมเบล ไม่ต้องบวกสองข้าง`;
+  calcWo();
+}
+/* เปลี่ยนวิธีนับแล้ว บันทึกเก่าของท่านี้จะคนละมาตรฐานกัน กราฟจะกระโดดโดยไม่มีเหตุผล
+   จึงถามให้ผู้ใช้ตัดสินใจเอง ไม่แก้ข้อมูลเก่าเงียบ ๆ */
+async function askFixOld(name,side){
+  const old=arr(S.wo).filter(w=>w.ex===name && sideOf(w)!==side);
+  if(!old.length) return;
+  if(!confirm(`มีบันทึกเก่าของ "${name}" อยู่ ${old.length} ครั้ง ที่ใช้วิธีนับแบบเดิม\n`
+    +`ถ้าไม่แก้ กราฟปริมาณจะกระโดดตรงจุดที่เปลี่ยน\n\nแก้บันทึกเก่าให้เป็นแบบใหม่ด้วยไหม?`)) return;
+  for(const w of old){
+    w.vol=Math.round(volOf(w.sets,side));
+    await api({action:"add",sheet:"Workout",row:{...w,sets:JSON.stringify(w.sets)}});
+  }
+  saveNow(); renderWo(); render(); drawProg();
+  alert(`ปรับบันทึกเก่า ${old.length} ครั้งเรียบร้อย ✅`);
 }
 function rmSet(i){ if(S.sets.length<=1)return; S.sets.splice(i,1); drawSets(); }
 el("setAdd").onclick=()=>{const l=S.sets[S.sets.length-1]||[0,10];S.sets.push([l[0],l[1]]);drawSets();};
@@ -2435,11 +2474,47 @@ function lastSession(name,beforeDate){
   arr.sort((a,b)=> a.date===b.date ? a.ts-b.ts : (a.date<b.date?-1:1));
   return arr.length?arr[arr.length-1]:null;
 }
-function volOf(sets){return sets.reduce((a,s0)=>a+(+s0[0]||0)*(+s0[1]||0),0);}
+/* ================= ดัมเบล: น้ำหนักข้างละ และนับครั้งยังไง =================
+   ปัญหาจริงที่ผู้ใช้ถาม: ท่าดัมเบลกรอกน้ำหนัก "ข้างละ" หรือ "รวมสองข้าง"
+   แอปเดิมไม่ได้บอกไว้เลย ทั้งที่ตอบต่างกันแล้วปริมาณรวมต่างกันเท่าตัว
+
+   กติกาที่ใช้ (เขียนไว้บนหน้าจอด้วย ไม่ให้ต้องเดา)
+   1. น้ำหนัก = "ต่อดัมเบล 1 ลูก" เสมอ คือตัวเลขที่เขียนอยู่บนลูกดัมเบล
+      เพราะเป็นเลขที่คนพูดกันจริง ("เคิร์ล 7.5") และทำให้ 1RM/สถิติเทียบกันได้ข้ามครั้ง
+   2. ส่วน "จำนวนครั้ง" ต่างหากที่กำกวม — บางคนนับต่อข้าง บางคนนับรวมสลับสองข้าง
+      จึงให้เลือกเอง แล้วปริมาณรวมคูณให้ถูก:
+         นับต่อข้าง   → ปริมาณ = น้ำหนัก × ครั้ง × 2   (สองแขนทำงานเท่ากัน)
+         นับรวม 2 ข้าง → ปริมาณ = น้ำหนัก × ครั้ง
+      ครอบคลุมทั้งท่าที่ยกพร้อมกัน (เพรส/ฟลาย/ลาเทอรัลเรส) และท่าที่ยกสลับ/ทีละข้าง
+   3. 1RM ยังเป็น "ต่อดัมเบล 1 ลูก" ตามธรรมเนียมสากล ไม่คูณสอง
+
+   บันทึกเก่าที่ยังไม่มีการเลือก ถือว่าเป็น "รวม 2 ข้าง" (= ตัวเลขเดิมที่เคยเก็บไว้)
+   ตัวเลขย้อนหลังจึงไม่ขยับเองโดยไม่บอก — ถ้าจะแก้ ผู้ใช้กดสั่งเองได้ */
+const SIDEK="woSide";
+function sideMap(){ try{ return JSON.parse(LS.get(SIDEK)||"{}")||{}; }catch(e){ return {}; } }
+function sideSet(name,v){ const m=sideMap(); m[name]=v; LS.set(SIDEK,JSON.stringify(m)); }
+function isDbEx(name){ return exInfo(name).eq==="db"; }
+/* ค่าเริ่มต้นของท่าดัมเบล = นับต่อข้าง เพราะคนส่วนใหญ่พูดว่า "10 ครั้ง" หมายถึงแขนละ 10 */
+function curSide(name){
+  if(!isDbEx(name)) return 1;
+  const m=sideMap();
+  return m[name]===1||m[name]===2 ? m[name] : 2;
+}
+/* บันทึกเก่าไม่มีธง แต่อ่านย้อนได้จากตัวเลขปริมาณที่เก็บไว้ว่าคูณสองไปแล้วหรือยัง
+   (ไม่ต้องเพิ่มคอลัมน์ในชีต — ชีตยังเหมือนเดิมทุกช่อง) */
+function sideOf(w){
+  const base=arr(w&&w.sets).reduce((a,s0)=>a+(+s0[0]||0)*(+s0[1]||0),0);
+  if(!base) return 1;
+  return Math.abs(+w.vol-base*2) < Math.abs(+w.vol-base) ? 2 : 1;
+}
+function volOf(sets,side){return sets.reduce((a,s0)=>a+(+s0[0]||0)*(+s0[1]||0),0)*(side===2?2:1);}
 function e1rmOf(sets){return Math.round(sets.reduce((a,s0)=>{
   const w=+s0[0]||0,r=+s0[1]||0; return Math.max(a, r?w*(1+r/30):0);},0));}
 function calcWo(){
-  const v=volOf(S.sets), e=e1rmOf(S.sets);
+  const side=curSide(woName());
+  const v=volOf(S.sets,side), e=e1rmOf(S.sets);
+  const u=el("woVolU"); if(u) u.textContent = side===2? "กก.·ครั้ง (นับ 2 ข้าง)" : "กก.·ครั้ง";
+  const u2=el("wo1rmU"); if(u2) u2.textContent = isDbEx(woName())? "กก. ต่อลูก" : "กก.";
   el("woVol").textContent=Math.round(v); el("wo1rm").textContent=e;
   const last=lastSession(woName());
   if(last){
@@ -2452,7 +2527,7 @@ function showLast(){
   if(!last){box.style.display="none";return;}
   box.style.display="block";
   box.innerHTML=`📖 ครั้งล่าสุด <b>${thShort(last.date)}</b><br>${last.sets.map(x=>x[0]+"กก.×"+x[1]).join(" · ")}
-    <br>ปริมาณ ${Math.round(last.vol)} · 1RM ~${last.e1rm} กก.`;
+    <br>ปริมาณ ${Math.round(last.vol)}${sideOf(last)===2?" (นับต่อข้าง × 2)":""} · 1RM ~${last.e1rm} กก.`;
 }
 el("woAdd").onclick=async()=>{
   const sets=S.sets.filter(x=>(+x[1]||0)>0);
@@ -2460,7 +2535,7 @@ el("woAdd").onclick=async()=>{
   const name=woName(); if(!name)return alert("เลือกท่าก่อนนะ");
   const min=sets.length*3;
   const r={ts:newTs(),date:S.date,group:S.grp,ex:name,sets:sets.map(x=>[+x[0]||0,+x[1]||0]),
-    vol:Math.round(volOf(sets)),top:Math.max(...sets.map(x=>+x[0]||0)),e1rm:e1rmOf(sets),
+    vol:Math.round(volOf(sets,curSide(name))),top:Math.max(...sets.map(x=>+x[0]||0)),e1rm:e1rmOf(sets),
     min:min,kcal:Math.round(5*S.user.w*(min/60)),note:el("woNote").value};
   S.wo.push(r); el("woNote").value="";
   renderWo(); render(); drawProg();
@@ -2479,8 +2554,8 @@ function renderWo(){ saveLocal();
       arr.map(w=>`<div class="wo"><div class="h"><span class="exi">${icon(exInfo(w.ex).pat,"#4ade80")}</span><span>${esc(w.ex)}</span>
         ${isPR(w)?'<span class="badge">🏆 สถิติใหม่</span>':""}
         <button class="del" onclick="del('wo',${w.ts})">✕</button></div>
-        <div class="st">${w.sets.map((x,i)=>`<b>${x[0]||"–"} กก. × ${x[1]}</b>`).join("")}</div>
-        <div class="ft">ปริมาณ ${Math.round(w.vol).toLocaleString()} กก.·ครั้ง · 1RM ~${w.e1rm} กก.${w.note?" · "+esc(w.note):""}</div></div>`).join("")
+        <div class="st">${w.sets.map((x,i)=>`<b>${x[0]||"–"} กก.${isDbEx(w.ex)?"/ลูก":""} × ${x[1]}</b>`).join("")}</div>
+        <div class="ft">ปริมาณ ${Math.round(w.vol).toLocaleString()} กก.·ครั้ง${sideOf(w)===2?" (นับต่อข้าง × 2)":""} · 1RM ~${w.e1rm} กก.${isDbEx(w.ex)?"/ลูก":""}${w.note?" · "+esc(w.note):""}</div></div>`).join("")
     ).join("")
     :`<div class="empty">ยังไม่ได้บันทึกเวทวันนี้</div>`;
 

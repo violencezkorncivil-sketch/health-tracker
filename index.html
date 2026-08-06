@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="app-ver" content="6.2">
+<meta name="app-ver" content="6.3">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#f5f7f5" id="metaTheme">
 <link rel="manifest" href="manifest.json">
@@ -618,8 +618,10 @@ details.fold.sub .subh{margin:9px 0 5px}
       <div id="eqTag" class="mini"></div>
       <div id="lastTime" class="lastbox" style="display:none"></div>
 
+      <div id="sideBox"></div>
       <label>เซ็ต — ใส่น้ำหนักและจำนวนครั้ง</label>
       <div class="sets" id="setRows"></div>
+      <div class="mini" id="setNote" style="margin-top:6px"></div>
       <div class="row" style="margin-top:9px">
         <button class="btn ghost" id="setAdd" style="margin:0">+ เพิ่มเซ็ต</button>
         <button class="btn ghost" id="setCopy" style="margin:0">↺ ดึงครั้งก่อน</button>
@@ -627,8 +629,8 @@ details.fold.sub .subh{margin:9px 0 5px}
 
       <div class="card" style="background:var(--card2);margin:14px 0 0">
         <div class="stat">
-          <div class="s"><span>ปริมาณรวม (Volume)</span><b style="color:var(--move)" id="woVol">0</b><span>กก.·ครั้ง</span></div>
-          <div class="s"><span>1RM ประมาณ</span><b style="color:var(--acc)" id="wo1rm">0</b><span>กก.</span></div>
+          <div class="s"><span>ปริมาณรวม (Volume)</span><b style="color:var(--move)" id="woVol">0</b><span id="woVolU">กก.·ครั้ง</span></div>
+          <div class="s"><span>1RM ประมาณ</span><b style="color:var(--acc)" id="wo1rm">0</b><span id="wo1rmU">กก.</span></div>
         </div>
         <div class="mini" id="woCmp" style="text-align:center;margin-top:9px"></div>
       </div>
